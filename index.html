@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Missão Dev</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* layout: full-screen single-column "arcade console" — one screen visible at a time, header bar + stage + footer action */
+  :root{
+    color-scheme: dark;
+    --bg: #0a0e16;
+    --surface: #141b28;
+    --surface-2: #1c2536;
+    --fg: #e9eef7;
+    --muted: #7f8ba3;
+    --accent: #33e2a0;
+    --accent-dim: #1d8f66;
+    --warn: #ffb15e;
+    --bad: #ff6b6b;
+    --font-display: 'JetBrains Mono', ui-monospace, 'Courier New', monospace;
+    --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{
+    background:
+      radial-gradient(circle at 15% 0%, rgba(51,226,160,0.08), transparent 45%),
+      radial-gradient(circle at 85% 100%, rgba(255,177,94,0.06), transparent 45%),
+      var(--bg);
+    color:var(--fg);
+    font-family:var(--font-body);
+    min-height:100%;
+    display:flex;
+    flex-direction:column;
+  }
+  h1,h2,h3,.mono{font-family:var(--font-display);}
+  h1,h2{text-wrap:balance; margin:0;}
+  .wrap{
+    max-width:480px;
+    width:100%;
+    margin:0 auto;
+    padding-inline:20px;
+    padding-block:16px;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-height:100%;
+  }
+  [hidden]{display:none!important;}
+
+  /* top bar */
+  #topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; margin-bottom:18px;
+  }
+  #dots{display:flex; gap:6px;}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--surface-2); border:1px solid rgba(255,255,255,0.08); transition:background .2s;}
+  .dot.done{background:var(--accent);}
+  .dot.active{background:var(--warn);}
+  #score{
+    font-family:var(--font-display); font-weight:700; font-size:.85rem;
+    color:var(--accent); background:var(--surface); border:1px solid rgba(51,226,160,0.25);
+    padding:6px 10px; border-radius:8px; letter-spacing:.02em;
+  }
+
+  .screen{flex:1; display:flex; flex-direction:column;}
+  .eyebrow{
+    font-family:var(--font-display); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--muted); margin-bottom:8px;
+  }
+  .title{font-size:1.5rem; font-weight:800; line-height:1.25; margin-bottom:10px;}
+  .lede{color:var(--muted); font-size:.98rem; line-height:1.55; margin-bottom:20px;}
+
+  .card{
+    background:var(--surface);
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:16px;
+    padding:18px;
+  }
+
+  button{
+    font-family:var(--font-body); font-weight:600; font-size:1rem;
+    cursor:pointer; border:none; border-radius:12px;
+    -webkit-user-select:none; user-select:none;
+  }
+  .btn-primary{
+    background:var(--accent); color:#06231a;
+    padding:14px 22px; width:100%;
+    box-shadow:0 8px 24px -8px rgba(51,226,160,0.5);
+  }
+  .btn-primary:active{transform:scale(0.98);}
+  .btn-primary:disabled{opacity:.35; box-shadow:none;}
+  .btn-ghost{
+    background:transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.12);
+    padding:10px 16px;
+  }
+
+  #start-stage{flex:1; display:flex; flex-direction:column; justify-content:center; text-align:center; gap:18px;}
+  .badge-emoji{font-size:3.2rem; line-height:1;}
+  .pill-row{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:4px;}
+  .pill{
+    font-family:var(--font-display); font-size:.68rem; letter-spacing:.04em;
+    color:var(--muted); background:var(--surface); border:1px solid rgba(255,255,255,0.08);
+    padding:5px 10px; border-radius:999px;
+  }
+
+  /* game 1: sequence builder */
+  #seq-slots{display:flex; flex-direction:column; gap:8px; margin-bottom:16px; min-height:180px;}
+  .slot{
+    border:1.5px dashed rgba(255,255,255,0.14); border-radius:10px;
+    padding:11px 12px; font-size:.88rem; color:var(--muted);
+    display:flex; align-items:center; gap:8px; min-height:44px;
+  }
+  .slot.filled{border-style:solid; border-color:rgba(51,226,160,0.3); background:var(--surface); color:var(--fg);}
+  .slot-num{font-family:var(--font-display); color:var(--accent); font-weight:700; font-size:.8rem;}
+  #seq-pool{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px;}
+  .chip{
+    background:var(--surface-2); border:1px solid rgba(255,255,255,0.08);
+    border-radius:10px; padding:10px 12px; font-size:.86rem;
+    transition:opacity .15s, transform .15s;
+  }
+  .chip:active{transform:scale(0.96);}
+  .chip.used{opacity:0; pointer-events:none;}
+  .feedback{
+    font-family:var(--font-display); font-size:.82rem; font-weight:700;
+    padding:10px 12px; border-radius:10px; margin-bottom:14px; display:none;
+  }
+  .feedback.show{display:block;}
+  .feedback.ok{background:rgba(51,226,160,0.12); color:var(--accent);}
+  .feedback.bad{background:rgba(255,107,107,0.12); color:var(--bad);}
+
+  /* game 2: bug hunt */
+  .code-block{
+    background:#05070d; border-radius:12px; padding:14px; margin-bottom:16px;
+    border:1px solid rgba(255,255,255,0.06);
+  }
+  .code-line{
+    font-family:var(--font-display); font-size:.82rem; line-height:1.9;
+    padding:6px 10px; border-radius:8px; display:flex; gap:10px;
+    border:1px solid transparent;
+  }
+  .code-line:active{background:rgba(255,255,255,0.05);}
+  .code-line .ln{color:#3d4a63; min-width:14px;}
+  .code-line.wrong-pick{border-color:rgba(255,107,107,0.4); background:rgba(255,107,107,0.08);}
+  .code-line.right-pick{border-color:rgba(51,226,160,0.4); background:rgba(51,226,160,0.08);}
+
+  /* game 3: loop reflex */
+  #loop-stage{text-align:center;}
+  #loop-target{font-family:var(--font-display); font-size:3.4rem; font-weight:800; color:var(--accent); margin:6px 0 2px;}
+  #loop-count{font-family:var(--font-display); font-size:1rem; color:var(--muted); margin-bottom:18px;}
+  .timerbar{height:8px; border-radius:999px; background:var(--surface-2); overflow:hidden; margin-bottom:22px;}
+  .timerbar > div{height:100%; background:var(--warn); width:100%; transform-origin:left;}
+  #loop-tap{
+    width:150px; height:150px; border-radius:50%; margin:0 auto 22px;
+    background:var(--surface); border:2px solid var(--accent);
+    font-family:var(--font-display); font-size:1rem; font-weight:700; color:var(--accent);
+    display:flex; align-items:center; justify-content:center;
+  }
+  #loop-tap:active{background:var(--accent); color:#06231a; transform:scale(0.96);}
+
+  /* result */
+  #result-stage{flex:1; display:flex; flex-direction:column; justify-content:center; text-align:center;}
+  #result-badge-emoji{font-size:4rem; margin-bottom:6px;}
+  #result-score{font-family:var(--font-display); font-size:2.6rem; font-weight:800; color:var(--accent); margin:6px 0;}
+  .recap{text-align:left; margin-top:22px; display:flex; flex-direction:column; gap:10px;}
+  .recap-item{
+    background:var(--surface); border-radius:12px; padding:12px 14px;
+    display:flex; gap:10px; align-items:flex-start; font-size:.85rem; line-height:1.5;
+  }
+  .recap-item b{color:var(--accent); font-family:var(--font-display); font-size:.78rem; display:block; margin-bottom:2px;}
+
+  footer{
+    text-align:center; padding-top:14px; color:var(--muted); font-size:.68rem;
+    font-family:var(--font-display); letter-spacing:.06em;
+  }
+
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important; animation:none!important;} }
+</style>
+
+<div class="wrap">
+  <div id="topbar">
+    <div id="dots">
+      <div class="dot" data-d="0"></div>
+      <div class="dot" data-d="1"></div>
+      <div class="dot" data-d="2"></div>
+      <div class="dot" data-d="3"></div>
+      <div class="dot" data-d="4"></div>
+    </div>
+    <div id="score">0 PTS</div>
+  </div>
+
+  <!-- START -->
+  <section class="screen" id="screen-start">
+    <div id="start-stage">
+      <div class="badge-emoji">🧑‍💻</div>
+      <div>
+        <div class="eyebrow">Feira de ciências · Missão</div>
+        <h1 class="title">Vire Engenheiro(a) de Software</h1>
+        <p class="lede">5 desafios rápidos pra você sentir como é pensar como quem cria software de verdade.</p>
+      </div>
+      <div class="pill-row">
+        <span class="pill">ALGORITMO</span>
+        <span class="pill">DEBUG</span>
+        <span class="pill">LOOP</span>
+      </div>
+      <button class="btn-primary" id="btn-start">Começar missão →</button>
+    </div>
+  </section>
+
+  <!-- GAME 1: SEQUENCE -->
+  <section class="screen" id="screen-seq" hidden>
+    <div class="eyebrow">Desafio 1 · Algoritmo</div>
+    <h2 class="title">Monte os passos do robô</h2>
+    <p class="lede">O robô quer fazer um sanduíche de manteiga de amendoim. Toque os passos na ordem certa.</p>
+    <div class="feedback" id="seq-feedback"></div>
+    <div id="seq-slots"></div>
+    <div id="seq-pool"></div>
+    <button class="btn-primary" id="seq-confirm" disabled>Confirmar ordem</button>
+  </section>
+
+  <!-- GAME 2: BUG HUNT -->
+  <section class="screen" id="screen-bug" hidden>
+    <div class="eyebrow">Desafio <span id="bug-round-label">2</span> · Debug</div>
+    <h2 class="title" id="bug-title">Ache o bug no código</h2>
+    <p class="lede" id="bug-lede">Toque na linha que está com o erro.</p>
+    <div class="feedback" id="bug-feedback"></div>
+    <div class="code-block" id="bug-code"></div>
+  </section>
+
+  <!-- GAME 3: LOOP REFLEX -->
+  <section class="screen" id="screen-loop" hidden>
+    <div class="eyebrow">Desafio <span id="loop-round-label">4</span> · Laço de repetição</div>
+    <h2 class="title">Execute o laço certinho</h2>
+    <p class="lede">Toque no botão exatamente o número de vezes pedido, antes que o tempo acabe.</p>
+    <div id="loop-stage">
+      <div class="eyebrow">repita</div>
+      <div id="loop-target">6×</div>
+      <div id="loop-count">0 toques</div>
+      <div class="timerbar"><div id="loop-timerfill"></div></div>
+      <div id="loop-tap">TOCAR</div>
+      <button class="btn-primary" id="loop-confirm" disabled>Concluir laço</button>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section class="screen" id="screen-result" hidden>
+    <div id="result-stage">
+      <div id="result-badge-emoji">🏆</div>
+      <div class="eyebrow">Missão concluída</div>
+      <div id="result-score">100 PTS</div>
+      <h2 class="title" id="result-title">Arquiteto(a) de Software</h2>
+      <div class="recap">
+        <div class="recap-item">🧩<div><b>ALGORITMO</b>A ordem dos passos importa — é isso que faz um programa funcionar.</div></div>
+        <div class="recap-item">🐛<div><b>DEBUG</b>Todo mundo escreve bugs. O trabalho é saber caçá-los com calma.</div></div>
+        <div class="recap-item">🔁<div><b>LOOP</b>Laços de repetição fazem o computador repetir ações do jeito certo, sem errar a conta.</div></div>
+      </div>
+      <button class="btn-primary" id="btn-restart" style="margin-top:22px;">Jogar de novo</button>
+    </div>
+  </section>
+
+  <footer>FEIRA DE CIÊNCIAS · ENGENHARIA DE SOFTWARE</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var state = {
+    step: 0, // 0 seq, 1 bug-a, 2 bug-b, 3 loop-a, 4 loop-b
+    score: 0
+  };
+
+  var screens = {
+    start: document.getElementById('screen-start'),
+    seq: document.getElementById('screen-seq'),
+    bug: document.getElementById('screen-bug'),
+    loop: document.getElementById('screen-loop'),
+    result: document.getElementById('screen-result')
+  };
+  var dots = Array.prototype.slice.call(document.querySelectorAll('#dots .dot'));
+  var scoreEl = document.getElementById('score');
+
+  function addScore(n){
+    state.score += n;
+    scoreEl.textContent = state.score + ' PTS';
+  }
+
+  function updateDots(){
+    dots.forEach(function(d, i){
+      d.classList.toggle('done', i < state.step);
+      d.classList.toggle('active', i === state.step);
+    });
+  }
+
+  function showScreen(name){
+    Object.keys(screens).forEach(function(k){ screens[k].hidden = (k !== name); });
+  }
+
+  function vibrate(ms){ try{ navigator.vibrate && navigator.vibrate(ms); }catch(e){} }
+
+  // ---------- GAME 1: SEQUENCE ----------
+  var seqSteps = [
+    "Pegar duas fatias de pão",
+    "Passar manteiga de amendoim em uma fatia",
+    "Colocar a outra fatia por cima",
+    "Servir o sanduíche"
+  ];
+  var seqOrder = [];        // correct order kept as indices 0..3
+  var seqChosen = [];       // indices chosen so far
+  var seqAttemptedWrong = false;
+
+  function shuffle(arr){
+    var a = arr.slice();
+    for(var i=a.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var t=a[i]; a[i]=a[j]; a[j]=t;
+    }
+    return a;
+  }
+
+  function initSeq(){
+    seqChosen = [];
+    seqAttemptedWrong = false;
+    var slotsEl = document.getElementById('seq-slots');
+    var poolEl = document.getElementById('seq-pool');
+    slotsEl.innerHTML = '';
+    seqSteps.forEach(function(_, i){
+      var s = document.createElement('div');
+      s.className = 'slot';
+      s.id = 'slot-' + i;
+      s.innerHTML = '<span class="slot-num">' + (i+1) + '</span><span class="slot-text">passo ' + (i+1) + '</span>';
+      slotsEl.appendChild(s);
+    });
+    var order = shuffle(seqSteps.map(function(_, i){ return i; }));
+    poolEl.innerHTML = '';
+    order.forEach(function(origIndex){
+      var chip = document.createElement('button');
+      chip.className = 'chip';
+      chip.type = 'button';
+      chip.textContent = seqSteps[origIndex];
+      chip.dataset.idx = origIndex;
+      chip.addEventListener('click', function(){ pickSeqChip(origIndex, chip); });
+      poolEl.appendChild(chip);
+    });
+    document.getElementById('seq-feedback').className = 'feedback';
+    document.getElementById('seq-confirm').disabled = true;
+    document.getElementById('seq-confirm').textContent = 'Confirmar ordem';
+  }
+
+  function pickSeqChip(origIndex, chipEl){
+    if(seqChosen.length >= seqSteps.length) return;
+    chipEl.classList.add('used');
+    seqChosen.push(origIndex);
+    var slot = document.getElementById('slot-' + (seqChosen.length - 1));
+    slot.classList.add('filled');
+    slot.querySelector('.slot-text').textContent = seqSteps[origIndex];
+    if(seqChosen.length === seqSteps.length){
+      document.getElementById('seq-confirm').disabled = false;
+    }
+  }
+
+  document.getElementById('seq-confirm').addEventListener('click', function(){
+    var correct = seqChosen.every(function(v, i){ return v === i; });
+    var fb = document.getElementById('seq-feedback');
+    if(correct){
+      fb.textContent = seqAttemptedWrong ? '✓ Certo agora! +10 pts' : '✓ Perfeito na primeira! +20 pts';
+      fb.className = 'feedback show ok';
+      addScore(seqAttemptedWrong ? 10 : 20);
+      vibrate(30);
+      setTimeout(nextStep, 900);
+    } else {
+      seqAttemptedWrong = true;
+      fb.textContent = '✗ Ainda não é essa ordem. Reveja e confirme de novo.';
+      fb.className = 'feedback show bad';
+      vibrate([20,40,20]);
+      // let them fix: reset chosen but keep pool used chips available again
+      document.querySelectorAll('#seq-pool .chip').forEach(function(c){ c.classList.remove('used'); });
+      seqChosen = [];
+      document.querySelectorAll('.slot').forEach(function(s, i){
+        s.classList.remove('filled');
+        s.querySelector('.slot-text').textContent = 'passo ' + (i+1);
+      });
+      document.getElementById('seq-confirm').disabled = true;
+    }
+  });
+
+  // ---------- GAME 2: BUG HUNT (2 rounds) ----------
+  var bugRounds = [
+    {
+      title: 'Ache o bug no código',
+      lede: 'Este robô controla um semáforo. Toque na linha errada.',
+      lines: [
+        'SE sinal = vermelho ENTÃO andar()',
+        'SE sinal = verde ENTÃO parar()',
+        'SE sinal = amarelo ENTÃO atenção()'
+      ],
+      bugIndex: 0,
+      explain: 'No vermelho o robô deveria parar, não andar — as duas primeiras linhas estão trocadas.'
+    },
+    {
+      title: 'Ache o bug no código',
+      lede: 'Este robô devia pular 3 vezes. Toque na linha que impede isso.',
+      lines: [
+        'contador = 0',
+        'ENQUANTO contador < 2:',
+        '    pular()',
+        '    contador = contador + 1'
+      ],
+      bugIndex: 1,
+      explain: 'A condição devia ser "< 3" — com "< 2" o laço para cedo demais e o robô só pula 2 vezes.'
+    }
+  ];
+
+  function initBug(roundIdx){
+    var r = bugRounds[roundIdx];
+    document.getElementById('bug-round-label').textContent = roundIdx === 0 ? '2' : '3';
+    document.getElementById('bug-title').textContent = r.title;
+    document.getElementById('bug-lede').textContent = r.lede;
+    var codeEl = document.getElementById('bug-code');
+    codeEl.innerHTML = '';
+    var fb = document.getElementById('bug-feedback');
+    fb.className = 'feedback';
+    var wrongTried = false;
+    r.lines.forEach(function(text, i){
+      var line = document.createElement('div');
+      line.className = 'code-line';
+      line.innerHTML = '<span class="ln">' + (i+1) + '</span><span>' + text + '</span>';
+      line.addEventListener('click', function(){
+        if(line.classList.contains('right-pick')) return;
+        if(i === r.bugIndex){
+          line.classList.add('right-pick');
+          fb.textContent = (wrongTried ? '✓ Encontrou! +10 pts — ' : '✓ Na mosca! +20 pts — ') + r.explain;
+          fb.className = 'feedback show ok';
+          addScore(wrongTried ? 10 : 20);
+          vibrate(30);
+          setTimeout(nextStep, 1400);
+        } else {
+          wrongTried = true;
+          line.classList.add('wrong-pick');
+          fb.textContent = '✗ Essa linha está ok. Tenta outra.';
+          fb.className = 'feedback show bad';
+          vibrate([20,40,20]);
+          setTimeout(function(){ line.classList.remove('wrong-pick'); }, 500);
+        }
+      });
+      codeEl.appendChild(line);
+    });
+  }
+
+  // ---------- GAME 3: LOOP REFLEX (2 rounds) ----------
+  var loopRounds = [
+    { target: 6, seconds: 5 },
+    { target: 9, seconds: 6 }
+  ];
+  var loopState = { taps: 0, target: 0, timer: null, timeLeft: 0, active: false };
+
+  function initLoop(roundIdx){
+    var r = loopRounds[roundIdx];
+    document.getElementById('loop-round-label').textContent = roundIdx === 0 ? '4' : '5';
+    document.getElementById('loop-target').textContent = r.target + '×';
+    document.getElementById('loop-count').textContent = '0 toques';
+    document.getElementById('loop-confirm').disabled = true;
+    document.getElementById('loop-confirm').textContent = 'Concluir laço';
+    loopState.taps = 0;
+    loopState.target = r.target;
+    loopState.active = true;
+
+    var fill = document.getElementById('loop-timerfill');
+    fill.style.transition = 'none';
+    fill.style.transform = 'scaleX(1)';
+    // force reflow then animate
+    void fill.offsetWidth;
+    fill.style.transition = 'transform ' + r.seconds + 's linear';
+    fill.style.transform = 'scaleX(0)';
+
+    clearTimeout(loopState.timer);
+    loopState.timer = setTimeout(function(){
+      if(loopState.active) finishLoop(roundIdx, true);
+    }, r.seconds * 1000);
+  }
+
+  document.getElementById('loop-tap').addEventListener('click', function(){
+    if(!loopState.active) return;
+    loopState.taps++;
+    document.getElementById('loop-count').textContent = loopState.taps + ' toque' + (loopState.taps===1?'':'s');
+    if(loopState.taps === loopState.target){
+      document.getElementById('loop-confirm').disabled = false;
+    }
+    vibrate(10);
+  });
+
+  document.getElementById('loop-confirm').addEventListener('click', function(){
+    finishLoop(state.step === 3 ? 0 : 1, false);
+  });
+
+  function finishLoop(roundIdx, timedOut){
+    if(!loopState.active) return;
+    loopState.active = false;
+    clearTimeout(loopState.timer);
+    var exact = loopState.taps === loopState.target;
+    var pts = timedOut ? 0 : (exact ? 20 : 8);
+    addScore(pts);
+    vibrate(exact ? 30 : [20,40,20]);
+    setTimeout(nextStep, 500);
+  }
+
+  // ---------- FLOW ----------
+  function nextStep(){
+    state.step++;
+    updateDots();
+    render();
+  }
+
+  function render(){
+    switch(state.step){
+      case 0:
+        showScreen('seq'); initSeq(); break;
+      case 1:
+        showScreen('bug'); initBug(0); break;
+      case 2:
+        showScreen('bug'); initBug(1); break;
+      case 3:
+        showScreen('loop'); initLoop(0); break;
+      case 4:
+        showScreen('loop'); initLoop(1); break;
+      default:
+        showResult();
+    }
+  }
+
+  function showResult(){
+    showScreen('result');
+    document.getElementById('result-score').textContent = state.score + ' PTS';
+    var emoji, title;
+    if(state.score >= 90){ emoji='🏆'; title='Arquiteto(a) de Software'; }
+    else if(state.score >= 60){ emoji='💻'; title='Engenheiro(a) Pleno(a)'; }
+    else if(state.score >= 30){ emoji='🌱'; title='Engenheiro(a) Júnior'; }
+    else { emoji='🔍'; title='Estagiário(a) Curioso(a)'; }
+    document.getElementById('result-badge-emoji').textContent = emoji;
+    document.getElementById('result-title').textContent = title;
+  }
+
+  function restart(){
+    state.step = 0;
+    state.score = 0;
+    scoreEl.textContent = '0 PTS';
+    updateDots();
+    showScreen('start');
+  }
+
+  document.getElementById('btn-start').addEventListener('click', function(){
+    updateDots();
+    render();
+  });
+  document.getElementById('btn-restart').addEventListener('click', restart);
+
+  updateDots();
+})();
+</script>
+
