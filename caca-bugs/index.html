@@ -141,6 +141,17 @@
   .stats{display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:10px; font-weight:600; color:var(--soft);}
   .stats span{background:#f3f8ff; padding:5px 12px; border-radius:99px;}
   .record{margin-top:8px; font-weight:600; color:var(--soft); font-size:.95rem;}
+  .send{background:var(--purple); color:#fff; padding:14px;}
+  .send-title{font-weight:700; font-size:1.15rem; margin-bottom:10px;}
+  #send-form{display:flex; gap:8px;}
+  #nick{flex:1; min-width:0; font:inherit; font-size:1.1rem; font-weight:600; color:var(--ink); background:#fff; border:0; border-radius:14px; padding:10px 14px; -webkit-user-select:text; user-select:text;}
+  #nick:focus{outline:3px solid var(--yellow);}
+  .btn-sm{background:var(--yellow); color:var(--ink); font-weight:700; font-size:1.1rem; padding:0 18px; border-radius:14px; box-shadow:0 4px 0 #d9a800;}
+  .btn-sm:active{transform:translateY(3px); box-shadow:0 1px 0 #d9a800;}
+  .btn-sm:disabled{opacity:.6;}
+  .send-note{margin-top:8px; font-size:.92rem; font-weight:500; opacity:.95;}
+  .send.done{background:var(--mint);}
+  .send.done .send-title{font-size:1.3rem; margin:0;}
   .fact{background:var(--yellow); text-align:left; font-weight:500; font-size:1.02rem; line-height:1.4;}
   .fact b{display:block; font-size:.85rem; letter-spacing:.06em; text-transform:uppercase; margin-bottom:4px; font-weight:700;}
 
@@ -204,6 +215,14 @@
       <div class="rank" id="rank">Caçador(a) de Bugs</div>
       <div class="stats"><span id="st-hit">🐞 0 consertados</span><span id="st-miss">💨 0 escaparam</span></div>
       <div class="record" id="record"></div>
+    </div>
+    <div class="card send">
+      <div class="send-title">🏆 Coloque seu nome no placar!</div>
+      <form id="send-form" autocomplete="off">
+        <input id="nick" name="nick" maxlength="12" placeholder="Seu apelido" enterkeyhint="send" aria-label="Seu apelido">
+        <button type="submit" class="btn-sm" id="send-btn">Enviar</button>
+      </form>
+      <div class="send-note" id="send-note">Use um apelido, não o nome completo.</div>
     </div>
     <div class="card fact"><b>Você sabia?</b><span id="fact"></span></div>
     <button class="btn" id="btn-again" type="button">Jogar de novo</button>
@@ -468,10 +487,100 @@
     $('st-miss').textContent = '💨 ' + S.miss + (S.miss === 1 ? ' escapou' : ' escaparam');
     $('record').textContent = isRecord ? '🎉 Novo recorde neste celular!' : 'Recorde neste celular: ' + best + ' pts';
     $('fact').textContent = FACTS[Math.floor(Math.random() * FACTS.length)];
+    lastRound = { score:S.score, hit:S.hit };
+    resetSendCard();
     show('scr-end');
     sfx.win();
     confetti();
   }
+
+  // ---- placar (ntfy.sh) ----
+  var PLACAR = 'https://ntfy.sh/cacabugs-es-9d27f41ac6';
+  var BLOCK_PARTS = ['porra','caralh','merda','bosta','viad','bucet','foda','fuder','cacet','piroc','xoxot','vagabund','arromb','otari','corno','penis','vadia','cuzao','boquet','putinh','putaria'];
+  var BLOCK_WORDS = ['cu','pau','fdp','pqp','vsf','tnc','krl','crl','pnc','vtnc','kct','buct','puta','puto','rola','pinto','bicha','xana','xota','pica'];
+  var lastRound = null, sentKey = null;
+
+  function cleanNick(v){
+    return v.replace(/[<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 12);
+  }
+  function isRude(v){
+    var n = v.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/0/g,'o').replace(/1/g,'i').replace(/3/g,'e').replace(/4/g,'a').replace(/5/g,'s').replace(/@/g,'a');
+    var flat = n.replace(/[^a-z]/g, '');
+    if(BLOCK_PARTS.some(function(w){ return flat.indexOf(w) >= 0; })) return true;
+    return n.split(/[^a-z]+/).some(function(t){ return BLOCK_WORDS.indexOf(t) >= 0; });
+  }
+  function ordinal(n){ return n + 'º'; }
+
+  function resetSendCard(){
+    var card = document.querySelector('.send');
+    card.classList.remove('done');
+    card.querySelector('.send-title').textContent = '🏆 Coloque seu nome no placar!';
+    $('send-form').hidden = false;
+    $('send-btn').disabled = false;
+    $('send-btn').textContent = 'Enviar';
+    $('send-note').textContent = 'Use um apelido, não o nome completo.';
+    try{ $('nick').value = localStorage.getItem('cacabugs-nick') || ''; }catch(e){ $('nick').value = ''; }
+    sentKey = null;
+  }
+
+  async function myPosition(key){
+    var res = await fetch(PLACAR + '/json?poll=1&since=all', { cache:'no-store' });
+    var text = await res.text();
+    var best = {};
+    text.split('\n').forEach(function(line){
+      if(!line) return;
+      try{
+        var m = JSON.parse(line);
+        if(m.event !== 'message') return;
+        var d = JSON.parse(m.message);
+        if(typeof d.s !== 'number' || !d.k) return;
+        best[d.k] = d.s;
+      }catch(e){}
+    });
+    var scores = Object.keys(best).map(function(k){ return { k:k, s:best[k] }; })
+      .sort(function(a, b){ return b.s - a.s; });
+    for(var i = 0; i < scores.length; i++) if(scores[i].k === key) return { pos:i + 1, total:scores.length };
+    return null;
+  }
+
+  $('send-form').addEventListener('submit', async function(e){
+    e.preventDefault();
+    if(!lastRound || sentKey) return;
+    var nick = cleanNick($('nick').value);
+    var note = $('send-note');
+    if(nick.length < 2){ note.textContent = 'Escreva um apelido com pelo menos 2 letras.'; $('nick').focus(); return; }
+    if(isRude(nick)){ note.textContent = 'Opa! Escolha outro apelido, por favor 🙂'; $('nick').value = ''; $('nick').focus(); return; }
+    var btn = $('send-btn');
+    btn.disabled = true; btn.textContent = '...';
+    var key = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    try{
+      var res = await fetch(PLACAR, { method:'POST', body: JSON.stringify({ n:nick, s:lastRound.score, h:lastRound.hit, k:key }) });
+      if(!res.ok) throw new Error('status ' + res.status);
+      sentKey = key;
+      try{ localStorage.setItem('cacabugs-nick', nick); }catch(e2){}
+      var card = document.querySelector('.send');
+      card.classList.add('done');
+      $('send-form').hidden = true;
+      card.querySelector('.send-title').textContent = '✅ ' + nick + ', você está no placar!';
+      note.textContent = 'Olhe o telão do estande 👀';
+      sfx.gold();
+      try{
+        var p = null;
+        for(var tries = 0; tries < 5 && !p; tries++){
+          await wait(900);
+          try{ p = await myPosition(key); }catch(e4){}
+        }
+        if(p){
+          card.querySelector('.send-title').textContent = (p.pos <= 3 ? ['🥇', '🥈', '🥉'][p.pos - 1] + ' ' : '✅ ') + nick + ', você ficou em ' + ordinal(p.pos) + ' lugar!';
+          note.textContent = p.total + (p.total === 1 ? ' jogador' : ' jogadores') + ' no placar de hoje. Olhe o telão do estande 👀';
+        }
+      }catch(e3){}
+    }catch(err){
+      btn.disabled = false; btn.textContent = 'Enviar';
+      note.textContent = 'Não deu para enviar. Confira a internet e toque em Enviar de novo.';
+    }
+  });
 
   $('btn-start').addEventListener('click', startRound);
   $('btn-again').addEventListener('click', startRound);

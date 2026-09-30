@@ -8,57 +8,230 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --ink:#2f2a4a; --orange:#ff8a3d; --pink:#ff5f8f; --yellow:#ffd23f; --mint:#4fd6a6; --purple:#8c73ff;
-          --font:'Fredoka', 'Comic Sans MS', 'Trebuchet MS', sans-serif; }
-  * { box-sizing:border-box; }
-  html, body { height:100%; margin:0; }
-  body { font-family:var(--font); color:var(--ink); overflow:hidden;
-         background:linear-gradient(180deg, #6cc4ff 0%, #d2f1ff 75%); display:flex; align-items:center; justify-content:center; padding:24px; }
-  .hills { position:fixed; left:0; right:0; bottom:0; height:24%; z-index:0; }
-  .hills::before, .hills::after { content:''; position:absolute; bottom:-45%; border-radius:50%; }
-  .hills::before { left:-15%; width:80%; height:150%; background:#8ddf6a; }
-  .hills::after { right:-20%; width:85%; height:130%; background:#6cc653; }
-  .cloud { position:fixed; background:#fff; border-radius:999px; opacity:.9; }
-  .cloud::before { content:''; position:absolute; width:55%; height:160%; left:15%; bottom:20%; background:#fff; border-radius:50%; }
-  .k1 { width:180px; height:50px; top:8%; left:6%; } .k2 { width:130px; height:38px; top:14%; right:10%; }
-  .poster { position:relative; z-index:1; width:100%; max-width:1250px; display:grid; grid-template-columns:1.1fr .9fr; gap:48px; align-items:center; }
-  h1 { margin:0 0 16px; font-size:clamp(3rem, 7vw, 6rem); line-height:.92; font-weight:700; color:#fff;
-        -webkit-text-stroke:5px var(--ink); paint-order:stroke fill; text-shadow:0 8px 0 var(--ink); }
-  h1 .a { color:var(--yellow); } h1 .b { color:var(--pink); }
-  .lede { background:#fff; border-radius:26px; padding:18px 22px; font-size:clamp(1.1rem, 1.8vw, 1.5rem); font-weight:500; line-height:1.35;
-           box-shadow:0 8px 0 rgba(47,42,74,.12); max-width:30em; margin:0 0 22px; }
-  .steps { display:flex; gap:12px; flex-wrap:wrap; }
-  .steps div { background:rgba(255,255,255,.8); border-radius:999px; padding:10px 18px; font-weight:600; font-size:clamp(1rem, 1.5vw, 1.3rem); display:flex; align-items:center; gap:10px; }
-  .steps b { background:var(--orange); color:#fff; width:34px; height:34px; border-radius:50%; display:grid; place-items:center; }
-  .qr-side { display:flex; flex-direction:column; align-items:center; gap:14px; position:relative; }
-  .qr { background:#fff; border-radius:34px; padding:22px; width:min(40vw, 460px); box-shadow:0 12px 0 var(--purple), 0 24px 40px rgba(47,42,74,.25); border:6px solid var(--purple); }
-  .qr svg { width:100%; height:auto; display:block; }
-  .tag { background:var(--orange); color:#fff; font-weight:700; font-size:clamp(1.2rem, 2vw, 1.8rem); padding:10px 28px; border-radius:999px; box-shadow:0 6px 0 #e0661c; }
-  .url { font-weight:600; font-size:1rem; color:var(--ink); opacity:.75; word-break:break-all; text-align:center; }
-  .bug { position:absolute; width:110px; animation:wig 1.6s ease-in-out infinite; }
-  .bug svg { width:100%; display:block; }
-  .g1 { top:-50px; left:-40px; transform:rotate(-20deg); } .g2 { bottom:60px; right:-50px; animation-delay:.5s; }
-  .g3 { width:80px; top:30%; right:-60px; animation-delay:.9s; }
-  @keyframes wig { 50% { transform:rotate(12deg) translateY(-8px); } }
-  @media (max-width:820px) { .poster { grid-template-columns:1fr; } .qr { width:min(80vw, 420px); } .bug { display:none; } body { overflow:auto; } }
+  /* layout: booth TV — title strip on top, QR card left, live top-10 scoreboard right */
+  :root{ --ink:#2f2a4a; --soft:#6a6590; --orange:#ff8a3d; --orange-d:#e0661c; --pink:#ff5f8f; --yellow:#ffd23f; --mint:#4fd6a6; --purple:#8c73ff; --purple-d:#6a52e0;
+         --font:'Fredoka', 'Comic Sans MS', 'Trebuchet MS', sans-serif; }
+  *{ box-sizing:border-box; }
+  html, body{ height:100%; margin:0; }
+  body{ font-family:var(--font); color:var(--ink); overflow:hidden;
+        background:linear-gradient(180deg, #6cc4ff 0%, #d2f1ff 75%); }
+  .hills{ position:fixed; left:0; right:0; bottom:0; height:22%; z-index:0; }
+  .hills::before, .hills::after{ content:''; position:absolute; bottom:-45%; border-radius:50%; }
+  .hills::before{ left:-15%; width:80%; height:150%; background:#8ddf6a; }
+  .hills::after{ right:-20%; width:85%; height:130%; background:#6cc653; }
+  .cloud{ position:fixed; background:#fff; border-radius:999px; opacity:.9; z-index:0; }
+  .cloud::before{ content:''; position:absolute; width:55%; height:160%; left:15%; bottom:20%; background:#fff; border-radius:50%; }
+  .k1{ width:180px; height:50px; top:6%; left:4%; } .k2{ width:130px; height:38px; top:10%; right:38%; }
+
+  .wrap{ position:relative; z-index:1; height:100%; display:flex; flex-direction:column; padding:2.5vh 3vw 3vh; gap:2vh; }
+  header{ display:flex; align-items:center; justify-content:space-between; gap:24px; }
+  h1{ margin:0; font-size:clamp(2.4rem, 5.4vw, 5rem); line-height:.95; font-weight:700; color:#fff;
+      -webkit-text-stroke:5px var(--ink); paint-order:stroke fill; text-shadow:0 7px 0 var(--ink); white-space:nowrap; }
+  h1 .a{ color:var(--yellow); } h1 .b{ color:var(--pink); }
+  .tagline{ background:#fff; border-radius:22px; padding:12px 20px; font-size:clamp(1rem, 1.5vw, 1.35rem); font-weight:500; line-height:1.3; box-shadow:0 6px 0 rgba(47,42,74,.12); max-width:34em; }
+
+  main{ flex:1; min-height:0; display:grid; grid-template-columns:auto 1fr; gap:3vw; align-items:stretch; }
+
+  .qr-col{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.6vh; position:relative; }
+  .qr{ background:#fff; border-radius:30px; padding:18px; width:min(34vw, 58vh); border:6px solid var(--purple); box-shadow:0 10px 0 var(--purple-d), 0 22px 40px rgba(47,42,74,.25); }
+  .qr svg{ width:100%; height:auto; display:block; }
+  .scan{ background:var(--orange); color:#fff; font-weight:700; font-size:clamp(1.1rem, 1.9vw, 1.8rem); padding:8px 26px; border-radius:999px; box-shadow:0 6px 0 var(--orange-d); }
+  .url{ font-weight:600; font-size:.95rem; opacity:.7; }
+  .bug{ position:absolute; width:clamp(60px, 7vw, 110px); animation:wig 1.6s ease-in-out infinite; }
+  .bug svg{ width:100%; display:block; }
+  .g1{ top:2%; left:-3%; } .g2{ bottom:12%; right:-4%; animation-delay:.6s; }
+  @keyframes wig{ 50%{ transform:rotate(12deg) translateY(-8px); } }
+
+  .board{ background:#fff; border-radius:30px; padding:2.2vh 2vw; display:flex; flex-direction:column; min-height:0; box-shadow:0 10px 0 rgba(47,42,74,.14); position:relative; }
+  .board-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:1.4vh; }
+  .board-head h2{ margin:0; font-size:clamp(1.5rem, 2.6vw, 2.4rem); font-weight:700; }
+  .live{ display:flex; align-items:center; gap:8px; font-weight:600; color:var(--soft); font-size:clamp(.85rem, 1.1vw, 1.05rem); white-space:nowrap; }
+  .live i{ width:12px; height:12px; border-radius:50%; background:var(--mint); box-shadow:0 0 0 0 rgba(79,214,166,.6); animation:ping 1.8s infinite; }
+  .live.off i{ background:var(--pink); animation:none; }
+  @keyframes ping{ 70%{ box-shadow:0 0 0 10px rgba(79,214,166,0); } 100%{ box-shadow:0 0 0 0 rgba(79,214,166,0); } }
+
+  ol{ list-style:none; margin:0; padding:0; flex:1; min-height:0; display:flex; flex-direction:column; gap:.9vh; }
+  li{ display:grid; grid-template-columns:3.2em 1fr auto auto; align-items:center; gap:14px; background:#f3f8ff; border-radius:16px;
+      padding:.8vh 16px; font-size:clamp(1rem, 1.9vw, 1.7rem); font-weight:600; flex:1; max-height:8vh; min-height:0; }
+  li .pos{ font-weight:700; text-align:center; color:var(--soft); font-variant-numeric:tabular-nums; }
+  li .name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  li .pts{ font-weight:700; color:var(--orange); font-variant-numeric:tabular-nums; }
+  li.p1{ background:#fff4c2; } li.p2{ background:#eef0f7; } li.p3{ background:#ffe6d6; }
+  li.p1 .pos, li.p2 .pos, li.p3 .pos{ font-size:1.25em; }
+  li.new{ animation:flash 1.2s ease-out 3; }
+  @keyframes flash{ 0%{ background:var(--mint); transform:scale(1.03); } 100%{} }
+  li .del{ display:none; background:var(--pink); color:#fff; border:0; border-radius:10px; font:inherit; font-size:.8em; padding:2px 10px; cursor:pointer; }
+  .admin li .del{ display:block; }
+  .empty{ flex:1; display:grid; place-items:center; text-align:center; color:var(--soft); font-size:clamp(1.1rem, 2vw, 1.8rem); font-weight:600; }
+  .count{ margin-top:1.2vh; color:var(--soft); font-weight:600; font-size:clamp(.9rem, 1.2vw, 1.15rem); text-align:right; }
+
+  .leader{ position:absolute; left:50%; top:-22px; transform:translateX(-50%); background:var(--pink); color:#fff; font-weight:700;
+           font-size:clamp(1.1rem, 2vw, 1.8rem); padding:8px 26px; border-radius:999px; box-shadow:0 6px 0 #d63f6f; white-space:nowrap; animation:pop .5s cubic-bezier(.3,1.6,.6,1); z-index:3; }
+  @keyframes pop{ from{ transform:translateX(-50%) scale(.3); } }
+
+  .gear{ position:fixed; right:12px; bottom:12px; z-index:5; width:40px; height:40px; border-radius:50%; border:0; background:rgba(255,255,255,.6); font-size:1.2rem; cursor:pointer; opacity:.5; }
+  .gear:hover, .admin .gear{ opacity:1; }
+  .admin-bar{ display:none; position:fixed; right:60px; bottom:12px; z-index:5; gap:8px; }
+  .admin .admin-bar{ display:flex; }
+  .admin-bar button{ border:0; border-radius:999px; font:inherit; font-weight:600; padding:8px 16px; cursor:pointer; background:var(--ink); color:#fff; }
+  .admin-bar button.danger{ background:var(--pink); }
+
+  @media (max-width:900px){ body{ overflow:auto; } main{ grid-template-columns:1fr; } .qr{ width:min(80vw, 420px); } header{ flex-direction:column; align-items:flex-start; } h1{ white-space:normal; } li{ max-height:none; } .bug{ display:none; } }
+  @media (prefers-reduced-motion: reduce){ *{ animation:none!important; } }
 </style>
 </head>
 <body>
 <div class="cloud k1"></div><div class="cloud k2"></div><div class="hills"></div>
-<main class="poster">
-  <div>
+<div class="wrap">
+  <header>
     <h1><span class="a">Caça</span> aos <span class="b">Bugs!</span></h1>
-    <p class="lede">Bugs são erros nos programas. Quem cria apps e jogos, os engenheiros de software, precisa encontrar e consertar cada um. Será que você consegue?</p>
-    <div class="steps"><div><b>1</b>Abra a câmera</div><div><b>2</b>Aponte pro QR</div><div><b>3</b>Cace os bugs!</div></div>
-  </div>
-  <div class="qr-side">
-    <div class="bug g1"><svg viewBox="0 0 100 100" aria-hidden="true"><g stroke="#2f2a4a" stroke-width="5" stroke-linecap="round"><path d="M24 52 9 45M22 64 7 67M27 77 15 89M76 52 91 45M78 64 93 67M73 77 85 89"/></g><path d="M43 20 35 7M57 20 65 7" stroke="#2f2a4a" stroke-width="4" stroke-linecap="round" fill="none"/><circle cx="35" cy="7" r="4.5" fill="#ff5b5b"/><circle cx="65" cy="7" r="4.5" fill="#ff5b5b"/><circle cx="50" cy="30" r="17" fill="#2f2a4a"/><ellipse cx="50" cy="63" rx="31" ry="30" fill="#ff5b5b"/><path d="M50 36V92" stroke="#b93434" stroke-width="4"/><circle cx="37" cy="58" r="6.5" fill="#b93434"/><circle cx="64" cy="54" r="5.5" fill="#b93434"/><circle cx="62" cy="77" r="6.5" fill="#b93434"/><circle cx="38" cy="79" r="4.5" fill="#b93434"/><circle cx="42" cy="26" r="8" fill="#fff"/><circle cx="58" cy="26" r="8" fill="#fff"/><circle cx="43.5" cy="27.5" r="3.8" fill="#2f2a4a"/><circle cx="59.5" cy="27.5" r="3.8" fill="#2f2a4a"/><path d="M44 36q6 4 12 0" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></div>
-    <div class="bug g2"><svg viewBox="0 0 100 100" aria-hidden="true"><g stroke="#2f2a4a" stroke-width="5" stroke-linecap="round"><path d="M24 52 9 45M22 64 7 67M27 77 15 89M76 52 91 45M78 64 93 67M73 77 85 89"/></g><path d="M43 20 35 7M57 20 65 7" stroke="#2f2a4a" stroke-width="4" stroke-linecap="round" fill="none"/><circle cx="35" cy="7" r="4.5" fill="#4fd26b"/><circle cx="65" cy="7" r="4.5" fill="#4fd26b"/><circle cx="50" cy="30" r="17" fill="#2f2a4a"/><ellipse cx="50" cy="63" rx="31" ry="30" fill="#4fd26b"/><path d="M50 36V92" stroke="#2c9346" stroke-width="4"/><circle cx="37" cy="58" r="6.5" fill="#2c9346"/><circle cx="64" cy="54" r="5.5" fill="#2c9346"/><circle cx="62" cy="77" r="6.5" fill="#2c9346"/><circle cx="38" cy="79" r="4.5" fill="#2c9346"/><circle cx="42" cy="26" r="8" fill="#fff"/><circle cx="58" cy="26" r="8" fill="#fff"/><circle cx="43.5" cy="27.5" r="3.8" fill="#2f2a4a"/><circle cx="59.5" cy="27.5" r="3.8" fill="#2f2a4a"/><path d="M44 36q6 4 12 0" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></div>
-    <div class="bug g3"><svg viewBox="0 0 100 100" aria-hidden="true"><g stroke="#2f2a4a" stroke-width="5" stroke-linecap="round"><path d="M24 52 9 45M22 64 7 67M27 77 15 89M76 52 91 45M78 64 93 67M73 77 85 89"/></g><path d="M43 20 35 7M57 20 65 7" stroke="#2f2a4a" stroke-width="4" stroke-linecap="round" fill="none"/><circle cx="35" cy="7" r="4.5" fill="#ffd23f"/><circle cx="65" cy="7" r="4.5" fill="#ffd23f"/><circle cx="50" cy="30" r="17" fill="#2f2a4a"/><ellipse cx="50" cy="63" rx="31" ry="30" fill="#ffd23f"/><path d="M50 36V92" stroke="#d9a300" stroke-width="4"/><circle cx="37" cy="58" r="6.5" fill="#d9a300"/><circle cx="64" cy="54" r="5.5" fill="#d9a300"/><circle cx="62" cy="77" r="6.5" fill="#d9a300"/><circle cx="38" cy="79" r="4.5" fill="#d9a300"/><circle cx="42" cy="26" r="8" fill="#fff"/><circle cx="58" cy="26" r="8" fill="#fff"/><circle cx="43.5" cy="27.5" r="3.8" fill="#2f2a4a"/><circle cx="59.5" cy="27.5" r="3.8" fill="#2f2a4a"/><path d="M44 36q6 4 12 0" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></div>
-    <div class="qr"><svg width="37mm" height="37mm" version="1.1" viewBox="0 0 37 37" xmlns="http://www.w3.org/2000/svg"><path d="M2,2H3V3H2zM3,2H4V3H3zM4,2H5V3H4zM5,2H6V3H5zM6,2H7V3H6zM7,2H8V3H7zM8,2H9V3H8zM12,2H13V3H12zM13,2H14V3H13zM16,2H17V3H16zM21,2H22V3H21zM25,2H26V3H25zM28,2H29V3H28zM29,2H30V3H29zM30,2H31V3H30zM31,2H32V3H31zM32,2H33V3H32zM33,2H34V3H33zM34,2H35V3H34zM2,3H3V4H2zM8,3H9V4H8zM12,3H13V4H12zM13,3H14V4H13zM14,3H15V4H14zM17,3H18V4H17zM19,3H20V4H19zM22,3H23V4H22zM25,3H26V4H25zM26,3H27V4H26zM28,3H29V4H28zM34,3H35V4H34zM2,4H3V5H2zM4,4H5V5H4zM5,4H6V5H5zM6,4H7V5H6zM8,4H9V5H8zM12,4H13V5H12zM16,4H17V5H16zM17,4H18V5H17zM19,4H20V5H19zM25,4H26V5H25zM26,4H27V5H26zM28,4H29V5H28zM30,4H31V5H30zM31,4H32V5H31zM32,4H33V5H32zM34,4H35V5H34zM2,5H3V6H2zM4,5H5V6H4zM5,5H6V6H5zM6,5H7V6H6zM8,5H9V6H8zM12,5H13V6H12zM15,5H16V6H15zM19,5H20V6H19zM24,5H25V6H24zM28,5H29V6H28zM30,5H31V6H30zM31,5H32V6H31zM32,5H33V6H32zM34,5H35V6H34zM2,6H3V7H2zM4,6H5V7H4zM5,6H6V7H5zM6,6H7V7H6zM8,6H9V7H8zM11,6H12V7H11zM14,6H15V7H14zM18,6H19V7H18zM21,6H22V7H21zM24,6H25V7H24zM25,6H26V7H25zM28,6H29V7H28zM30,6H31V7H30zM31,6H32V7H31zM32,6H33V7H32zM34,6H35V7H34zM2,7H3V8H2zM8,7H9V8H8zM10,7H11V8H10zM12,7H13V8H12zM13,7H14V8H13zM16,7H17V8H16zM20,7H21V8H20zM22,7H23V8H22zM26,7H27V8H26zM28,7H29V8H28zM34,7H35V8H34zM2,8H3V9H2zM3,8H4V9H3zM4,8H5V9H4zM5,8H6V9H5zM6,8H7V9H6zM7,8H8V9H7zM8,8H9V9H8zM10,8H11V9H10zM12,8H13V9H12zM14,8H15V9H14zM16,8H17V9H16zM18,8H19V9H18zM20,8H21V9H20zM22,8H23V9H22zM24,8H25V9H24zM26,8H27V9H26zM28,8H29V9H28zM29,8H30V9H29zM30,8H31V9H30zM31,8H32V9H31zM32,8H33V9H32zM33,8H34V9H33zM34,8H35V9H34zM11,9H12V10H11zM12,9H13V10H12zM14,9H15V10H14zM19,9H20V10H19zM21,9H22V10H21zM22,9H23V10H22zM23,9H24V10H23zM24,9H25V10H24zM25,9H26V10H25zM26,9H27V10H26zM2,10H3V11H2zM5,10H6V11H5zM7,10H8V11H7zM8,10H9V11H8zM10,10H11V11H10zM11,10H12V11H11zM12,10H13V11H12zM15,10H16V11H15zM16,10H17V11H16zM17,10H18V11H17zM18,10H19V11H18zM21,10H22V11H21zM23,10H24V11H23zM25,10H26V11H25zM26,10H27V11H26zM27,10H28V11H27zM29,10H30V11H29zM3,11H4V12H3zM4,11H5V12H4zM6,11H7V12H6zM7,11H8V12H7zM9,11H10V12H9zM10,11H11V12H10zM12,11H13V12H12zM13,11H14V12H13zM14,11H15V12H14zM22,11H23V12H22zM23,11H24V12H23zM26,11H27V12H26zM27,11H28V12H27zM28,11H29V12H28zM29,11H30V12H29zM33,11H34V12H33zM34,11H35V12H34zM2,12H3V13H2zM5,12H6V13H5zM6,12H7V13H6zM8,12H9V13H8zM12,12H13V13H12zM13,12H14V13H13zM18,12H19V13H18zM19,12H20V13H19zM21,12H22V13H21zM23,12H24V13H23zM27,12H28V13H27zM28,12H29V13H28zM29,12H30V13H29zM30,12H31V13H30zM32,12H33V13H32zM33,12H34V13H33zM34,12H35V13H34zM3,13H4V14H3zM4,13H5V14H4zM6,13H7V14H6zM7,13H8V14H7zM9,13H10V14H9zM10,13H11V14H10zM16,13H17V14H16zM18,13H19V14H18zM19,13H20V14H19zM23,13H24V14H23zM24,13H25V14H24zM26,13H27V14H26zM28,13H29V14H28zM30,13H31V14H30zM31,13H32V14H31zM2,14H3V15H2zM4,14H5V15H4zM8,14H9V15H8zM10,14H11V15H10zM11,14H12V15H11zM13,14H14V15H13zM14,14H15V15H14zM17,14H18V15H17zM23,14H24V15H23zM24,14H25V15H24zM27,14H28V15H27zM28,14H29V15H28zM31,14H32V15H31zM33,14H34V15H33zM4,15H5V16H4zM9,15H10V16H9zM10,15H11V16H10zM11,15H12V16H11zM13,15H14V16H13zM17,15H18V16H17zM18,15H19V16H18zM24,15H25V16H24zM26,15H27V16H26zM28,15H29V16H28zM30,15H31V16H30zM32,15H33V16H32zM33,15H34V16H33zM34,15H35V16H34zM2,16H3V17H2zM3,16H4V17H3zM7,16H8V17H7zM8,16H9V17H8zM10,16H11V17H10zM12,16H13V17H12zM14,16H15V17H14zM19,16H20V17H19zM20,16H21V17H20zM22,16H23V17H22zM23,16H24V17H23zM25,16H26V17H25zM26,16H27V17H26zM27,16H28V17H27zM28,16H29V17H28zM29,16H30V17H29zM32,16H33V17H32zM33,16H34V17H33zM2,17H3V18H2zM4,17H5V18H4zM5,17H6V18H5zM7,17H8V18H7zM14,17H15V18H14zM17,17H18V18H17zM19,17H20V18H19zM21,17H22V18H21zM23,17H24V18H23zM24,17H25V18H24zM28,17H29V18H28zM29,17H30V18H29zM33,17H34V18H33zM4,18H5V19H4zM7,18H8V19H7zM8,18H9V19H8zM10,18H11V19H10zM11,18H12V19H11zM12,18H13V19H12zM13,18H14V19H13zM16,18H17V19H16zM19,18H20V19H19zM21,18H22V19H21zM22,18H23V19H22zM23,18H24V19H23zM24,18H25V19H24zM26,18H27V19H26zM28,18H29V19H28zM30,18H31V19H30zM32,18H33V19H32zM33,18H34V19H33zM2,19H3V20H2zM4,19H5V20H4zM7,19H8V20H7zM9,19H10V20H9zM10,19H11V20H10zM11,19H12V20H11zM13,19H14V20H13zM14,19H15V20H14zM15,19H16V20H15zM18,19H19V20H18zM20,19H21V20H20zM24,19H25V20H24zM25,19H26V20H25zM26,19H27V20H26zM27,19H28V20H27zM29,19H30V20H29zM31,19H32V20H31zM33,19H34V20H33zM3,20H4V21H3zM4,20H5V21H4zM7,20H8V21H7zM8,20H9V21H8zM12,20H13V21H12zM14,20H15V21H14zM15,20H16V21H15zM16,20H17V21H16zM20,20H21V21H20zM22,20H23V21H22zM23,20H24V21H23zM26,20H27V21H26zM28,20H29V21H28zM32,20H33V21H32zM33,20H34V21H33zM34,20H35V21H34zM3,21H4V22H3zM5,21H6V22H5zM7,21H8V22H7zM10,21H11V22H10zM12,21H13V22H12zM14,21H15V22H14zM17,21H18V22H17zM18,21H19V22H18zM19,21H20V22H19zM20,21H21V22H20zM21,21H22V22H21zM22,21H23V22H22zM23,21H24V22H23zM25,21H26V22H25zM26,21H27V22H26zM27,21H28V22H27zM28,21H29V22H28zM29,21H30V22H29zM33,21H34V22H33zM34,21H35V22H34zM2,22H3V23H2zM4,22H5V23H4zM6,22H7V23H6zM8,22H9V23H8zM9,22H10V23H9zM10,22H11V23H10zM12,22H13V23H12zM16,22H17V23H16zM17,22H18V23H17zM18,22H19V23H18zM19,22H20V23H19zM20,22H21V23H20zM21,22H22V23H21zM24,22H25V23H24zM25,22H26V23H25zM26,22H27V23H26zM27,22H28V23H27zM33,22H34V23H33zM4,23H5V24H4zM7,23H8V24H7zM11,23H12V24H11zM12,23H13V24H12zM13,23H14V24H13zM15,23H16V24H15zM17,23H18V24H17zM18,23H19V24H18zM19,23H20V24H19zM20,23H21V24H20zM21,23H22V24H21zM22,23H23V24H22zM23,23H24V24H23zM26,23H27V24H26zM27,23H28V24H27zM28,23H29V24H28zM33,23H34V24H33zM34,23H35V24H34zM2,24H3V25H2zM3,24H4V25H3zM4,24H5V25H4zM6,24H7V25H6zM7,24H8V25H7zM8,24H9V25H8zM9,24H10V25H9zM10,24H11V25H10zM12,24H13V25H12zM14,24H15V25H14zM16,24H17V25H16zM17,24H18V25H17zM22,24H23V25H22zM23,24H24V25H23zM29,24H30V25H29zM30,24H31V25H30zM31,24H32V25H31zM32,24H33V25H32zM34,24H35V25H34zM3,25H4V26H3zM6,25H7V26H6zM12,25H13V26H12zM13,25H14V26H13zM14,25H15V26H14zM16,25H17V26H16zM18,25H19V26H18zM20,25H21V26H20zM23,25H24V26H23zM24,25H25V26H24zM26,25H27V26H26zM28,25H29V26H28zM30,25H31V26H30zM31,25H32V26H31zM2,26H3V27H2zM5,26H6V27H5zM7,26H8V27H7zM8,26H9V27H8zM9,26H10V27H9zM10,26H11V27H10zM11,26H12V27H11zM16,26H17V27H16zM17,26H18V27H17zM18,26H19V27H18zM19,26H20V27H19zM21,26H22V27H21zM22,26H23V27H22zM23,26H24V27H23zM24,26H25V27H24zM25,26H26V27H25zM26,26H27V27H26zM27,26H28V27H27zM28,26H29V27H28zM29,26H30V27H29zM30,26H31V27H30zM31,26H32V27H31zM32,26H33V27H32zM33,26H34V27H33zM10,27H11V28H10zM11,27H12V28H11zM12,27H13V28H12zM16,27H17V28H16zM21,27H22V28H21zM25,27H26V28H25zM26,27H27V28H26zM30,27H31V28H30zM31,27H32V28H31zM34,27H35V28H34zM2,28H3V29H2zM3,28H4V29H3zM4,28H5V29H4zM5,28H6V29H5zM6,28H7V29H6zM7,28H8V29H7zM8,28H9V29H8zM11,28H12V29H11zM13,28H14V29H13zM18,28H19V29H18zM23,28H24V29H23zM26,28H27V29H26zM28,28H29V29H28zM30,28H31V29H30zM31,28H32V29H31zM32,28H33V29H32zM33,28H34V29H33zM2,29H3V30H2zM8,29H9V30H8zM10,29H11V30H10zM12,29H13V30H12zM13,29H14V30H13zM14,29H15V30H14zM16,29H17V30H16zM18,29H19V30H18zM21,29H22V30H21zM26,29H27V30H26zM30,29H31V30H30zM34,29H35V30H34zM2,30H3V31H2zM4,30H5V31H4zM5,30H6V31H5zM6,30H7V31H6zM8,30H9V31H8zM12,30H13V31H12zM13,30H14V31H13zM16,30H17V31H16zM17,30H18V31H17zM18,30H19V31H18zM24,30H25V31H24zM26,30H27V31H26zM27,30H28V31H27zM28,30H29V31H28zM29,30H30V31H29zM30,30H31V31H30zM31,30H32V31H31zM2,31H3V32H2zM4,31H5V32H4zM5,31H6V32H5zM6,31H7V32H6zM8,31H9V32H8zM10,31H11V32H10zM12,31H13V32H12zM15,31H16V32H15zM16,31H17V32H16zM17,31H18V32H17zM21,31H22V32H21zM22,31H23V32H22zM23,31H24V32H23zM25,31H26V32H25zM28,31H29V32H28zM30,31H31V32H30zM33,31H34V32H33zM2,32H3V33H2zM4,32H5V33H4zM5,32H6V33H5zM6,32H7V33H6zM8,32H9V33H8zM11,32H12V33H11zM12,32H13V33H12zM14,32H15V33H14zM19,32H20V33H19zM20,32H21V33H20zM24,32H25V33H24zM25,32H26V33H25zM26,32H27V33H26zM30,32H31V33H30zM31,32H32V33H31zM34,32H35V33H34zM2,33H3V34H2zM8,33H9V34H8zM11,33H12V34H11zM13,33H14V34H13zM15,33H16V34H15zM16,33H17V34H16zM17,33H18V34H17zM18,33H19V34H18zM19,33H20V34H19zM23,33H24V34H23zM24,33H25V34H24zM25,33H26V34H25zM26,33H27V34H26zM31,33H32V34H31zM2,34H3V35H2zM3,34H4V35H3zM4,34H5V35H4zM5,34H6V35H5zM6,34H7V35H6zM7,34H8V35H7zM8,34H9V35H8zM10,34H11V35H10zM11,34H12V35H11zM13,34H14V35H13zM14,34H15V35H14zM16,34H17V35H16zM18,34H19V35H18zM20,34H21V35H20zM22,34H23V35H22zM23,34H24V35H23zM24,34H25V35H24zM25,34H26V35H25zM26,34H27V35H26zM27,34H28V35H27zM30,34H31V35H30zM31,34H32V35H31zM33,34H34V35H33z" id="qr-path" fill="#000000" fill-opacity="1" fill-rule="nonzero" stroke="none" /></svg></div>
-    <div class="tag">Escaneie e jogue!</div>
-    <div class="url">https://medeiros08.github.io/Jogo-ES/caca-bugs/</div>
-  </div>
-</main>
+    <div class="tagline">Bugs são erros nos programas. Engenheiros de software caçam e consertam cada um. Escaneie, jogue e entre no placar!</div>
+  </header>
+  <main>
+    <section class="qr-col">
+      <div class="bug g1"><svg viewBox="0 0 100 100" aria-hidden="true"><g stroke="#2f2a4a" stroke-width="5" stroke-linecap="round"><path d="M24 52 9 45M22 64 7 67M27 77 15 89M76 52 91 45M78 64 93 67M73 77 85 89"/></g><path d="M43 20 35 7M57 20 65 7" stroke="#2f2a4a" stroke-width="4" stroke-linecap="round" fill="none"/><circle cx="35" cy="7" r="4.5" fill="#ff5b5b"/><circle cx="65" cy="7" r="4.5" fill="#ff5b5b"/><circle cx="50" cy="30" r="17" fill="#2f2a4a"/><ellipse cx="50" cy="63" rx="31" ry="30" fill="#ff5b5b"/><path d="M50 36V92" stroke="#b93434" stroke-width="4"/><circle cx="37" cy="58" r="6.5" fill="#b93434"/><circle cx="64" cy="54" r="5.5" fill="#b93434"/><circle cx="62" cy="77" r="6.5" fill="#b93434"/><circle cx="38" cy="79" r="4.5" fill="#b93434"/><circle cx="42" cy="26" r="8" fill="#fff"/><circle cx="58" cy="26" r="8" fill="#fff"/><circle cx="43.5" cy="27.5" r="3.8" fill="#2f2a4a"/><circle cx="59.5" cy="27.5" r="3.8" fill="#2f2a4a"/><path d="M44 36q6 4 12 0" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></div>
+      <div class="bug g2"><svg viewBox="0 0 100 100" aria-hidden="true"><g stroke="#2f2a4a" stroke-width="5" stroke-linecap="round"><path d="M24 52 9 45M22 64 7 67M27 77 15 89M76 52 91 45M78 64 93 67M73 77 85 89"/></g><path d="M43 20 35 7M57 20 65 7" stroke="#2f2a4a" stroke-width="4" stroke-linecap="round" fill="none"/><circle cx="35" cy="7" r="4.5" fill="#ffd23f"/><circle cx="65" cy="7" r="4.5" fill="#ffd23f"/><circle cx="50" cy="30" r="17" fill="#2f2a4a"/><ellipse cx="50" cy="63" rx="31" ry="30" fill="#ffd23f"/><path d="M50 36V92" stroke="#d9a300" stroke-width="4"/><circle cx="37" cy="58" r="6.5" fill="#d9a300"/><circle cx="64" cy="54" r="5.5" fill="#d9a300"/><circle cx="62" cy="77" r="6.5" fill="#d9a300"/><circle cx="38" cy="79" r="4.5" fill="#d9a300"/><circle cx="42" cy="26" r="8" fill="#fff"/><circle cx="58" cy="26" r="8" fill="#fff"/><circle cx="43.5" cy="27.5" r="3.8" fill="#2f2a4a"/><circle cx="59.5" cy="27.5" r="3.8" fill="#2f2a4a"/><path d="M44 36q6 4 12 0" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></div>
+      <div class="qr"><svg width="37mm" height="37mm" version="1.1" viewBox="0 0 37 37" xmlns="http://www.w3.org/2000/svg"><path d="M2,2H3V3H2zM3,2H4V3H3zM4,2H5V3H4zM5,2H6V3H5zM6,2H7V3H6zM7,2H8V3H7zM8,2H9V3H8zM12,2H13V3H12zM13,2H14V3H13zM16,2H17V3H16zM21,2H22V3H21zM25,2H26V3H25zM28,2H29V3H28zM29,2H30V3H29zM30,2H31V3H30zM31,2H32V3H31zM32,2H33V3H32zM33,2H34V3H33zM34,2H35V3H34zM2,3H3V4H2zM8,3H9V4H8zM12,3H13V4H12zM13,3H14V4H13zM14,3H15V4H14zM17,3H18V4H17zM19,3H20V4H19zM22,3H23V4H22zM25,3H26V4H25zM26,3H27V4H26zM28,3H29V4H28zM34,3H35V4H34zM2,4H3V5H2zM4,4H5V5H4zM5,4H6V5H5zM6,4H7V5H6zM8,4H9V5H8zM12,4H13V5H12zM16,4H17V5H16zM17,4H18V5H17zM19,4H20V5H19zM25,4H26V5H25zM26,4H27V5H26zM28,4H29V5H28zM30,4H31V5H30zM31,4H32V5H31zM32,4H33V5H32zM34,4H35V5H34zM2,5H3V6H2zM4,5H5V6H4zM5,5H6V6H5zM6,5H7V6H6zM8,5H9V6H8zM12,5H13V6H12zM15,5H16V6H15zM19,5H20V6H19zM24,5H25V6H24zM28,5H29V6H28zM30,5H31V6H30zM31,5H32V6H31zM32,5H33V6H32zM34,5H35V6H34zM2,6H3V7H2zM4,6H5V7H4zM5,6H6V7H5zM6,6H7V7H6zM8,6H9V7H8zM11,6H12V7H11zM14,6H15V7H14zM18,6H19V7H18zM21,6H22V7H21zM24,6H25V7H24zM25,6H26V7H25zM28,6H29V7H28zM30,6H31V7H30zM31,6H32V7H31zM32,6H33V7H32zM34,6H35V7H34zM2,7H3V8H2zM8,7H9V8H8zM10,7H11V8H10zM12,7H13V8H12zM13,7H14V8H13zM16,7H17V8H16zM20,7H21V8H20zM22,7H23V8H22zM26,7H27V8H26zM28,7H29V8H28zM34,7H35V8H34zM2,8H3V9H2zM3,8H4V9H3zM4,8H5V9H4zM5,8H6V9H5zM6,8H7V9H6zM7,8H8V9H7zM8,8H9V9H8zM10,8H11V9H10zM12,8H13V9H12zM14,8H15V9H14zM16,8H17V9H16zM18,8H19V9H18zM20,8H21V9H20zM22,8H23V9H22zM24,8H25V9H24zM26,8H27V9H26zM28,8H29V9H28zM29,8H30V9H29zM30,8H31V9H30zM31,8H32V9H31zM32,8H33V9H32zM33,8H34V9H33zM34,8H35V9H34zM11,9H12V10H11zM12,9H13V10H12zM14,9H15V10H14zM19,9H20V10H19zM21,9H22V10H21zM22,9H23V10H22zM23,9H24V10H23zM24,9H25V10H24zM25,9H26V10H25zM26,9H27V10H26zM2,10H3V11H2zM5,10H6V11H5zM7,10H8V11H7zM8,10H9V11H8zM10,10H11V11H10zM11,10H12V11H11zM12,10H13V11H12zM15,10H16V11H15zM16,10H17V11H16zM17,10H18V11H17zM18,10H19V11H18zM21,10H22V11H21zM23,10H24V11H23zM25,10H26V11H25zM26,10H27V11H26zM27,10H28V11H27zM29,10H30V11H29zM3,11H4V12H3zM4,11H5V12H4zM6,11H7V12H6zM7,11H8V12H7zM9,11H10V12H9zM10,11H11V12H10zM12,11H13V12H12zM13,11H14V12H13zM14,11H15V12H14zM22,11H23V12H22zM23,11H24V12H23zM26,11H27V12H26zM27,11H28V12H27zM28,11H29V12H28zM29,11H30V12H29zM33,11H34V12H33zM34,11H35V12H34zM2,12H3V13H2zM5,12H6V13H5zM6,12H7V13H6zM8,12H9V13H8zM12,12H13V13H12zM13,12H14V13H13zM18,12H19V13H18zM19,12H20V13H19zM21,12H22V13H21zM23,12H24V13H23zM27,12H28V13H27zM28,12H29V13H28zM29,12H30V13H29zM30,12H31V13H30zM32,12H33V13H32zM33,12H34V13H33zM34,12H35V13H34zM3,13H4V14H3zM4,13H5V14H4zM6,13H7V14H6zM7,13H8V14H7zM9,13H10V14H9zM10,13H11V14H10zM16,13H17V14H16zM18,13H19V14H18zM19,13H20V14H19zM23,13H24V14H23zM24,13H25V14H24zM26,13H27V14H26zM28,13H29V14H28zM30,13H31V14H30zM31,13H32V14H31zM2,14H3V15H2zM4,14H5V15H4zM8,14H9V15H8zM10,14H11V15H10zM11,14H12V15H11zM13,14H14V15H13zM14,14H15V15H14zM17,14H18V15H17zM23,14H24V15H23zM24,14H25V15H24zM27,14H28V15H27zM28,14H29V15H28zM31,14H32V15H31zM33,14H34V15H33zM4,15H5V16H4zM9,15H10V16H9zM10,15H11V16H10zM11,15H12V16H11zM13,15H14V16H13zM17,15H18V16H17zM18,15H19V16H18zM24,15H25V16H24zM26,15H27V16H26zM28,15H29V16H28zM30,15H31V16H30zM32,15H33V16H32zM33,15H34V16H33zM34,15H35V16H34zM2,16H3V17H2zM3,16H4V17H3zM7,16H8V17H7zM8,16H9V17H8zM10,16H11V17H10zM12,16H13V17H12zM14,16H15V17H14zM19,16H20V17H19zM20,16H21V17H20zM22,16H23V17H22zM23,16H24V17H23zM25,16H26V17H25zM26,16H27V17H26zM27,16H28V17H27zM28,16H29V17H28zM29,16H30V17H29zM32,16H33V17H32zM33,16H34V17H33zM2,17H3V18H2zM4,17H5V18H4zM5,17H6V18H5zM7,17H8V18H7zM14,17H15V18H14zM17,17H18V18H17zM19,17H20V18H19zM21,17H22V18H21zM23,17H24V18H23zM24,17H25V18H24zM28,17H29V18H28zM29,17H30V18H29zM33,17H34V18H33zM4,18H5V19H4zM7,18H8V19H7zM8,18H9V19H8zM10,18H11V19H10zM11,18H12V19H11zM12,18H13V19H12zM13,18H14V19H13zM16,18H17V19H16zM19,18H20V19H19zM21,18H22V19H21zM22,18H23V19H22zM23,18H24V19H23zM24,18H25V19H24zM26,18H27V19H26zM28,18H29V19H28zM30,18H31V19H30zM32,18H33V19H32zM33,18H34V19H33zM2,19H3V20H2zM4,19H5V20H4zM7,19H8V20H7zM9,19H10V20H9zM10,19H11V20H10zM11,19H12V20H11zM13,19H14V20H13zM14,19H15V20H14zM15,19H16V20H15zM18,19H19V20H18zM20,19H21V20H20zM24,19H25V20H24zM25,19H26V20H25zM26,19H27V20H26zM27,19H28V20H27zM29,19H30V20H29zM31,19H32V20H31zM33,19H34V20H33zM3,20H4V21H3zM4,20H5V21H4zM7,20H8V21H7zM8,20H9V21H8zM12,20H13V21H12zM14,20H15V21H14zM15,20H16V21H15zM16,20H17V21H16zM20,20H21V21H20zM22,20H23V21H22zM23,20H24V21H23zM26,20H27V21H26zM28,20H29V21H28zM32,20H33V21H32zM33,20H34V21H33zM34,20H35V21H34zM3,21H4V22H3zM5,21H6V22H5zM7,21H8V22H7zM10,21H11V22H10zM12,21H13V22H12zM14,21H15V22H14zM17,21H18V22H17zM18,21H19V22H18zM19,21H20V22H19zM20,21H21V22H20zM21,21H22V22H21zM22,21H23V22H22zM23,21H24V22H23zM25,21H26V22H25zM26,21H27V22H26zM27,21H28V22H27zM28,21H29V22H28zM29,21H30V22H29zM33,21H34V22H33zM34,21H35V22H34zM2,22H3V23H2zM4,22H5V23H4zM6,22H7V23H6zM8,22H9V23H8zM9,22H10V23H9zM10,22H11V23H10zM12,22H13V23H12zM16,22H17V23H16zM17,22H18V23H17zM18,22H19V23H18zM19,22H20V23H19zM20,22H21V23H20zM21,22H22V23H21zM24,22H25V23H24zM25,22H26V23H25zM26,22H27V23H26zM27,22H28V23H27zM33,22H34V23H33zM4,23H5V24H4zM7,23H8V24H7zM11,23H12V24H11zM12,23H13V24H12zM13,23H14V24H13zM15,23H16V24H15zM17,23H18V24H17zM18,23H19V24H18zM19,23H20V24H19zM20,23H21V24H20zM21,23H22V24H21zM22,23H23V24H22zM23,23H24V24H23zM26,23H27V24H26zM27,23H28V24H27zM28,23H29V24H28zM33,23H34V24H33zM34,23H35V24H34zM2,24H3V25H2zM3,24H4V25H3zM4,24H5V25H4zM6,24H7V25H6zM7,24H8V25H7zM8,24H9V25H8zM9,24H10V25H9zM10,24H11V25H10zM12,24H13V25H12zM14,24H15V25H14zM16,24H17V25H16zM17,24H18V25H17zM22,24H23V25H22zM23,24H24V25H23zM29,24H30V25H29zM30,24H31V25H30zM31,24H32V25H31zM32,24H33V25H32zM34,24H35V25H34zM3,25H4V26H3zM6,25H7V26H6zM12,25H13V26H12zM13,25H14V26H13zM14,25H15V26H14zM16,25H17V26H16zM18,25H19V26H18zM20,25H21V26H20zM23,25H24V26H23zM24,25H25V26H24zM26,25H27V26H26zM28,25H29V26H28zM30,25H31V26H30zM31,25H32V26H31zM2,26H3V27H2zM5,26H6V27H5zM7,26H8V27H7zM8,26H9V27H8zM9,26H10V27H9zM10,26H11V27H10zM11,26H12V27H11zM16,26H17V27H16zM17,26H18V27H17zM18,26H19V27H18zM19,26H20V27H19zM21,26H22V27H21zM22,26H23V27H22zM23,26H24V27H23zM24,26H25V27H24zM25,26H26V27H25zM26,26H27V27H26zM27,26H28V27H27zM28,26H29V27H28zM29,26H30V27H29zM30,26H31V27H30zM31,26H32V27H31zM32,26H33V27H32zM33,26H34V27H33zM10,27H11V28H10zM11,27H12V28H11zM12,27H13V28H12zM16,27H17V28H16zM21,27H22V28H21zM25,27H26V28H25zM26,27H27V28H26zM30,27H31V28H30zM31,27H32V28H31zM34,27H35V28H34zM2,28H3V29H2zM3,28H4V29H3zM4,28H5V29H4zM5,28H6V29H5zM6,28H7V29H6zM7,28H8V29H7zM8,28H9V29H8zM11,28H12V29H11zM13,28H14V29H13zM18,28H19V29H18zM23,28H24V29H23zM26,28H27V29H26zM28,28H29V29H28zM30,28H31V29H30zM31,28H32V29H31zM32,28H33V29H32zM33,28H34V29H33zM2,29H3V30H2zM8,29H9V30H8zM10,29H11V30H10zM12,29H13V30H12zM13,29H14V30H13zM14,29H15V30H14zM16,29H17V30H16zM18,29H19V30H18zM21,29H22V30H21zM26,29H27V30H26zM30,29H31V30H30zM34,29H35V30H34zM2,30H3V31H2zM4,30H5V31H4zM5,30H6V31H5zM6,30H7V31H6zM8,30H9V31H8zM12,30H13V31H12zM13,30H14V31H13zM16,30H17V31H16zM17,30H18V31H17zM18,30H19V31H18zM24,30H25V31H24zM26,30H27V31H26zM27,30H28V31H27zM28,30H29V31H28zM29,30H30V31H29zM30,30H31V31H30zM31,30H32V31H31zM2,31H3V32H2zM4,31H5V32H4zM5,31H6V32H5zM6,31H7V32H6zM8,31H9V32H8zM10,31H11V32H10zM12,31H13V32H12zM15,31H16V32H15zM16,31H17V32H16zM17,31H18V32H17zM21,31H22V32H21zM22,31H23V32H22zM23,31H24V32H23zM25,31H26V32H25zM28,31H29V32H28zM30,31H31V32H30zM33,31H34V32H33zM2,32H3V33H2zM4,32H5V33H4zM5,32H6V33H5zM6,32H7V33H6zM8,32H9V33H8zM11,32H12V33H11zM12,32H13V33H12zM14,32H15V33H14zM19,32H20V33H19zM20,32H21V33H20zM24,32H25V33H24zM25,32H26V33H25zM26,32H27V33H26zM30,32H31V33H30zM31,32H32V33H31zM34,32H35V33H34zM2,33H3V34H2zM8,33H9V34H8zM11,33H12V34H11zM13,33H14V34H13zM15,33H16V34H15zM16,33H17V34H16zM17,33H18V34H17zM18,33H19V34H18zM19,33H20V34H19zM23,33H24V34H23zM24,33H25V34H24zM25,33H26V34H25zM26,33H27V34H26zM31,33H32V34H31zM2,34H3V35H2zM3,34H4V35H3zM4,34H5V35H4zM5,34H6V35H5zM6,34H7V35H6zM7,34H8V35H7zM8,34H9V35H8zM10,34H11V35H10zM11,34H12V35H11zM13,34H14V35H13zM14,34H15V35H14zM16,34H17V35H16zM18,34H19V35H18zM20,34H21V35H20zM22,34H23V35H22zM23,34H24V35H23zM24,34H25V35H24zM25,34H26V35H25zM26,34H27V35H26zM27,34H28V35H27zM30,34H31V35H30zM31,34H32V35H31zM33,34H34V35H33z" id="qr-path" fill="#000000" fill-opacity="1" fill-rule="nonzero" stroke="none" /></svg></div>
+      <div class="scan">📱 Escaneie e jogue!</div>
+      <div class="url">https://medeiros08.github.io/Jogo-ES/caca-bugs/</div>
+    </section>
+    <section class="board" id="board">
+      <div class="board-head">
+        <h2>🏆 Placar de hoje</h2>
+        <div class="live" id="live"><i></i><span id="live-t">ao vivo</span></div>
+      </div>
+      <ol id="list"></ol>
+      <div class="count" id="count"></div>
+    </section>
+  </main>
+</div>
+<div class="admin-bar">
+  <button type="button" id="btn-reset" class="danger">Zerar placar</button>
+  <button type="button" id="btn-done">Pronto</button>
+</div>
+<button class="gear" id="gear" type="button" aria-label="Configurar placar" title="Configurar placar">⚙️</button>
+
+<script>
+(function(){
+  'use strict';
+  var FEED = 'https://ntfy.sh/cacabugs-es-9d27f41ac6';
+  var TOP = 10, MAX_SCORE = 2500, POLL_MS = 4000;
+  var K_ENTRIES = 'cacabugs-placar', K_HIDDEN = 'cacabugs-ocultos', K_RESET = 'cacabugs-zerado', K_SINCE = 'cacabugs-since';
+  var BLOCK_PARTS = ['porra','caralh','merda','bosta','viad','bucet','foda','fuder','cacet','piroc','xoxot','vagabund','arromb','otari','corno','penis','vadia','cuzao','boquet','putinh','putaria'];
+  var BLOCK_WORDS = ['cu','pau','fdp','pqp','vsf','tnc','krl','crl','pnc','vtnc','kct','buct','puta','puto','rola','pinto','bicha','xana','xota','pica'];
+
+  function load(k, d){ try{ var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } }
+  function save(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+
+  var entries = load(K_ENTRIES, {});
+  var hidden = load(K_HIDDEN, {});
+  var resetAt = load(K_RESET, 0);
+  var since = load(K_SINCE, 'all');
+  var leaderKey = null;
+
+  function isRude(v){
+    var n = v.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/0/g,'o').replace(/1/g,'i').replace(/3/g,'e').replace(/4/g,'a').replace(/5/g,'s').replace(/@/g,'a');
+    var flat = n.replace(/[^a-z]/g, '');
+    if(BLOCK_PARTS.some(function(w){ return flat.indexOf(w) >= 0; })) return true;
+    return n.split(/[^a-z]+/).some(function(t){ return BLOCK_WORDS.indexOf(t) >= 0; });
+  }
+
+  function ranked(){
+    return Object.keys(entries)
+      .filter(function(k){ return !hidden[k]; })
+      .map(function(k){ var e = entries[k]; return { k:k, n:e.n, s:e.s, t:e.t }; })
+      .sort(function(a, b){ return b.s - a.s || a.t - b.t; });
+  }
+
+  function render(fresh){
+    fresh = fresh || [];
+    var list = document.getElementById('list');
+    var all = ranked();
+    list.innerHTML = '';
+    if(!all.length){
+      list.innerHTML = '<div class="empty">Ninguém jogou ainda.<br>Seja o primeiro! 🐞</div>';
+    }
+    all.slice(0, TOP).forEach(function(e, i){
+      var li = document.createElement('li');
+      li.className = (i < 3 ? 'p' + (i + 1) : '') + (fresh.indexOf(e.k) >= 0 ? ' new' : '');
+      var pos = document.createElement('span'); pos.className = 'pos'; pos.textContent = i < 3 ? ['🥇','🥈','🥉'][i] : (i + 1) + 'º';
+      var name = document.createElement('span'); name.className = 'name'; name.textContent = e.n;
+      var pts = document.createElement('span'); pts.className = 'pts'; pts.textContent = e.s + ' pts';
+      var del = document.createElement('button'); del.className = 'del'; del.type = 'button'; del.textContent = 'remover';
+      del.addEventListener('click', function(){ hidden[e.k] = 1; save(K_HIDDEN, hidden); render(); });
+      li.appendChild(pos); li.appendChild(name); li.appendChild(pts); li.appendChild(del);
+      list.appendChild(li);
+    });
+    var n = all.length;
+    document.getElementById('count').textContent = n ? (n + (n === 1 ? ' jogada no placar' : ' jogadas no placar')) : '';
+
+    var top = all[0];
+    if(top && fresh.indexOf(top.k) >= 0 && top.k !== leaderKey && leaderKey !== null){
+      announce('🎉 Novo líder: ' + top.n + '!');
+    }
+    leaderKey = top ? top.k : '';
+  }
+
+  function announce(text){
+    var old = document.querySelector('.leader'); if(old) old.remove();
+    var b = document.createElement('div'); b.className = 'leader'; b.textContent = text;
+    document.getElementById('board').appendChild(b);
+    setTimeout(function(){ b.remove(); }, 5000);
+  }
+
+  function setLive(ok){
+    document.getElementById('live').classList.toggle('off', !ok);
+    document.getElementById('live-t').textContent = ok ? 'ao vivo' : 'sem internet';
+  }
+
+  async function poll(){
+    try{
+      var res = await fetch(FEED + '/json?poll=1&since=' + encodeURIComponent(since), { cache:'no-store' });
+      if(!res.ok) throw new Error('status ' + res.status);
+      var text = await res.text();
+      var fresh = [];
+      text.split('\n').forEach(function(line){
+        if(!line) return;
+        try{
+          var m = JSON.parse(line);
+          if(m.event !== 'message') return;
+          since = m.id;
+          if(m.time < resetAt) return;
+          var d = JSON.parse(m.message);
+          if(!d || typeof d.k !== 'string' || typeof d.n !== 'string' || typeof d.s !== 'number') return;
+          var nick = d.n.replace(/[<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 12);
+          if(nick.length < 2 || isRude(nick)) return;
+          var score = Math.max(0, Math.min(MAX_SCORE, Math.round(d.s)));
+          var k = d.k.slice(0, 40);
+          if(!entries[k]){ entries[k] = { n:nick, s:score, t:m.time }; fresh.push(k); }
+        }catch(e){}
+      });
+      save(K_SINCE, since);
+      if(fresh.length){ save(K_ENTRIES, entries); render(fresh); }
+      setLive(true);
+    }catch(err){
+      setLive(false);
+    }finally{
+      setTimeout(poll, POLL_MS);
+    }
+  }
+
+  document.getElementById('gear').addEventListener('click', function(){ document.body.classList.toggle('admin'); });
+  document.getElementById('btn-done').addEventListener('click', function(){ document.body.classList.remove('admin'); });
+  document.getElementById('btn-reset').addEventListener('click', function(){
+    if(!window.confirm('Apagar todas as pontuações do placar?')) return;
+    resetAt = Math.floor(Date.now() / 1000);
+    entries = {}; hidden = {};
+    save(K_RESET, resetAt); save(K_ENTRIES, entries); save(K_HIDDEN, hidden);
+    leaderKey = '';
+    render();
+  });
+
+  render();
+  leaderKey = (ranked()[0] || {}).k || '';
+  poll();
+})();
+</script>
 </body>
 </html>
