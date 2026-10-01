@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#6cc4ff">
+<title>Arcade do Código</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilo.css?v=1">
+</head>
+<body>
+<div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+<div class="hills"></div>
+
+<div class="app">
+  <!-- MENU -->
+  <section class="menu" id="scr-menu">
+    <header class="menu-head">
+      <canvas id="mascot" aria-hidden="true"></canvas>
+      <h1 class="logo"><span class="y">Arcade</span><br>do <span class="p">Código</span></h1>
+    </header>
+    <p class="menu-sub">Escolha um jogo e descubra como é ser engenheiro(a) de software!</p>
+    <div class="cards" id="cards"></div>
+    <button type="button" id="mute-menu" class="mute-menu">🔊 Som ligado</button>
+  </section>
+
+  <!-- JOGO -->
+  <section class="game" id="scr-game" hidden>
+    <div class="hud">
+      <button type="button" id="btn-home" class="round" aria-label="Voltar ao menu">🏠</button>
+      <div class="score" id="score">0</div>
+      <div class="hearts" id="hearts"></div>
+      <button type="button" id="mute" class="round" aria-label="Ligar ou desligar som">🔊</button>
+    </div>
+    <div class="time" id="time"><div id="timefill"></div></div>
+    <div class="stage" id="stage"></div>
+  </section>
+
+  <!-- FIM -->
+  <section class="end" id="scr-end" hidden>
+    <div class="end-head" id="end-head">Tempo esgotado!</div>
+    <div class="card result" id="end-card">
+      <div class="end-game" id="end-game"></div>
+      <div class="medal" id="medal">🏆</div>
+      <div class="big" id="final">0</div>
+      <div class="rank" id="rank"></div>
+      <div class="stats" id="stats"></div>
+      <div class="record" id="record"></div>
+    </div>
+    <div class="card send" id="send-card">
+      <div class="send-title" id="send-title">🏆 Coloque seu nome no placar!</div>
+      <form id="send-form" autocomplete="off">
+        <input id="nick" name="nick" maxlength="12" placeholder="Seu apelido" enterkeyhint="send" aria-label="Seu apelido">
+        <button type="submit" class="btn-sm" id="send-btn">Enviar</button>
+      </form>
+      <div class="send-note" id="send-note">Use um apelido, não o nome completo.</div>
+    </div>
+    <div class="card fact"><b id="learn-title">Você praticou</b><span id="learn"></span></div>
+    <div class="end-actions">
+      <button type="button" class="btn" id="btn-again">Jogar de novo</button>
+      <button type="button" class="btn ghost" id="btn-menu">Outros jogos</button>
+    </div>
+  </section>
+</div>
+
+<!-- COMO JOGAR -->
+<div class="overlay" id="howto" hidden>
+  <div class="ht-card" id="ht-card">
+    <h2 id="ht-title"></h2>
+    <div class="ht-concept" id="ht-concept"></div>
+    <div class="ht-demo" id="ht-demo"><span class="ht-target" id="ht-target">👾</span><span class="ht-hand">👆</span></div>
+    <ul class="ht-steps" id="ht-steps"></ul>
+    <button type="button" class="btn" id="ht-go">Começar!</button>
+    <button type="button" class="ht-back" id="ht-back">Escolher outro jogo</button>
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script src="nucleo.js?v=1"></script>
+<script src="ninja.js?v=1"></script>
+<script src="esteira.js?v=1"></script>
+<script src="robo.js?v=1"></script>
+<script>Arcade.boot();</script>
+</body>
+</html>
