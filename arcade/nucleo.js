@@ -9,6 +9,14 @@
   function wait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
   A.wait = wait;
 
+  var MODES = {
+    facil:{ label:'🌱 Fácil', icon:'🌱', hint:'Mais devagar e com 5 vidas. Pontos ×0,6', speed:0.75, lives:2, mult:0.6 },
+    normal:{ label:'⚡ Normal', icon:'⚡', hint:'O jogo como ele é. Pontos ×1', speed:1, lives:0, mult:1 },
+    dificil:{ label:'🔥 Desafio', icon:'🔥', hint:'Rápido, 2 vidas e pontos ×1,5. Para quem manda bem!', speed:1.35, lives:-1, mult:1.5 }
+  };
+  var mode = 'normal';
+  try{ if(MODES[localStorage.getItem('arcade-mode')]) mode = localStorage.getItem('arcade-mode'); }catch(e){}
+
   // ---------- som ----------
   var ac = null, muted = false;
   function tone(f, d, type, vol, delay, slide){
@@ -302,10 +310,12 @@
   var api = {
     get running(){ return !!(run && run.running); },
     progress: function(){ return api.running ? Math.min(1, (performance.now() - run.t0) / current.duration) : 0; },
+    speed: function(){ return MODES[mode].speed; },
     add: function(n, x, y, label){
       if(!api.running) return;
-      run.score += n; renderScore();
-      if(x != null) floatText(label || ('+' + n), x, y);
+      var pts = Math.max(1, Math.round(n * MODES[mode].mult));
+      run.score += pts; renderScore();
+      if(x != null) floatText(label ? label.replace('+' + n, '+' + pts) : ('+' + pts), x, y);
       var s = $('score'); s.classList.remove('bump'); void s.offsetWidth; s.classList.add('bump');
     },
     loseLife: function(msg){
@@ -339,8 +349,30 @@
     $('ht-demo').className = 'ht-demo hint-' + current.hint;
     $('ht-target').textContent = current.demoTarget;
     setupPractice(current.hint);
+    renderModes();
     $('howto').hidden = false;
     A.sfx.click();
+  }
+
+  function renderModes(){
+    var box = $('modes');
+    box.innerHTML = '';
+    Object.keys(MODES).forEach(function(k){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'mode' + (k === mode ? ' on' : '') + ' mode-' + k;
+      b.setAttribute('role', 'radio');
+      b.setAttribute('aria-checked', k === mode ? 'true' : 'false');
+      b.textContent = MODES[k].label;
+      b.addEventListener('click', function(){
+        mode = k;
+        try{ localStorage.setItem('arcade-mode', k); }catch(e){}
+        A.sfx.click();
+        renderModes();
+      });
+      box.appendChild(b);
+    });
+    $('mode-hint').textContent = MODES[mode].hint;
   }
 
   // ---------- treino no "como jogar" ----------
@@ -440,7 +472,8 @@
     stage.innerHTML = '';
     stage.className = 'stage stage-' + current.id;
     var token = {};
-    run = { token:token, running:false, score:0, lives:current.lives, maxLives:current.lives, t0:0, raf:0, lastTick:-1 };
+    var lives = Math.max(1, current.lives + MODES[mode].lives);
+    run = { token:token, running:false, score:0, lives:lives, maxLives:lives, t0:0, raf:0, lastTick:-1, mode:mode };
     renderScore(); renderHearts();
     $('timefill').style.transform = 'scaleX(1)';
     $('time').classList.remove('low');
@@ -530,7 +563,7 @@
     document.body.style.setProperty('--theme-d', g.colorDark);
     $('end-card').style.setProperty('--c', g.color);
     $('end-head').textContent = reason === 'lives' ? g.failText : 'Tempo esgotado! ⏱️';
-    $('end-game').textContent = g.emoji + ' ' + g.title;
+    $('end-game').textContent = g.emoji + ' ' + g.title + ' · ' + MODES[run.mode].label;
     $('medal').textContent = rank[1];
     $('final').textContent = '0 pts';
     setTimeout(function(){ countUp($('final'), score, 1100, ' pts'); }, 350);
@@ -551,7 +584,9 @@
     $('record').textContent = isRecord ? '🎉 Novo recorde neste celular!' : 'Recorde neste celular: ' + best + ' pts';
     $('learn-title').textContent = 'Você praticou: ' + g.concept;
     $('learn').textContent = g.learn;
-    lastRound = { g:g.id, score:score };
+    $('real').textContent = g.real || '';
+    $('real-wrap').hidden = !g.real;
+    lastRound = { g:g.id, score:score, m:run.mode };
     resetSendCard();
     $('send-card').hidden = score <= 0;
     show('scr-end');
@@ -611,7 +646,7 @@
     btn.disabled = true; btn.textContent = '...';
     var key = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
     try{
-      var res = await fetch(PLACAR, { method:'POST', body:JSON.stringify({ g:lastRound.g, n:nick, s:lastRound.score, k:key }) });
+      var res = await fetch(PLACAR, { method:'POST', body:JSON.stringify({ g:lastRound.g, m:lastRound.m, n:nick, s:lastRound.score, k:key }) });
       if(!res.ok) throw new Error('status ' + res.status);
       sentKey = key;
       try{ localStorage.setItem('arcade-nick', nick); }catch(e2){}
@@ -645,6 +680,11 @@
     'Engenheiros de software criam apps, jogos e sites! 💻',
     'Cada jogo dá até 3 ⭐. Dá para juntar 9!',
     'Testar é tão importante quanto programar! 🧪',
+    'Acha fácil? Tente o modo 🔥 Desafio: os pontos valem ×1,5!',
+    'O Git guarda todo o histórico do código, como um "desfazer" infinito ⏪',
+    'Versão 2.1.3? O 1º número muda nas mudanças grandes, o último nas correções de bug 🔢',
+    'WhatsApp, jogos, apps de banco: tudo isso é feito por times de engenharia de software 📱',
+    'Bons programadores escrevem testes que rodam sozinhos a cada mudança no código 🤖',
     'Psiu... toque em mim de novo! 😄'
   ];
 

@@ -128,8 +128,9 @@
     decided = false;
 
     var p = api.progress();
-    windowMs = Math.max(1700, 4300 - 2600 * p);
-    el.belt.style.animationDuration = (1.3 - 0.8 * p) + 's';
+    var sp = api.speed();
+    windowMs = Math.max(1700, 4300 - 2600 * p) / sp;
+    el.belt.style.animationDuration = ((1.3 - 0.8 * p) / sp) + 's';
     shownAt = performance.now() + 350;
     el.fill.style.transition = 'none';
     el.fill.style.transform = 'scaleX(1)';
@@ -275,6 +276,7 @@
     ],
     duration:40000, lives:3, failText:'O cliente ficou bravo! 😤',
     learn:'Antes de entregar um app, engenheiros de software conferem se ele faz exatamente o que o cliente pediu. O pedido se chama requisito, e conferir se chama testar!',
+    real:'Times de QA (qualidade) escrevem testes de aceitação baseados nos requisitos do cliente. Muitos são testes automatizados, que rodam sozinhos toda vez que alguém muda o código.',
     ranks:[[380, '🏆', 'Chefe de Qualidade'], [240, '🥇', 'Testador(a) Expert'], [120, '🔍', 'Testador(a)'], [0, '🌱', 'Estagiário(a) de Testes']],
     setup:setup, start:start, stop:stop, destroy:destroy,
     drawIcon:drawIcon,

@@ -48,7 +48,7 @@
     var p = api.progress();
     var n = 1 + (Math.random() < 0.3 + p * 0.5 ? 1 : 0) + (p > 0.5 && Math.random() < 0.4 ? 1 : 0);
     for(var i = 0; i < n; i++) setTimeout(launch, i * 150);
-    spawnT = setTimeout(wave, 1150 - 550 * p + Math.random() * 250);
+    spawnT = setTimeout(wave, (1150 - 550 * p + Math.random() * 250) / api.speed());
   }
 
   function launch(){
@@ -61,13 +61,13 @@
     else if(roll < 0.31 + p * 0.12) type = 'file';
     else type = 'm';
     var r = type === 'mega' ? base * 1.6 : type === 'gold' ? base * 0.9 : base;
-    var gf = type === 'mega' ? 0.55 : 1;
-    var g = GRAV * H * gf;
+    var gf = type === 'mega' ? 0.55 : 1, sp = api.speed();
+    var g = GRAV * H * gf * sp * sp;
     var x0 = W * (0.15 + Math.random() * 0.7), tx = W * (0.2 + Math.random() * 0.6);
     var h = H * (0.5 + Math.random() * 0.3);
     var vy = -Math.sqrt(2 * g * h), tUp = -vy / g;
     objs.push({
-      type:type, x:x0, y:H + r, vx:(tx - x0) / (tUp * 1.7), vy:vy, gf:gf, r:r,
+      type:type, x:x0, y:H + r, vx:(tx - x0) / (tUp * 1.7), vy:vy, g:g, r:r,
       rot:0, vr:(Math.random() - 0.5) * 3, hp:type === 'mega' ? 3 : 1, lastHit:0, dead:false,
       color:type === 'gold' ? '#ffd23f' : type === 'mega' ? '#ff5f8f' : A.COLORS[Math.floor(Math.random() * A.COLORS.length)]
     });
@@ -177,7 +177,7 @@
   function update(dt, now){
     var H = C.H, g = GRAV * H;
     objs.forEach(function(o){
-      o.vy += g * o.gf * dt; o.x += o.vx * dt; o.y += o.vy * dt; o.rot += o.vr * dt;
+      o.vy += o.g * dt; o.x += o.vx * dt; o.y += o.vy * dt; o.rot += o.vr * dt;
       if(o.vy > 0 && o.y > H + o.r * 2) o.dead = true;
     });
     objs = objs.filter(function(o){ return !o.dead; });
@@ -321,6 +321,7 @@
     ],
     duration:30000, lives:3, failText:'Arquivos demais apagados! 💾',
     learn:'Debugar é encontrar e eliminar erros, tomando cuidado para não apagar o que já funciona. Quem programa faz isso todos os dias!',
+    real:'Programadores usam depuradores (debuggers), breakpoints e logs para pausar o programa e achar a linha exata do erro. E antes de apagar código, conferem se nada importante vai quebrar junto.',
     ranks:[[450, '🏆', 'Ninja Lendário(a) do Debug'], [280, '🥇', 'Mestre(a) do Debug'], [140, '⚔️', 'Caçador(a) de Glitches'], [0, '🌱', 'Aprendiz de Ninja']],
     setup:setup, start:start, stop:stop, destroy:destroy,
     resize:function(){ if(C) C.resize(); },

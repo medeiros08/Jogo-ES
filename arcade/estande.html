@@ -87,7 +87,7 @@
 <div class="wrap">
   <header>
     <h1><span class="a">Arcade</span> do <span class="b">Código</span></h1>
-    <div class="tagline">3 jogos para descobrir o que faz um(a) engenheiro(a) de software: caçar bugs, testar apps e construir versões. Escaneie, jogue e entre no placar!</div>
+    <div class="tagline">3 jogos para descobrir o que faz um(a) engenheiro(a) de software: caçar bugs, testar apps e lançar versões. Do 🌱 Fácil ao 🔥 Desafio, para todas as idades. Escaneie e entre no placar!</div>
   </header>
   <main>
     <section class="qr-col">
@@ -145,7 +145,7 @@
   function ranked(g){
     return Object.keys(entries)
       .filter(function(k){ return !hidden[k] && entries[k].g === g; })
-      .map(function(k){ var e = entries[k]; return { k:k, n:e.n, s:e.s, t:e.t }; })
+      .map(function(k){ var e = entries[k]; return { k:k, n:e.n, s:e.s, t:e.t, m:e.m }; })
       .sort(function(a, b){ return b.s - a.s || a.t - b.t; });
   }
 
@@ -170,7 +170,8 @@
         var li = document.createElement('li');
         li.className = (i < 3 ? 'p' + (i + 1) : '') + (fresh.indexOf(e.k) >= 0 ? ' new' : '');
         var pos = document.createElement('span'); pos.className = 'pos'; pos.textContent = i < 3 ? ['🥇','🥈','🥉'][i] : (i + 1) + 'º';
-        var name = document.createElement('span'); name.className = 'name'; name.textContent = e.n;
+        var name = document.createElement('span'); name.className = 'name';
+        name.textContent = e.n + (e.m === 'dificil' ? ' 🔥' : e.m === 'facil' ? ' 🌱' : '');
         var pts = document.createElement('span'); pts.className = 'pts'; pts.textContent = e.s;
         var del = document.createElement('button'); del.className = 'del'; del.type = 'button'; del.textContent = 'remover';
         del.addEventListener('click', function(){ hidden[e.k] = 1; save(K_HIDDEN, hidden); render(); });
@@ -221,7 +222,8 @@
           var nick = d.n.replace(/[<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 12);
           if(nick.length < 2 || isRude(nick)) return;
           var k = d.k.slice(0, 40);
-          if(!entries[k]){ entries[k] = { g:d.g, n:nick, s:Math.max(0, Math.min(MAX_SCORE, Math.round(d.s))), t:m.time }; fresh.push(k); }
+          var md = d.m === 'dificil' || d.m === 'facil' ? d.m : 'normal';
+          if(!entries[k]){ entries[k] = { g:d.g, m:md, n:nick, s:Math.max(0, Math.min(MAX_SCORE, Math.round(d.s))), t:m.time }; fresh.push(k); }
         }catch(e){}
       });
       save(K_SINCE, since);

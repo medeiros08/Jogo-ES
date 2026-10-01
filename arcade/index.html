@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilo.css?v=2">
+<link rel="stylesheet" href="estilo.css?v=3">
 </head>
 <body>
 <div class="sky" aria-hidden="true">
@@ -69,7 +69,10 @@
       </form>
       <div class="send-note" id="send-note">Use um apelido, não o nome completo.</div>
     </div>
-    <div class="card fact"><b id="learn-title">Você praticou</b><span id="learn"></span></div>
+    <div class="card fact">
+      <b id="learn-title">Você praticou</b><span id="learn"></span>
+      <div class="real" id="real-wrap"><b>💼 Na vida real</b><span id="real"></span></div>
+    </div>
     <div class="end-actions">
       <button type="button" class="btn" id="btn-again">↻ Jogar de novo</button>
       <button type="button" class="btn ghost" id="btn-menu">🎮 Outros jogos</button>
@@ -88,6 +91,11 @@
       <span class="ht-say" id="ht-say">Experimente aqui! 👆</span>
     </div>
     <ul class="ht-steps" id="ht-steps"></ul>
+    <div class="mode-box">
+      <div class="mode-label">Escolha o nível</div>
+      <div class="modes" id="modes" role="radiogroup" aria-label="Nível de dificuldade"></div>
+      <div class="mode-hint" id="mode-hint"></div>
+    </div>
     <button type="button" class="btn" id="ht-go">Começar!</button>
     <button type="button" class="ht-back" id="ht-back">Escolher outro jogo</button>
   </div>
@@ -95,10 +103,10 @@
 
 <canvas id="confetti"></canvas>
 
-<script src="nucleo.js?v=2"></script>
-<script src="ninja.js?v=2"></script>
-<script src="esteira.js?v=2"></script>
-<script src="robo.js?v=2"></script>
+<script src="nucleo.js?v=3"></script>
+<script src="ninja.js?v=3"></script>
+<script src="esteira.js?v=3"></script>
+<script src="robo.js?v=3"></script>
 <script>Arcade.boot();</script>
 </body>
 </html>

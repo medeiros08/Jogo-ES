@@ -70,13 +70,13 @@
     var s = Math.min(C.W, C.H) * 0.075 + 12;
     var it = {
       type:type, s:type === 'bug' ? s * 0.62 : s, x:s + Math.random() * (C.W - 2 * s), y:-s,
-      vy:C.H * (0.3 + 0.38 * p) * (type === 'bug' ? 0.9 + Math.random() * 0.4 : 1),
+      vy:C.H * (0.3 + 0.38 * p) * api.speed() * (type === 'bug' ? 0.9 + Math.random() * 0.4 : 1),
       ph:Math.random() * 6, rot:(Math.random() - 0.5) * 0.6, done:false,
       color:type === 'gold' ? '#ffd23f' : type === 'bug' ? A.COLORS[Math.floor(Math.random() * 2)] : PIECE_COLORS[Math.floor(Math.random() * PIECE_COLORS.length)]
     };
     if(type === 'power'){ var ks = Object.keys(POWERS); it.power = ks[Math.floor(Math.random() * ks.length)]; }
     items.push(it);
-    spawnT = setTimeout(spawn, 720 - 330 * p + Math.random() * 150);
+    spawnT = setTimeout(spawn, (720 - 330 * p + Math.random() * 150) / api.speed());
   }
 
   function burst(x, y, color, n){
@@ -261,6 +261,7 @@
     ],
     duration:40000, lives:3, failText:'Bugs demais no app! 👾',
     learn:'Software é construído peça por peça e lançado em versões (1.0, 2.0, 3.0...). Cada versão nova traz melhorias, e o time precisa manter os bugs longe!',
+    real:'O código fica guardado no Git, e cada mudança passa por testes automáticos antes de virar uma versão nova. Isso se chama CI/CD. É assim que seus apps recebem atualizações quase toda semana.',
     ranks:[[520, '🏆', 'Arquiteto(a) de Software'], [340, '🥇', 'Engenheiro(a) Sênior'], [170, '💻', 'Engenheiro(a) Júnior'], [0, '🌱', 'Aprendiz de Robótica']],
     setup:setup, start:start, stop:stop, destroy:destroy,
     resize:function(){ if(C) C.resize(); },
