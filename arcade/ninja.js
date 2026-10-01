@@ -265,8 +265,53 @@
     }
   }
 
+  function drawPreview(ctx, w, h, t){
+    ctx.fillStyle = 'rgba(255,255,255,0.28)';
+    ctx.font = '700 18px Fredoka, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for(var b = 0; b < 7; b++){
+      var by = ((b * 37 - t * 0.02) % (h + 30) + h + 30) % (h + 30) - 15;
+      ctx.fillText(BITS[b], (b * 61 + 30) % w, by);
+    }
+    var r = Math.min(w, h) * 0.15, T = 2400, cols = ['#ff5f8f', '#4fd6a6', '#ffd23f'];
+    for(var i = 0; i < 3; i++){
+      var ph = ((t + i * 800) % T) / T;
+      var x = w * (0.22 + 0.28 * i) + (ph - 0.5) * w * 0.12;
+      var y = h + r - Math.sin(ph * Math.PI) * (h * 0.78 + r);
+      var cut = i === 1 && ph > 0.5;
+      if(cut){
+        var k = (ph - 0.5) / 0.5, x0 = w * 0.5, y0 = h + r - (h * 0.78 + r);
+        [-1, 1].forEach(function(s){
+          ctx.save();
+          ctx.globalAlpha = 1 - k;
+          ctx.translate(x0 + s * k * 40, y0 + k * k * h * 0.9);
+          ctx.rotate(s * k * 2 - 0.6);
+          ctx.beginPath();
+          if(s > 0) ctx.rect(-r * 2, 0, r * 4, r * 2); else ctx.rect(-r * 2, -r * 2, r * 4, r * 2);
+          ctx.clip();
+          ctx.rotate(0.6);
+          A.drawMonster(ctx, 0, 0, r, cols[i], t, { calm:true, dizzy:true });
+          ctx.restore();
+        });
+      } else {
+        A.drawMonster(ctx, x, y, r, cols[i], t, { gold:i === 2 });
+      }
+    }
+    var cp = ((t + 800) % T) / T;
+    if(cp > 0.42 && cp < 0.56){
+      var q = (cp - 0.42) / 0.14, cx0 = w * 0.5, cy0 = h + r - (h * 0.78 + r);
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = 'rgba(255,95,143,0.8)'; ctx.lineWidth = 14;
+      ctx.beginPath(); ctx.moveTo(cx0 - w * 0.3, cy0 + 40); ctx.lineTo(cx0 - w * 0.3 + w * 0.6 * q, cy0 + 40 - 80 * q); ctx.stroke();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 5; ctx.stroke();
+    }
+    var fy = h * 0.55 + Math.sin(t * 0.003) * 8;
+    ctx.setLineDash([6, 5]); ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 3;
+    A.circle(ctx, w * 0.88, fy, r * 0.75); ctx.stroke(); ctx.setLineDash([]);
+    A.emoji(ctx, '💾', w * 0.88, fy + 2, r);
+  }
+
   A.register({
-    id:'ninja', title:'Ninja dos Glitches', emoji:'⚔️', color:'#8c73ff', colorDark:'#6a52e0',
+    id:'ninja', drawPreview:drawPreview, title:'Ninja dos Glitches', emoji:'⚔️', color:'#8c73ff', colorDark:'#6a52e0',
     tagline:'Corte os erros que voam pela tela!', gesture:'👉 Deslizar o dedo',
     concept:'DEBUG', hint:'swipe', demoTarget:'👾',
     howto:[

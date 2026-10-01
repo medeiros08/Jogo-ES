@@ -137,7 +137,7 @@
     ctx.restore();
   };
 
-  A.drawRobot = function(ctx, x, y, s, mood, t, lean){
+  A.drawRobot = function(ctx, x, y, s, mood, t, lean, look){
     ctx.save();
     ctx.translate(x, y + Math.sin(t * 0.006) * s * 0.03);
     if(lean) ctx.rotate(lean);
@@ -170,6 +170,7 @@
     rr(ctx, -s * 0.38, -s * 0.42, s * 0.76, s * 0.46, s * 0.13);
     ctx.fillStyle = INK; ctx.fill();
 
+    if(look) ctx.translate(look.x * s * 0.07, look.y * s * 0.05);
     var eye = mood === 'sad' ? '#ff5f8f' : '#4fd6a6';
     ctx.fillStyle = eye; ctx.strokeStyle = eye; ctx.lineWidth = s * 0.065;
     if(mood === 'happy'){
@@ -245,10 +246,27 @@
 
   function show(id){
     ['scr-menu', 'scr-game', 'scr-end'].forEach(function(s){ $(s).hidden = s !== id; });
-    if(id === 'scr-menu') startMenuLoop();
+    var el = $(id);
+    el.classList.remove('enter'); void el.offsetWidth; el.classList.add('enter');
+    if(id === 'scr-menu'){ sizeArts(); updateActive(); renderProgress(); startMenuLoop(); }
   }
 
-  function renderScore(){ $('score').textContent = run ? run.score : 0; }
+  function countUp(el, to, ms, suffix){
+    var from = parseInt(el.textContent, 10) || 0, t0 = performance.now();
+    if(el._raf) cancelAnimationFrame(el._raf);
+    if(to <= from || !ms){ el.textContent = to + (suffix || ''); return; }
+    (function step(now){
+      var k = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - k, 3);
+      el.textContent = Math.round(from + (to - from) * e) + (suffix || '');
+      if(k < 1) el._raf = requestAnimationFrame(step);
+    })(t0);
+  }
+
+  function renderScore(){
+    var s = run ? run.score : 0;
+    if(!s){ $('score').textContent = '0'; return; }
+    countUp($('score'), s, 260);
+  }
   function renderHearts(){
     var h = '';
     for(var i = 0; i < run.maxLives; i++) h += '<span class="' + (i < run.lives ? '' : 'lost') + '">❤️</span>';
@@ -320,9 +338,90 @@
     });
     $('ht-demo').className = 'ht-demo hint-' + current.hint;
     $('ht-target').textContent = current.demoTarget;
+    setupPractice(current.hint);
     $('howto').hidden = false;
     A.sfx.click();
-    $('ht-go').focus();
+  }
+
+  // ---------- treino no "como jogar" ----------
+  var pr = { kind:'', down:false, x0:0, last:null, moved:0, done:false };
+  var PRACTICE_OK = { swipe:'✂️ Cortou! Você é rápido(a)!', drag:'🤖 Isso! O robô segue seu dedo!' };
+
+  function setupPractice(kind){
+    pr = { kind:kind, down:false, x0:0, last:null, moved:0, done:false };
+    var tgt = $('ht-target');
+    tgt.className = 'ht-target';
+    tgt.style.transition = ''; tgt.style.transform = ''; tgt.style.left = '50%';
+    $('ht-demo').classList.remove('touched', 'success');
+    $('ht-say').textContent = 'Experimente aqui! 👆';
+    $('ht-go').classList.remove('ready');
+  }
+
+  function practiceSuccess(msg){
+    $('ht-say').textContent = msg;
+    $('ht-demo').classList.add('success');
+    if(!pr.done){ $('ht-go').classList.add('ready'); A.vibrate(20); }
+    pr.done = true;
+    A.sfx.good();
+  }
+
+  function targetCenter(){
+    var d = $('ht-demo').getBoundingClientRect(), t = $('ht-target').getBoundingClientRect();
+    return { x:t.left - d.left + t.width / 2, y:t.top - d.top + t.height / 2 };
+  }
+
+  function bindPractice(){
+    var demo = $('ht-demo'), tgt = $('ht-target');
+    demo.addEventListener('pointerdown', function(e){
+      var p = A.pos(demo, e);
+      pr.down = true; pr.x0 = p.x; pr.last = p;
+      demo.classList.add('touched');
+      try{ demo.setPointerCapture(e.pointerId); }catch(err){}
+      if(pr.kind === 'drag') tgt.style.left = Math.max(12, Math.min(88, p.x / demo.clientWidth * 100)) + '%';
+    });
+    demo.addEventListener('pointermove', function(e){
+      if(!pr.down) return;
+      var p = A.pos(demo, e);
+      if(pr.kind === 'swipe' && !tgt.classList.contains('gone')){
+        var c = targetCenter(), a = pr.last;
+        var dx = p.x - a.x, dy = p.y - a.y, l2 = dx * dx + dy * dy;
+        var k = l2 ? Math.max(0, Math.min(1, ((c.x - a.x) * dx + (c.y - a.y) * dy) / l2)) : 0;
+        var ex = a.x + k * dx - c.x, ey = a.y + k * dy - c.y;
+        if(l2 > 4 && ex * ex + ey * ey < 900){
+          tgt.classList.add('gone');
+          A.sfx.slice();
+          practiceSuccess(PRACTICE_OK.swipe);
+          setTimeout(function(){ tgt.classList.remove('gone'); tgt.style.left = (25 + Math.random() * 50) + '%'; }, 650);
+        }
+      } else if(pr.kind === 'lr'){
+        var d = p.x - pr.x0;
+        tgt.style.transform = 'translate(calc(-50% + ' + d + 'px), -50%) rotate(' + (d * 0.12) + 'deg)';
+        tgt.classList.toggle('to-ok', d > 30); tgt.classList.toggle('to-fix', d < -30);
+      } else if(pr.kind === 'drag'){
+        pr.moved += Math.abs(p.x - pr.last.x);
+        tgt.style.left = Math.max(12, Math.min(88, p.x / demo.clientWidth * 100)) + '%';
+        if(pr.moved > 140 && !pr.done) practiceSuccess(PRACTICE_OK.drag);
+      }
+      pr.last = p;
+    });
+    var up = function(e){
+      if(!pr.down) return;
+      pr.down = false;
+      if(pr.kind !== 'lr') return;
+      var d = A.pos(demo, e).x - pr.x0;
+      tgt.classList.remove('to-ok', 'to-fix');
+      if(Math.abs(d) > 55){
+        var dir = d > 0 ? 1 : -1;
+        tgt.style.transition = 'transform .3s ease-in';
+        tgt.style.transform = 'translate(calc(-50% + ' + (dir * 220) + 'px), -50%) rotate(' + (dir * 25) + 'deg)';
+        practiceSuccess(dir > 0 ? '✅ Aprovado! Assim mesmo!' : '🔧 Mandou consertar! Isso!');
+        setTimeout(function(){ tgt.style.transition = 'none'; tgt.style.transform = ''; void tgt.offsetWidth; tgt.style.transition = ''; }, 420);
+      } else {
+        tgt.style.transform = '';
+      }
+    };
+    demo.addEventListener('pointerup', up);
+    demo.addEventListener('pointercancel', up);
   }
 
   function destroyCurrent(){
@@ -335,6 +434,8 @@
     show('scr-game');
     stopMenuLoop();
     document.body.style.setProperty('--theme', current.color);
+    document.body.style.setProperty('--theme-d', current.colorDark);
+    $('hud-title').textContent = current.emoji + ' ' + current.title;
     var stage = $('stage');
     stage.innerHTML = '';
     stage.className = 'stage stage-' + current.id;
@@ -399,15 +500,23 @@
     run = null;
     $('stage').innerHTML = '';
     $('howto').hidden = true;
-    renderMenuBest();
     show('scr-menu');
   }
 
   // ---------- tela final ----------
   var lastRound = null, sentKey = null;
 
-  function readBest(id){ try{ return parseInt(localStorage.getItem('arcade-best-' + id) || '0', 10) || 0; }catch(e){ return 0; } }
-  function saveBest(id, v){ try{ localStorage.setItem('arcade-best-' + id, String(v)); }catch(e){} }
+  function readNum(k){ try{ return parseInt(localStorage.getItem(k) || '0', 10) || 0; }catch(e){ return 0; } }
+  function saveNum(k, v){ try{ localStorage.setItem(k, String(v)); }catch(e){} }
+  function readBest(id){ return readNum('arcade-best-' + id); }
+  function saveBest(id, v){ saveNum('arcade-best-' + id, v); }
+  function readStars(id){ return readNum('arcade-stars-' + id); }
+  function starsFor(g, score){
+    var r = g.ranks;
+    return score >= r[0][0] ? 3 : score >= r[1][0] ? 2 : score >= r[2][0] ? 1 : 0;
+  }
+  function totalStars(){ return A.order.reduce(function(sum, id){ return sum + readStars(id); }, 0); }
+  function devTitle(n){ return n >= 9 ? 'Dev Lendário(a) 🏆' : n >= 6 ? 'Dev Sênior 🚀' : n >= 3 ? 'Dev Júnior 💻' : 'Dev Iniciante 🌱'; }
 
   function showEnd(reason){
     destroyCurrent();
@@ -415,12 +524,26 @@
     var best = readBest(g.id), isRecord = score > best;
     if(isRecord) saveBest(g.id, score);
     var rank = g.ranks.filter(function(r){ return score >= r[0]; })[0];
+    var stars = starsFor(g, score), prevStars = readStars(g.id);
+    if(stars > prevStars) saveNum('arcade-stars-' + g.id, stars);
+    document.body.style.setProperty('--theme', g.color);
+    document.body.style.setProperty('--theme-d', g.colorDark);
     $('end-card').style.setProperty('--c', g.color);
     $('end-head').textContent = reason === 'lives' ? g.failText : 'Tempo esgotado! ⏱️';
     $('end-game').textContent = g.emoji + ' ' + g.title;
     $('medal').textContent = rank[1];
-    $('final').textContent = score + ' pts';
+    $('final').textContent = '0 pts';
+    setTimeout(function(){ countUp($('final'), score, 1100, ' pts'); }, 350);
     $('rank').textContent = rank[2];
+    var starEls = $('end-stars').children;
+    for(var i = 0; i < 3; i++){
+      starEls[i].className = '';
+      (function(el, on, delay){
+        setTimeout(function(){ if(on){ el.className = 'on'; A.sfx.pop(); } }, delay);
+      })(starEls[i], i < stars, 600 + i * 380);
+    }
+    $('new-star').hidden = !(stars > prevStars);
+    $('new-star').textContent = '✨ Nova conquista! ' + stars + (stars === 1 ? ' estrela' : ' estrelas') + ' neste jogo';
     $('stats').innerHTML = '';
     g.stats().forEach(function(s){
       var sp = document.createElement('span'); sp.textContent = s; $('stats').appendChild(sp);
@@ -513,54 +636,136 @@
   }
 
   // ---------- menu ----------
-  var menuRaf = 0, menuCtxs = [];
+  var menuRaf = 0, menuArts = [], activeCard = 0;
+  var pointer = { x:-1, y:-1 }, mascotJump = -9999, lineI = 0, bubbleT = 0;
+  var LINES = [
+    'Oi! Eu sou o Bit 🤖 Escolha um jogo!',
+    'Deslize os cartões para ver os 3 jogos 👉',
+    'Sabia? O primeiro bug famoso foi uma mariposa de verdade, em 1947! 🦋',
+    'Engenheiros de software criam apps, jogos e sites! 💻',
+    'Cada jogo dá até 3 ⭐. Dá para juntar 9!',
+    'Testar é tão importante quanto programar! 🧪',
+    'Psiu... toque em mim de novo! 😄'
+  ];
+
   function buildMenu(){
-    var wrap = $('cards');
-    wrap.innerHTML = '';
-    menuCtxs = [];
-    A.order.forEach(function(id){
+    var wrap = $('cards'), dots = $('dots');
+    wrap.innerHTML = ''; dots.innerHTML = '';
+    menuArts = [];
+    A.order.forEach(function(id, idx){
       var g = A.games[id];
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'gcard';
-      b.style.setProperty('--c', g.color);
-      b.style.setProperty('--cd', g.colorDark);
-      var cv = document.createElement('canvas');
-      cv.width = 176; cv.height = 176;
-      var info = document.createElement('div');
-      var h = document.createElement('h3'); h.textContent = g.title;
-      var p = document.createElement('p'); p.textContent = g.tagline;
-      var chips = document.createElement('div'); chips.className = 'chips';
-      var c1 = document.createElement('span'); c1.className = 'chip'; c1.textContent = g.gesture;
-      var c2 = document.createElement('span'); c2.className = 'chip best'; c2.dataset.id = g.id;
-      chips.appendChild(c1); chips.appendChild(c2);
-      info.appendChild(h); info.appendChild(p); info.appendChild(chips);
-      b.appendChild(cv); b.appendChild(info);
-      b.addEventListener('click', function(){ openHowto(id); });
-      wrap.appendChild(b);
-      var ctx = cv.getContext('2d');
-      ctx.setTransform(2, 0, 0, 2, 0, 0);
-      menuCtxs.push({ ctx:ctx, g:g });
+      var card = document.createElement('article');
+      card.className = 'gcard';
+      card.style.setProperty('--c', g.color);
+      card.style.setProperty('--cd', g.colorDark);
+      card.innerHTML =
+        '<div class="g-art"><canvas></canvas><span class="g-badge">' + g.emoji + '</span><span class="g-stars" data-id="' + id + '"></span></div>' +
+        '<div class="g-body">' +
+          '<h3></h3><p></p>' +
+          '<div class="g-meta"><span class="chip"></span><span class="chip best" data-id="' + id + '"></span></div>' +
+          '<button type="button" class="g-play">▶ Jogar</button>' +
+        '</div>';
+      card.querySelector('h3').textContent = g.title;
+      card.querySelector('p').textContent = g.tagline;
+      card.querySelector('.chip').textContent = g.gesture;
+      card.addEventListener('click', function(){
+        if(idx !== activeCard && wrap.scrollWidth > wrap.clientWidth + 4){ scrollToCard(idx); return; }
+        openHowto(id);
+      });
+      wrap.appendChild(card);
+      var dot = document.createElement('button');
+      dot.type = 'button'; dot.className = 'dot'; dot.setAttribute('aria-label', g.title);
+      dot.addEventListener('click', function(){ scrollToCard(idx); A.sfx.click(); });
+      dots.appendChild(dot);
+      menuArts.push({ cv:card.querySelector('canvas'), g:g, w:0, h:0 });
     });
-    renderMenuBest();
+    wrap.addEventListener('scroll', function(){ requestAnimationFrame(updateActive); }, { passive:true });
+    sizeArts();
+    updateActive();
+    renderProgress();
   }
-  function renderMenuBest(){
+
+  function scrollToCard(i){
+    var c = $('cards').children[i];
+    if(c) c.scrollIntoView({ behavior:'smooth', inline:'center', block:'nearest' });
+  }
+
+  function updateActive(){
+    var wrap = $('cards'), mid = wrap.scrollLeft + wrap.clientWidth / 2, best = 0, bestD = Infinity;
+    Array.prototype.forEach.call(wrap.children, function(c, i){
+      var d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid);
+      if(d < bestD){ bestD = d; best = i; }
+    });
+    if(best !== activeCard && !$('scr-menu').hidden) A.sfx.click();
+    activeCard = best;
+    Array.prototype.forEach.call(wrap.children, function(c, i){ c.classList.toggle('active', i === best); });
+    Array.prototype.forEach.call($('dots').children, function(d, i){ d.classList.toggle('on', i === best); });
+  }
+
+  function sizeArts(){
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    menuArts.forEach(function(m){
+      m.w = m.cv.clientWidth; m.h = m.cv.clientHeight;
+      m.cv.width = Math.max(1, Math.round(m.w * dpr)); m.cv.height = Math.max(1, Math.round(m.h * dpr));
+      m.cv.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
+    });
+    var mc = $('mascot');
+    mc.width = Math.round(mc.clientWidth * dpr); mc.height = Math.round(mc.clientHeight * dpr);
+    mc.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function renderProgress(){
+    var n = totalStars();
+    $('p-stars').textContent = '⭐ ' + n + '/9';
+    $('p-fill').style.width = (n / 9 * 100) + '%';
+    $('p-title').textContent = devTitle(n);
     document.querySelectorAll('.chip.best').forEach(function(c){
       var b = readBest(c.dataset.id);
-      c.textContent = b ? '🏅 Recorde: ' + b : '✨ Novo!';
+      c.textContent = b ? '🏅 ' + b + ' pts' : '✨ Novo!';
+    });
+    document.querySelectorAll('.g-stars').forEach(function(s){
+      var n = readStars(s.dataset.id);
+      s.innerHTML = '<b>' + '★★★'.slice(0, n) + '</b><i>' + '★★★'.slice(0, 3 - n) + '</i>';
+      s.setAttribute('aria-label', n + ' de 3 estrelas');
     });
   }
+
+  function say(text){
+    var b = $('bubble');
+    b.textContent = text;
+    b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
+  }
+  function nextLine(){
+    lineI = (lineI + 1) % LINES.length;
+    say(LINES[lineI]);
+  }
+  function pokeMascot(){
+    mascotJump = performance.now();
+    nextLine();
+    [523, 784, 659].forEach(function(f, i){ tone(f, 0.09, 'triangle', 0.07, i * 0.07); });
+    A.vibrate(15);
+    clearInterval(bubbleT);
+    bubbleT = setInterval(function(){ if(!$('scr-menu').hidden && $('howto').hidden) nextLine(); }, 7000);
+  }
+
   function menuFrame(t){
     if($('scr-menu').hidden){ menuRaf = 0; return; }
-    menuCtxs.forEach(function(m){
-      m.ctx.clearRect(0, 0, 88, 88);
-      m.g.drawIcon(m.ctx, 88, 88, t);
+    menuArts.forEach(function(m){
+      var ctx = m.cv.getContext('2d');
+      ctx.clearRect(0, 0, m.w, m.h);
+      (m.g.drawPreview || m.g.drawIcon)(ctx, m.w, m.h, t);
     });
-    var mc = $('mascot').getContext('2d');
-    mc.setTransform(2, 0, 0, 2, 0, 0);
-    mc.clearRect(0, 0, 96, 96);
-    A.drawMonster(mc, 74, 68 + Math.sin(t * 0.004) * 4, 13, '#ff5f8f', t);
-    A.drawRobot(mc, 40, 46, 44, (t % 2400) < 1200 ? 'happy' : 'normal', t);
+    var mcv = $('mascot'), mc = mcv.getContext('2d'), w = mcv.clientWidth, h = mcv.clientHeight;
+    mc.clearRect(0, 0, w, h);
+    var r = mcv.getBoundingClientRect(), look = { x:0, y:0 };
+    if(pointer.x >= 0){
+      var dx = pointer.x - (r.left + w / 2), dy = pointer.y - (r.top + h * 0.45), d = Math.sqrt(dx * dx + dy * dy) || 1;
+      look.x = dx / Math.max(d, 60); look.y = dy / Math.max(d, 60);
+    }
+    var since = t - mascotJump, jump = since < 600 ? -Math.sin(Math.PI * since / 600) * h * 0.14 : 0;
+    var spin = since < 600 ? Math.sin(Math.PI * since / 600) * 0.25 : 0;
+    A.drawMonster(mc, w * 0.83, h * 0.72 + Math.sin(t * 0.004) * 4, w * 0.11, '#ff5f8f', t);
+    A.drawRobot(mc, w * 0.44, h * 0.47 + jump, w * 0.46, since < 900 ? 'happy' : 'normal', t, spin, look);
     menuRaf = requestAnimationFrame(menuFrame);
   }
   function startMenuLoop(){ if(!menuRaf) menuRaf = requestAnimationFrame(menuFrame); }
@@ -597,8 +802,15 @@
   // ---------- início ----------
   A.boot = function(){
     cv = $('confetti'); cx = cv.getContext('2d');
-    var mc = $('mascot'); mc.width = 192; mc.height = 192;
     buildMenu();
+    bindPractice();
+    $('mascot').addEventListener('click', pokeMascot);
+    $('mascot').addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pokeMascot(); } });
+    $('bubble').addEventListener('click', pokeMascot);
+    document.addEventListener('pointermove', function(e){ pointer.x = e.clientX; pointer.y = e.clientY; }, { passive:true });
+    document.addEventListener('pointerdown', function(e){ pointer.x = e.clientX; pointer.y = e.clientY; }, { passive:true });
+    say(LINES[0]);
+    bubbleT = setInterval(function(){ if(!$('scr-menu').hidden && $('howto').hidden) nextLine(); }, 7000);
     $('ht-go').addEventListener('click', startGame);
     $('ht-back').addEventListener('click', function(){ $('howto').hidden = true; A.sfx.click(); });
     $('btn-home').addEventListener('click', function(){ A.sfx.click(); goMenu(); });
@@ -608,7 +820,10 @@
     $('mute-menu').addEventListener('click', function(){ setMuted(!muted); });
     $('send-form').addEventListener('submit', sendScore);
     document.addEventListener('visibilitychange', function(){ if(document.hidden && api.running) finish('time'); });
-    window.addEventListener('resize', function(){ if(current && current.resize && !$('scr-game').hidden) current.resize(); });
+    window.addEventListener('resize', function(){
+      if(current && current.resize && !$('scr-game').hidden) current.resize();
+      if(!$('scr-menu').hidden){ sizeArts(); updateActive(); }
+    });
     show('scr-menu');
   };
 })();

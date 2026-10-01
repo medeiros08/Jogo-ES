@@ -231,8 +231,41 @@
     A.emoji(ctx, '✅', w * 0.82, h * 0.2 + Math.sin(t * 0.006) * 3, w * 0.2);
   }
 
+  function drawPreview(ctx, w, h, t){
+    var beltY = h * 0.74, beltH = h * 0.14;
+    ctx.fillStyle = '#5b5480'; ctx.fillRect(0, beltY, w, beltH);
+    ctx.fillStyle = '#6d6694';
+    var off = (t * 0.06) % 28;
+    for(var x = -28 + off; x < w; x += 28) ctx.fillRect(x, beltY, 14, beltH);
+    ctx.fillStyle = A.INK; ctx.fillRect(0, beltY - 3, w, 4); ctx.fillRect(0, beltY + beltH - 1, w, 4);
+
+    var ph = h * 0.5, pw = ph * 0.6, span = w + pw * 2, speed = 0.05;
+    var apps = [['#3fb4ff', '🐱', true], ['#ff5f8f', '🐶', false], ['#4fd6a6', '🐱', true], ['#ffd23f', '🐸', false]];
+    for(var i = 0; i < apps.length; i++){
+      var px = ((t * speed + i * span / apps.length) % span) - pw;
+      var py = beltY - ph * 0.5 - 2;
+      ctx.save();
+      ctx.translate(px, py + Math.sin(t * 0.01 + i) * 1.5);
+      A.rr(ctx, -pw / 2, -ph / 2, pw, ph, 10);
+      ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = A.INK; ctx.stroke();
+      A.rr(ctx, -pw * 0.36, -ph * 0.38, pw * 0.72, ph * 0.12, 4); ctx.fillStyle = apps[i][0]; ctx.fill();
+      A.emoji(ctx, apps[i][1], 0, ph * 0.04, pw * 0.48);
+      A.rr(ctx, -pw * 0.3, ph * 0.26, pw * 0.6, ph * 0.11, 6); ctx.fillStyle = apps[i][0]; ctx.fill();
+      ctx.restore();
+      if(Math.abs(px - w / 2) < pw * 0.7){
+        A.emoji(ctx, apps[i][2] ? '✅' : '🔧', px, py - ph * 0.62 + Math.sin(t * 0.02) * 3, pw * 0.42);
+      }
+    }
+    var bx = w * 0.3, bw = w * 0.4, by = h * 0.06, bh = h * 0.17, my = by + bh / 2;
+    A.rr(ctx, bx, by, bw, bh, 12);
+    ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = A.INK; ctx.stroke();
+    A.emoji(ctx, '👧', bx + bw * 0.18, my, bh * 0.7);
+    ctx.fillStyle = '#3fb4ff'; A.circle(ctx, bx + bw * 0.48, my, bh * 0.22); ctx.fill(); ctx.stroke();
+    A.emoji(ctx, '🐱', bx + bw * 0.78, my, bh * 0.6);
+  }
+
   A.register({
-    id:'esteira', title:'Esteira de Testes', emoji:'🏭', color:'#ff8a3d', colorDark:'#e0661c',
+    id:'esteira', drawPreview:drawPreview, title:'Esteira de Testes', emoji:'🏭', color:'#ff8a3d', colorDark:'#e0661c',
     tagline:'Aprove só os apps que o cliente pediu!', gesture:'↔️ Arrastar pro lado',
     concept:'REQUISITOS E TESTES', hint:'lr', demoTarget:'📱',
     howto:[

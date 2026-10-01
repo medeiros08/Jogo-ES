@@ -8,21 +8,30 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilo.css?v=1">
+<link rel="stylesheet" href="estilo.css?v=2">
 </head>
 <body>
-<div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
-<div class="hills"></div>
+<div class="sky" aria-hidden="true">
+  <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+  <span class="bit b1">&lt;/&gt;</span><span class="bit b2">{ }</span><span class="bit b3">01</span><span class="bit b4">;</span><span class="bit b5">if</span><span class="bit b6">[ ]</span>
+  <div class="hills"></div>
+</div>
 
 <div class="app">
   <!-- MENU -->
   <section class="menu" id="scr-menu">
-    <header class="menu-head">
-      <canvas id="mascot" aria-hidden="true"></canvas>
-      <h1 class="logo"><span class="y">Arcade</span><br>do <span class="p">Código</span></h1>
-    </header>
-    <p class="menu-sub">Escolha um jogo e descubra como é ser engenheiro(a) de software!</p>
-    <div class="cards" id="cards"></div>
+    <h1 class="logo"><span class="y">Arcade</span> do <span class="p">Código</span></h1>
+    <div class="hero">
+      <canvas id="mascot" role="button" tabindex="0" aria-label="Bit, o robô. Toque nele!"></canvas>
+      <button type="button" class="bubble" id="bubble">Oi! Eu sou o Bit 🤖</button>
+    </div>
+    <div class="progress">
+      <span class="p-stars" id="p-stars">⭐ 0/9</span>
+      <div class="p-bar"><div id="p-fill"></div></div>
+      <span class="p-title" id="p-title">Dev Iniciante 🌱</span>
+    </div>
+    <div class="carousel" id="cards"></div>
+    <div class="dots" id="dots"></div>
     <button type="button" id="mute-menu" class="mute-menu">🔊 Som ligado</button>
   </section>
 
@@ -30,22 +39,25 @@
   <section class="game" id="scr-game" hidden>
     <div class="hud">
       <button type="button" id="btn-home" class="round" aria-label="Voltar ao menu">🏠</button>
-      <div class="score" id="score">0</div>
+      <div class="hud-score"><small>PONTOS</small><b id="score">0</b></div>
+      <div class="hud-title" id="hud-title"></div>
       <div class="hearts" id="hearts"></div>
       <button type="button" id="mute" class="round" aria-label="Ligar ou desligar som">🔊</button>
+      <div class="time" id="time"><div id="timefill"></div></div>
     </div>
-    <div class="time" id="time"><div id="timefill"></div></div>
     <div class="stage" id="stage"></div>
   </section>
 
   <!-- FIM -->
   <section class="end" id="scr-end" hidden>
+    <div class="ribbon" id="end-game"></div>
     <div class="end-head" id="end-head">Tempo esgotado!</div>
     <div class="card result" id="end-card">
-      <div class="end-game" id="end-game"></div>
-      <div class="medal" id="medal">🏆</div>
-      <div class="big" id="final">0</div>
+      <div class="medal-wrap"><div class="rays"></div><div class="medal" id="medal">🏆</div></div>
+      <div class="end-stars" id="end-stars"><span>★</span><span>★</span><span>★</span></div>
+      <div class="big" id="final">0 pts</div>
       <div class="rank" id="rank"></div>
+      <div class="new-star" id="new-star" hidden></div>
       <div class="stats" id="stats"></div>
       <div class="record" id="record"></div>
     </div>
@@ -59,8 +71,8 @@
     </div>
     <div class="card fact"><b id="learn-title">Você praticou</b><span id="learn"></span></div>
     <div class="end-actions">
-      <button type="button" class="btn" id="btn-again">Jogar de novo</button>
-      <button type="button" class="btn ghost" id="btn-menu">Outros jogos</button>
+      <button type="button" class="btn" id="btn-again">↻ Jogar de novo</button>
+      <button type="button" class="btn ghost" id="btn-menu">🎮 Outros jogos</button>
     </div>
   </section>
 </div>
@@ -70,7 +82,11 @@
   <div class="ht-card" id="ht-card">
     <h2 id="ht-title"></h2>
     <div class="ht-concept" id="ht-concept"></div>
-    <div class="ht-demo" id="ht-demo"><span class="ht-target" id="ht-target">👾</span><span class="ht-hand">👆</span></div>
+    <div class="ht-demo" id="ht-demo">
+      <span class="ht-target" id="ht-target">👾</span>
+      <span class="ht-hand">👆</span>
+      <span class="ht-say" id="ht-say">Experimente aqui! 👆</span>
+    </div>
     <ul class="ht-steps" id="ht-steps"></ul>
     <button type="button" class="btn" id="ht-go">Começar!</button>
     <button type="button" class="ht-back" id="ht-back">Escolher outro jogo</button>
@@ -79,10 +95,10 @@
 
 <canvas id="confetti"></canvas>
 
-<script src="nucleo.js?v=1"></script>
-<script src="ninja.js?v=1"></script>
-<script src="esteira.js?v=1"></script>
-<script src="robo.js?v=1"></script>
+<script src="nucleo.js?v=2"></script>
+<script src="ninja.js?v=2"></script>
+<script src="esteira.js?v=2"></script>
+<script src="robo.js?v=2"></script>
 <script>Arcade.boot();</script>
 </body>
 </html>

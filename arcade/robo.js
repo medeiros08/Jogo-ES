@@ -226,8 +226,32 @@
     A.drawRobot(ctx, x, h * 0.66, w * 0.34, 'happy', t, 0);
   }
 
+  function drawPreview(ctx, w, h, t){
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    for(var i = 0; i < 5; i++) ctx.fillRect((i * 73 + 20) % w, ((t * 0.05 + i * 50) % (h + 20)) - 20, 3, 14);
+    ctx.fillStyle = '#8ddf6a'; ctx.fillRect(0, h * 0.92, w, h * 0.08);
+    var s = Math.min(w, h) * 0.3;
+    var rx = w / 2 + Math.sin(t * 0.0016) * w * 0.3;
+    var cols = ['#3fb4ff', '#ff8a3d', '#8c73ff', '#ffd23f'];
+    for(var k = 0; k < 4; k++){
+      var px = w * (0.14 + 0.24 * k), cyc = (t * 0.07 + k * 70) % (h * 1.1);
+      var py = cyc - h * 0.12;
+      if(k === 2) A.drawMonster(ctx, px, py, s * 0.2, '#ff5f8f', t, { angry:true });
+      else A.drawPiece(ctx, px, py, s * 0.36, cols[k], Math.sin(t * 0.003 + k) * 0.2);
+    }
+    A.drawRobot(ctx, rx, h * 0.92 - s * 0.72, s, (t % 1600) < 500 ? 'happy' : 'normal', t, Math.cos(t * 0.0016) * 0.12);
+    var hh = Math.min(34, h * 0.13), hw = Math.min(170, w * 0.56), hx = (w - hw) / 2, hy = Math.max(64, h * 0.22), my = hy + hh / 2;
+    A.rr(ctx, hx, hy, hw, hh, 10);
+    ctx.fillStyle = 'rgba(255,255,255,0.92)'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = A.INK; ctx.stroke();
+    ctx.fillStyle = A.INK; ctx.font = '700 ' + Math.round(hh * 0.55) + 'px Fredoka, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText('App v2.0', hx + 10, my);
+    var barX = hx + 18 + ctx.measureText('App v2.0').width, barW = hx + hw - 10 - barX, fill = (t % 4000) / 4000;
+    A.rr(ctx, barX, my - hh * 0.18, barW, hh * 0.36, 4); ctx.fillStyle = 'rgba(47,42,74,0.15)'; ctx.fill();
+    A.rr(ctx, barX, my - hh * 0.18, Math.max(8, barW * fill), hh * 0.36, 4); ctx.fillStyle = '#ff5f8f'; ctx.fill();
+  }
+
   A.register({
-    id:'robo', title:'Robô Construtor', emoji:'🤖', color:'#2fbf8a', colorDark:'#229268',
+    id:'robo', drawPreview:drawPreview, title:'Robô Construtor', emoji:'🤖', color:'#2fbf8a', colorDark:'#229268',
     tagline:'Pegue peças de código e monte o app!', gesture:'👆 Arrastar o robô',
     concept:'CONSTRUÇÃO EM VERSÕES', hint:'drag', demoTarget:'🤖',
     howto:[
