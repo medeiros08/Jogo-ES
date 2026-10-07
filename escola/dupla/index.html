@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Programação em Dupla</title>
+<meta name="description" content="Um piloto monta o caminho do robô e um navegador, que vê os bugs escondidos, guia o piloto. Um jogo do curso de Engenharia de Software da UNIPAMPA.">
+<meta property="og:title" content="Programação em Dupla">
+<meta property="og:description" content="Um piloto monta o caminho do robô e um navegador, que vê os bugs escondidos, guia o piloto. Um jogo do curso de Engenharia de Software da UNIPAMPA.">
+<meta property="og:url" content="https://medeiros08.github.io/Jogo-ES/escola/dupla/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='20' width='72' height='60' rx='16' fill='%234da3ff' stroke='%231d2a44' stroke-width='6'/><circle cx='36' cy='48' r='9' fill='%23fff'/><circle cx='64' cy='48' r='9' fill='%23fff'/></svg>">
+<style>
+  :root {
+    --sky: #e8f4ff;
+    --ink: #1d2a44;
+    --cell-bg: #ffffff;
+    --cell-line: #b9d3ee;
+    --key: #ffd84d;
+    --play: #3cc26b;
+    --erase: #ff9a3c;
+    --bad: #ff4d4d;
+    --now: #4da3ff;
+    --cell: 100px;
+  }
+  * { box-sizing: border-box }
+  html, body { margin: 0; height: 100%; overflow: hidden; touch-action: manipulation }
+  body {
+    background: var(--sky);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    padding: 12px 16px;
+  }
+  header, #dots { display: flex; gap: 14px; align-items: center }
+  .dot { width: 26px; height: 26px; border-radius: 50%; border: 4px solid var(--ink); background: #fff }
+  .dot.done { background: var(--key) }
+  .dot.now { box-shadow: 0 0 0 5px var(--now) }
+  #peek, #mute { font-size: 26px; background: none; border: none; cursor: pointer; width: 48px }
+  #peek { margin-left: 24px }
+  #peek.off { opacity: .3; cursor: default }
+  #tries { display: flex; gap: 4px }
+  #tries svg { width: 34px; height: 34px }
+  #tries svg.lost { filter: grayscale(1); opacity: .3 }
+  #lost p { font-size: min(36px, 6vw); font-weight: 900; margin: 0; max-width: 900px; line-height: 1.3 }
+  #board {
+    position: relative;
+    display: grid;
+    gap: 6px;
+    padding: 6px;
+    background: var(--cell-line);
+    border-radius: 18px;
+  }
+  .cell { width: var(--cell); height: var(--cell); background: var(--cell-bg); border-radius: 12px; display: grid; place-items: center }
+  .cell svg { width: 78%; height: 78% }
+
+  /* Hiding the bugs from the pilot until the robot steps on one, a peek or the navigator's map shows them */
+  .cell .bug { opacity: 0; transition: opacity .2s }
+  .cell .bug.found { opacity: 1; animation: pop .5s ease-out }
+  #board.peek .cell .bug, body.navigator .cell .bug { opacity: 1 }
+  #robot {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    width: var(--cell);
+    height: var(--cell);
+    display: grid;
+    place-items: center;
+    transition: transform .35s ease-in-out;
+  }
+  #robot svg { width: 86%; height: 86% }
+  #robot.shake svg { animation: shake .12s 4 }
+  @keyframes shake { 25% { transform: translateX(-10%) rotate(-8deg) } 75% { transform: translateX(10%) rotate(8deg) } }
+  main { display: flex; gap: 24px }
+  #code {
+    width: min(300px, 38vw);
+    margin: 0;
+    padding: 12px 12px 12px 48px;
+    background: var(--ink);
+    color: #e8f4ff;
+    border-radius: 18px;
+    font: 600 min(22px, 2.8vw)/1.5 ui-monospace, Menlo, monospace;
+  }
+  #code li::marker { color: #6f86ad }
+  #code li.now { background: var(--now); border-radius: 6px }
+  #code li.bad { background: var(--bad); border-radius: 6px }
+  #queue { display: flex; gap: 6px; padding: 0; margin: 0; list-style: none }
+  #queue li {
+    width: min(58px, 6.8vw);
+    aspect-ratio: 1;
+    border: 4px dashed var(--cell-line);
+    border-radius: 12px;
+    background: #fff;
+    font-size: min(36px, 4.6vw);
+    font-weight: 900;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+  #queue li.full { border-style: solid; border-color: var(--ink) }
+  #queue li.now { background: var(--now); color: #fff }
+  #queue li.bad { background: var(--bad); color: #fff; border-color: var(--bad) }
+  nav { display: flex; gap: 12px }
+  nav button {
+    width: 88px;
+    height: 88px;
+    border: none;
+    border-radius: 18px;
+    background: var(--key);
+    box-shadow: 0 6px 0 #b8941a;
+    font-size: 46px;
+    font-weight: 900;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  nav button:active { transform: translateY(4px); box-shadow: 0 2px 0 #b8941a }
+  nav .erase { background: var(--erase); box-shadow: 0 6px 0 #b25f14; margin-right: 18px }
+  nav .play { background: var(--play); box-shadow: 0 6px 0 #1f7a41; margin-left: 18px; color: #fff }
+
+  /* Turning the page into a map for the navigator: no queue, no arrows, a banner with the level and tappable dots */
+  #role { display: none }
+  #pages { display: none }
+  body.navigator #role {
+    display: block;
+    max-width: 900px;
+    padding: 12px 20px;
+    background: var(--ink);
+    color: #e8f4ff;
+    border-radius: 18px;
+    font-size: min(26px, 4.8vw);
+    font-weight: 800;
+    text-align: center;
+  }
+  body.navigator #pages, body.navigator #pick { display: flex }
+  #pick { display: none; gap: 10px }
+  #pick button { border: 4px solid transparent; border-radius: 999px; background: #fff; padding: 6px 16px; font-size: min(20px, 4.4vw); font-weight: 800; color: var(--ink); cursor: pointer }
+  #pick button.chosen { border-color: var(--now) }
+  body.navigator #code, body.navigator #queue, body.navigator #arrows, body.navigator #peek, body.navigator #mute { display: none }
+  body.navigator #board { touch-action: none }
+  body.navigator .dot { cursor: pointer }
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(232, 244, 255, .94);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    text-align: center;
+    overflow: hidden;
+  }
+  .overlay.show { display: flex }
+  .overlay .big { width: min(40vh, 60vw); animation: pop .6s ease-out }
+  h1 { font-size: min(64px, 10vw); font-weight: 900; margin: 0 }
+  .roles { display: flex; flex-wrap: wrap; justify-content: center; gap: 5vw }
+  .role { display: flex; flex-direction: column; align-items: center; gap: 8px; width: min(28vh, 40vw) }
+  .role svg { width: 100%; aspect-ratio: 1; padding: 8%; background: #fff; border: 5px solid var(--ink); border-radius: 28px }
+  .role b { font-size: min(30px, 5.5vw); font-weight: 900 }
+  .role span { font-size: min(19px, 3.8vw); font-weight: 700 }
+  #start { padding: 16px }
+  #start small { font-size: min(18px, 3.8vw); font-weight: 700 }
+  #difficulties { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px }
+  #difficulties button {
+    width: min(150px, 27vw);
+    padding: 10px 0 8px;
+    border: none;
+    border-radius: 18px;
+    background: var(--key);
+    box-shadow: 0 6px 0 #b8941a;
+    color: var(--ink);
+    font-size: min(44px, 9vw);
+    font-weight: 900;
+    line-height: 1.1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+  #difficulties button span { font-size: min(20px, 4.4vw) }
+  #difficulties button:nth-child(1) { background: var(--play); box-shadow: 0 6px 0 #1f7a41; color: #fff }
+  #difficulties button:nth-child(3) { background: var(--erase); box-shadow: 0 6px 0 #b25f14; color: #fff }
+  #difficulties button:active { transform: translateY(4px) }
+  #difficulties button.chosen { outline: 5px solid var(--now); outline-offset: 4px }
+  #swap { background: var(--key); border-radius: 999px; padding: 8px 24px; font-size: min(30px, 5.5vw); font-weight: 900; box-shadow: 0 5px 0 #b8941a }
+  #final { overflow: auto; justify-content: flex-start; padding: 16px }
+  #final > * { flex-shrink: 0 }
+  #final > :first-child { margin-top: auto }
+  #final > :last-child { margin-bottom: auto }
+  #final .adults span { overflow-wrap: anywhere }
+  #final .big { width: min(18vh, 30vw) }
+  .facts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 1000px; margin: 0; padding: 0; list-style: none }
+  .highlight { background: var(--play); color: #fff; border-radius: 999px; padding: 8px 24px; font-size: min(30px, 5.5vw); font-weight: 900; box-shadow: 0 5px 0 #1f7a41 }
+  .facts li { background: #fff; border: 3px solid var(--ink); border-radius: 999px; padding: 6px 16px; font-size: min(19px, 4vw); font-weight: 700 }
+  @keyframes pop { from { transform: scale(0) rotate(-90deg) } }
+  #stars { display: flex; gap: 2vw }
+  #stars svg { width: min(22vh, 26vw); height: min(22vh, 26vw); animation: pop .5s ease-out backwards }
+  #stars svg.off { filter: grayscale(1); opacity: .3 }
+  .enter { font-size: 40px; font-weight: 900; background: var(--play); color: #fff; border-radius: 18px; padding: 10px 28px; box-shadow: 0 6px 0 #1f7a41; cursor: pointer }
+  .confetti { position: absolute; top: -20px; width: 14px; height: 22px; animation: fall linear forwards }
+  @keyframes fall { to { transform: translateY(110vh) rotate(720deg) } }
+  #final p { font-size: min(36px, 5vw); font-weight: 800; margin: 0; max-width: 900px; line-height: 1.3 }
+  #final .adults { display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; font-size: 14px }
+  #final .adults div { display: flex; flex-direction: column; align-items: center; gap: 6px }
+  #final .adults svg { width: 150px; height: 150px }
+  #final .also { color: var(--ink); font-size: min(19px, 4vw); font-weight: 700 }
+  #phone svg { width: min(70vh, 80vw); height: min(70vh, 80vw) }
+  #phone div { font-size: min(32px, 5vw); font-weight: 800 }
+
+  /* Stacking the code under the board and splitting the buttons in two rows on phones */
+  @media (max-width: 600px) {
+    main { flex-direction: column; align-items: center; gap: 10px }
+    #code { width: 90vw; max-height: 18vh; overflow: auto }
+    body { padding: 8px 12px }
+    nav { flex-wrap: wrap; justify-content: center; max-width: 380px; gap: 10px 8px }
+    nav button { width: 80px; height: 80px }
+    nav .erase, nav .play { order: 1; margin: 0 }
+    #queue { gap: 3px }
+    #queue li { width: 6.8vw; border-width: 3px }
+    header, #dots { gap: 8px }
+    .dot { width: 22px; height: 22px }
+    #tries svg { width: 26px; height: 26px }
+    #peek, #mute { width: 36px; font-size: 22px }
+    #peek { margin-left: 8px }
+    html, body { overflow: auto }
+  }
+</style>
+</head>
+<body>
+
+<header><span id="dots"></span><span id="tries"></span><button id="peek" tabindex="-1">👀</button><button id="mute" tabindex="-1">🔊</button></header>
+<div id="pick"></div>
+<div id="role"></div>
+<main><div id="board"></div><ol id="code"></ol></main>
+<ol id="queue"></ol>
+<nav id="arrows">
+  <button class="erase" data-key="Backspace" tabindex="-1">⌫</button>
+  <button data-key="ArrowLeft" tabindex="-1">←</button>
+  <button data-key="ArrowUp" tabindex="-1">↑</button>
+  <button data-key="ArrowDown" tabindex="-1">↓</button>
+  <button data-key="ArrowRight" tabindex="-1">→</button>
+  <button class="play" data-key="Enter" tabindex="-1">▶</button>
+</nav>
+<nav id="pages">
+  <button data-key="ArrowLeft" tabindex="-1">◀</button>
+  <button data-key="ArrowRight" tabindex="-1">▶</button>
+</nav>
+
+<div id="start" class="overlay show">
+  <h1>Programação em Dupla</h1>
+  <div class="roles">
+    <div class="role">
+      <svg viewBox="0 0 100 100"><use href="#bot"/></svg>
+      <b>🕹️ Piloto</b>
+      <span>Monta as setas, mas não vê os bugs</span>
+    </div>
+    <div class="role">
+      <svg viewBox="0 0 41 41" shape-rendering="crispEdges"><use href="#nav-qr"/></svg>
+      <b>🧭 Navegador</b>
+      <span>Escaneia o QR, vê os bugs e diz o caminho</span>
+    </div>
+  </div>
+  <div id="difficulties"></div>
+  <small>Sozinho? Toque em 👀 para espiar os bugs. No Desafio não dá para espiar!</small>
+</div>
+
+<div id="win" class="overlay"><div id="stars"></div><div id="swap"></div><div class="enter">⏎</div></div>
+
+<div id="lost" class="overlay">
+  <svg class="big" viewBox="0 0 100 100"><use href="#bug"/></svg>
+  <p>Acabaram as tentativas! Os bugs se esconderam de novo.</p>
+  <div class="enter">🔁</div>
+</div>
+
+<div id="final" class="overlay">
+  <svg class="big" viewBox="0 0 100 100"><use href="#bot"/></svg>
+  <p>Vocês programaram em dupla! Isso é Engenharia de Software. Na UNIPAMPA a gente aprende a fazer isso.</p>
+  <div class="highlight">🆓 GRATUITO, com projetos e bolsas</div>
+  <ul class="facts">
+    <li>⭐ Nota máxima no MEC</li>
+    <li>🛠️ Mão na massa desde o 1º semestre</li>
+    <li>🌙 Noturno</li>
+    <li>⏳ 9 semestres</li>
+  </ul>
+  <div class="adults">
+    <div><svg viewBox="0 0 41 41" shape-rendering="crispEdges"><use href="#play-qr"/></svg><b>📱 Jogue no celular</b><span>medeiros08.github.io/Jogo-ES/escola/dupla</span></div>
+    <div><svg viewBox="0 0 41 41" shape-rendering="crispEdges"><rect width="41" height="41" fill="#fff"/><path stroke="#000" d="M4 4.5h7m3 0h1m6 0h1m3 0h1m4 0h7m-33 1h1m5 0h1m1 0h2m2 0h3m2 0h1m2 0h1m5 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m4 0h1m1 0h4m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m4 0h2m1 0h3m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m2 0h1m2 0h1m3 0h5m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m3 0h4m4 0h1m1 0h2m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h1m1 0h1m5 0h3m1 0h1m1 0h1m-25 1h1m5 0h1m1 0h2m3 0h1m1 0h1m1 0h1m1 0h1m3 0h4m2 0h3m-31 1h1m2 0h1m2 0h2m2 0h2m1 0h2m2 0h2m2 0h2m4 0h4m-32 1h2m2 0h5m2 0h1m3 0h1m4 0h1m4 0h1m2 0h1m1 0h2m-32 1h6m1 0h1m1 0h1m4 0h3m1 0h1m4 0h3m1 0h5m-32 1h1m3 0h1m1 0h1m1 0h1m4 0h2m1 0h1m2 0h2m2 0h2m1 0h2m4 0h1m-32 1h2m2 0h1m4 0h3m1 0h1m4 0h3m1 0h1m2 0h2m2 0h3m-27 1h3m1 0h3m2 0h2m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m2 0h1m-31 1h2m1 0h1m3 0h2m1 0h1m1 0h1m1 0h1m3 0h2m1 0h2m1 0h1m1 0h1m1 0h2m1 0h1m-33 1h1m3 0h1m1 0h1m5 0h3m2 0h2m3 0h2m1 0h1m1 0h3m2 0h1m-33 1h2m1 0h3m1 0h2m1 0h2m3 0h1m2 0h6m2 0h1m2 0h4m-33 1h1m4 0h3m1 0h5m1 0h1m3 0h6m2 0h1m1 0h2m1 0h1m-33 1h1m2 0h3m1 0h2m1 0h2m1 0h1m2 0h1m5 0h3m1 0h1m1 0h5m-33 1h1m1 0h2m2 0h3m3 0h1m2 0h1m1 0h1m2 0h1m1 0h1m1 0h2m1 0h3m-30 1h1m2 0h2m2 0h2m1 0h1m2 0h7m2 0h2m4 0h1m1 0h1m-31 1h1m3 0h1m1 0h2m2 0h1m1 0h2m1 0h3m2 0h3m5 0h2m1 0h1m-32 1h1m4 0h1m1 0h2m3 0h1m3 0h1m1 0h1m1 0h1m1 0h1m2 0h2m2 0h4m-33 1h3m1 0h5m2 0h2m2 0h1m3 0h1m3 0h7m1 0h1m-24 1h1m1 0h1m2 0h1m1 0h2m1 0h3m2 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h7m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m2 0h2m1 0h2m6 0h1m2 0h2m3 0h4m-32 1h1m1 0h3m1 0h1m2 0h2m1 0h4m1 0h1m1 0h1m2 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h6m2 0h3m1 0h3m1 0h3m1 0h2m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h2m2 0h3m1 0h2m3 0h1m2 0h2m2 0h2m-33 1h1m5 0h1m2 0h4m1 0h2m4 0h1m4 0h1m1 0h4m-31 1h7m1 0h1m3 0h1m2 0h1m1 0h1m4 0h6m1 0h1m1 0h1"/></svg>
+<b>🌐 Conheça o curso</b><span>cursos.unipampa.edu.br/cursos/engenhariadesoftware</span></div>
+  </div>
+  <a class="also" href="../index.html">🎮 Ver todos os jogos</a>
+</div>
+
+<div id="phone" class="overlay">
+  <svg viewBox="0 0 41 41" shape-rendering="crispEdges"><use href="#nav-qr"/></svg>
+  <div>🧭 Navegador: escaneie para ver os bugs</div>
+</div>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="play-qr" viewBox="0 0 41 41"><rect width="41" height="41" fill="#fff"/><path stroke="#000" d="M4 4.5h7m3 0h1m2 0h1m1 0h3m1 0h5m2 0h7m-33 1h1m5 0h1m3 0h2m1 0h5m2 0h3m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h2m2 0h3m2 0h1m2 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m3 0h1m1 0h1m2 0h2m1 0h3m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h4m1 0h1m2 0h1m2 0h3m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m3 0h1m1 0h2m3 0h1m5 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h2m1 0h1m3 0h1m2 0h1m2 0h1m1 0h1m-24 1h1m1 0h5m2 0h2m2 0h3m1 0h1m4 0h3m1 0h5m-23 1h1m1 0h1m7 0h4m1 0h1m2 0h2m1 0h2m1 0h1m-32 1h4m1 0h6m3 0h2m1 0h1m1 0h3m5 0h1m1 0h1m-30 1h2m1 0h1m2 0h1m3 0h1m2 0h1m1 0h1m2 0h4m2 0h2m1 0h5m-30 1h4m2 0h1m8 0h1m3 0h1m1 0h2m2 0h2m1 0h2m-31 1h2m3 0h1m1 0h2m1 0h1m1 0h4m2 0h1m1 0h3m1 0h1m2 0h1m1 0h2m-33 1h2m1 0h1m1 0h4m2 0h1m2 0h1m3 0h2m2 0h1m2 0h2m2 0h3m-32 1h6m1 0h6m3 0h1m1 0h5m1 0h3m2 0h2m-31 1h3m1 0h1m1 0h1m1 0h1m1 0h4m3 0h1m1 0h1m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m-32 1h3m1 0h1m2 0h1m2 0h1m1 0h2m1 0h2m1 0h5m2 0h2m1 0h2m1 0h1m-33 1h5m1 0h3m1 0h8m3 0h1m2 0h1m2 0h2m1 0h2m-32 1h6m2 0h2m1 0h2m1 0h2m1 0h5m3 0h8m-29 1h1m1 0h6m4 0h1m2 0h1m2 0h1m1 0h2m1 0h3m1 0h1m-32 1h1m2 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h1m2 0h1m2 0h1m1 0h1m2 0h1m2 0h2m1 0h1m-33 1h1m1 0h1m1 0h3m1 0h4m3 0h2m3 0h1m3 0h3m1 0h4m-32 1h1m2 0h1m1 0h1m1 0h1m2 0h2m3 0h1m3 0h4m2 0h1m2 0h3m1 0h1m-33 1h1m2 0h1m2 0h1m1 0h2m1 0h3m1 0h1m1 0h1m1 0h1m3 0h8m-23 1h2m4 0h1m1 0h1m1 0h2m2 0h1m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h4m1 0h2m2 0h1m2 0h4m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h1m1 0h5m1 0h1m4 0h1m1 0h2m3 0h5m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1m3 0h2m2 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h2m1 0h2m2 0h1m1 0h1m1 0h3m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h3m4 0h2m1 0h2m1 0h2m1 0h2m1 0h1m-30 1h1m5 0h1m6 0h1m2 0h1m1 0h1m2 0h1m3 0h2m1 0h1m1 0h1m-31 1h7m1 0h3m1 0h2m3 0h2m1 0h1m2 0h5m3 0h1"/></symbol>
+  <symbol id="nav-qr" viewBox="0 0 41 41"><rect width="41" height="41" fill="#fff"/><path stroke="#000" d="M4 4.5h7m1 0h1m1 0h2m1 0h1m1 0h2m2 0h5m2 0h7m-33 1h1m5 0h1m1 0h3m2 0h1m2 0h2m4 0h3m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m2 0h2m4 0h1m2 0h2m2 0h1m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h3m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h4m2 0h3m2 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m3 0h3m3 0h1m1 0h2m1 0h2m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h2m4 0h2m1 0h1m1 0h1m4 0h1m-25 1h1m1 0h2m1 0h3m2 0h2m2 0h1m1 0h3m2 0h1m1 0h1m2 0h1m2 0h1m1 0h2m-32 1h2m4 0h2m2 0h1m6 0h4m1 0h1m2 0h2m1 0h2m1 0h1m-31 1h1m3 0h3m1 0h3m1 0h1m1 0h1m1 0h1m3 0h3m1 0h4m2 0h1m-33 1h3m1 0h1m3 0h1m2 0h1m1 0h3m4 0h1m3 0h1m1 0h2m1 0h1m2 0h1m-33 1h3m1 0h1m1 0h1m1 0h1m2 0h1m4 0h2m4 0h1m1 0h2m2 0h2m1 0h2m-33 1h1m1 0h2m4 0h2m2 0h1m2 0h2m2 0h1m1 0h2m4 0h1m2 0h2m-32 1h2m3 0h3m4 0h3m4 0h3m2 0h1m1 0h4m-29 1h1m2 0h1m2 0h1m2 0h1m1 0h3m1 0h1m1 0h5m1 0h3m2 0h2m-30 1h2m1 0h1m1 0h2m1 0h2m1 0h1m2 0h1m2 0h6m1 0h2m1 0h2m-29 1h1m1 0h3m4 0h4m1 0h1m2 0h1m1 0h1m2 0h4m1 0h2m1 0h2m-33 1h1m2 0h1m1 0h3m2 0h2m3 0h2m4 0h1m2 0h1m2 0h2m1 0h2m-32 1h1m3 0h1m2 0h2m3 0h1m4 0h3m3 0h3m2 0h1m2 0h1m-30 1h1m1 0h5m2 0h1m1 0h6m1 0h2m7 0h2m-31 1h1m2 0h2m3 0h2m1 0h2m3 0h1m1 0h2m1 0h1m1 0h1m2 0h1m2 0h2m1 0h1m-31 1h3m1 0h2m1 0h5m3 0h2m2 0h1m1 0h1m1 0h1m1 0h2m2 0h2m-32 1h1m1 0h2m4 0h3m2 0h1m3 0h1m1 0h1m3 0h1m2 0h1m1 0h1m1 0h1m-32 1h1m2 0h4m2 0h3m2 0h2m1 0h1m1 0h1m3 0h10m-25 1h4m1 0h1m1 0h3m1 0h6m3 0h2m-30 1h7m1 0h1m1 0h3m1 0h1m1 0h4m3 0h2m1 0h1m1 0h1m-29 1h1m5 0h1m1 0h3m3 0h1m1 0h1m4 0h1m1 0h2m3 0h5m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h1m2 0h2m2 0h11m1 0h2m-32 1h1m1 0h3m1 0h1m1 0h1m1 0h3m1 0h2m6 0h2m3 0h1m4 0h1m-33 1h1m1 0h3m1 0h1m1 0h4m1 0h1m1 0h4m1 0h2m1 0h2m1 0h2m1 0h1m-30 1h1m5 0h1m2 0h3m1 0h1m3 0h1m2 0h1m2 0h3m1 0h3m2 0h1m-33 1h7m1 0h3m5 0h2m1 0h5m2 0h1m1 0h1m1 0h1"/></symbol>
+  <symbol id="bot" viewBox="0 0 100 100">
+    <line x1="50" y1="8" x2="50" y2="22" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="50" cy="8" r="6" fill="#ff4d4d"/>
+    <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/>
+    <circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/>
+    <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+  </symbol>
+  <symbol id="star" viewBox="0 0 100 100">
+    <polygon points="50,6 62,38 96,38 68,58 79,92 50,72 21,92 32,58 4,38 38,38" fill="#ffd84d" stroke="#e0a800" stroke-width="5" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="bug" viewBox="0 0 100 100">
+    <path d="M26 54 10 46M24 67 8 70M29 81 17 93M74 54 90 46M76 67 92 70M71 81 83 93M43 18 35 6M57 18 65 6" stroke="#1d2a44" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <circle cx="35" cy="6" r="5" fill="#ff4d4d" stroke="#1d2a44" stroke-width="3"/><circle cx="65" cy="6" r="5" fill="#ff4d4d" stroke="#1d2a44" stroke-width="3"/>
+    <ellipse cx="50" cy="64" rx="30" ry="29" fill="#ff4d4d" stroke="#1d2a44" stroke-width="5"/>
+    <path d="M50 40V91" stroke="#b52a2a" stroke-width="4"/>
+    <circle cx="38" cy="58" r="6" fill="#b52a2a"/><circle cx="63" cy="56" r="5" fill="#b52a2a"/><circle cx="62" cy="78" r="6" fill="#b52a2a"/><circle cx="38" cy="79" r="4" fill="#b52a2a"/>
+    <circle cx="50" cy="30" r="17" fill="#1d2a44"/>
+    <circle cx="43" cy="29" r="6.5" fill="#fff"/><circle cx="57" cy="29" r="6.5" fill="#fff"/>
+    <circle cx="44" cy="30" r="3" fill="#1d2a44"/><circle cx="58" cy="30" r="3" fill="#1d2a44"/>
+    <path d="M45 39q5 4 10 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<script>
+// Grouping five levels per difficulty. Each level is a list of rows of text, with R for the robot, * for the star,
+// B for a bug only the navigator sees and . for a free cell. From Normal on, every level has a single shortest safe path
+// and no straight path dodges all the bugs. Normal gives 3 tries per level and Desafio only 2, with no peek, after which
+// the level starts over with every bug hidden again
+const DIFFICULTIES = [
+  { icon: "🌱", name: "Fácil", peek: true, tries: Infinity, levels: [
+    ["....", "R.B*", "...."],
+    ["R.B.", ".B..", "...B", "B..*"],
+    ["R..B.", ".B...", "B..B.", "..B.*"],
+    ["R...B", "BBB..", "...B.", ".B...", "...B*"],
+    ["R.B..B", "B..B..", ".B..B.", "B.B..B", ".B.B..", "....B*"],
+  ] },
+  { icon: "⚡", name: "Normal", peek: true, tries: 3, levels: [
+    ["...BB", "....B", "...B*", ".B...", "R.B.B"],
+    ["B..B*B", ".B....", "RB....", "..BB..", "B....."],
+    ["R..B.", "BB...", "..B..", ".BB..", "BB...", "B*.B."],
+    ["R....B", "B..BB.", "B.B...", "......", ".BBB..", "..B*.B"],
+    ["B.BB.R", ".B...B", "..BB..", "B.B..B", "...B..", "*B...."],
+  ] },
+  { icon: "🔥", name: "Desafio", peek: false, tries: 2, levels: [
+    ["......", "RBB...", "BBB.BB", "B.B.B.", ".B...*", "..B..."],
+    ["RB.BBB.", "...B...", ".B.....", "B...B..", "...B..B", ".B.B*BB"],
+    [".B...R", "B.BB..", ".B..B.", ".*B...", "..B.B.", "B...B.", "BBB.B."],
+    ["RB.B.B.", ".......", "...BBB.", ".BB..B.", "...B*..", "B.B...B", "BB.BB.."],
+    ["....RB.", "B.B.BBB", "...B.BB", "..B...B", "....B..", "BBB..B.", "B.*...."],
+  ] },
+]
+const MOVES = {
+  ArrowLeft: [0, -1, "←", "esquerda", 392],
+  ArrowUp: [-1, 0, "↑", "cima", 523],
+  ArrowDown: [1, 0, "↓", "baixo", 330],
+  ArrowRight: [0, 1, "→", "direita", 440],
+}
+const QUEUE_LIMIT = 12
+
+// Opening the page with ?navegador turns it into the navigator's map, which shows the bugs and has no controls
+const NAVIGATOR = new URLSearchParams(location.search).has("navegador")
+
+// Looping a cheerful melody in the background, where 0 is a rest
+const MELODY = [523, 0, 659, 784, 659, 0, 523, 587, 659, 0, 587, 523, 440, 0, 392, 0]
+const board = document.getElementById("board")
+const robot = document.createElement("div")
+robot.id = "robot"
+robot.innerHTML = '<svg viewBox="0 0 100 100"><use href="#bot"/></svg>'
+let difficulty = 0, levels = DIFFICULTIES[difficulty].levels, level, rows, start, queue = [], culprit = -1, running = false, runs = 0, peeked = false, muted = false, audio, musicTimer, musicStep = 0
+
+const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds))
+const isShown = id => document.getElementById(id).classList.contains("show")
+
+// Playing a short melody with the Web Audio API, created lazily because browsers block audio before the first key press
+function beep(frequencies, { type = "triangle", volume = 0.25, spacing = 0.12, length = 0.25 } = {}) {
+  if (muted || NAVIGATOR) return
+  audio ??= new AudioContext()
+  audio.resume()
+  frequencies.forEach((frequency, index) => {
+    const oscillator = audio.createOscillator(), gain = audio.createGain()
+    const begin = audio.currentTime + index * spacing
+    oscillator.type = type
+    oscillator.frequency.value = frequency
+    gain.gain.setValueAtTime(volume, begin)
+    gain.gain.exponentialRampToValueAtTime(0.001, begin + length)
+    oscillator.connect(gain).connect(audio.destination)
+    oscillator.start(begin)
+    oscillator.stop(begin + length)
+  })
+}
+
+// Starting the soft background music once, on the first key press or click, with a bass note every four steps
+function startMusic() {
+  musicTimer ??= setInterval(() => {
+    const note = MELODY[musicStep % MELODY.length]
+    if (note) beep([note], { volume: 0.04, length: 0.22 })
+    if (musicStep % 4 === 0) beep([musicStep % 8 ? 196 : 131], { type: "sine", volume: 0.08, length: 0.5 })
+    musicStep++
+  }, 280)
+}
+
+// Moving the robot drawing to a cell, optionally without the sliding animation
+function placeRobot([row, column], animate = true) {
+  robot.style.transition = animate ? "" : "none"
+  robot.style.transform = `translate(calc(${column} * (var(--cell) + 6px)), calc(${row} * (var(--cell) + 6px)))`
+}
+
+// Sizing the cells so the whole screen fits without scrolling, giving the navigator's map more room since it has no controls
+function resize() {
+  const phone = innerWidth <= 600
+  const share = NAVIGATOR ? 0.62 : phone ? 0.34 : 0.5
+
+  // Leaving room for the 6 px gaps around the cells, which add up on the wider boards
+  const cell = Math.min((innerHeight * share - 6 * (rows.length + 1)) / rows.length, (innerWidth * (phone ? 0.92 : 0.5) - 6 * (rows[0].length + 1)) / rows[0].length, 130)
+  document.documentElement.style.setProperty("--cell", cell + "px")
+}
+
+// Building the grid of the chosen level with its bugs hidden and putting the robot at its start
+function loadLevel(number) {
+  level = number
+  rows = levels[level]
+  queue = []
+  culprit = -1
+  runs = 0
+  peeked = false
+  board.classList.remove("peek")
+  document.getElementById("peek").classList.toggle("off", !DIFFICULTIES[difficulty].peek)
+  board.style.gridTemplateColumns = `repeat(${rows[0].length}, var(--cell))`
+  board.innerHTML = rows.join("").split("").map(symbol =>
+    `<div class="cell">${symbol === "*" ? '<svg><use href="#star"/></svg>' : symbol === "B" ? '<svg class="bug"><use href="#bug"/></svg>' : ""}</div>`).join("")
+  board.append(robot)
+  const flat = rows.join("").indexOf("R")
+  start = [Math.floor(flat / rows[0].length), flat % rows[0].length]
+  placeRobot(start, false)
+  resize()
+  document.querySelectorAll("#win, #final, #lost").forEach(overlay => overlay.classList.remove("show"))
+  document.getElementById("role").textContent = `🧭 ${DIFFICULTIES[difficulty].icon} Fase ${level + 1}: diga o caminho ao piloto e avise onde estão os bugs!`
+  document.querySelectorAll("#difficulties button, #pick button").forEach(button => button.classList.toggle("chosen", Number(button.dataset.difficulty) === difficulty))
+  draw()
+}
+
+// Redrawing the level dots, the tries left, the command queue and its code version, marking the current and the wrong step
+function draw(current = -1) {
+  document.getElementById("dots").innerHTML = levels.map((_, index) =>
+    `<span data-level="${index}" class="dot ${index < level ? "done" : ""} ${index === level ? "now" : ""}"></span>`).join(" ")
+  const { tries } = DIFFICULTIES[difficulty]
+  document.getElementById("tries").innerHTML = NAVIGATOR || tries === Infinity ? "" : Array.from({ length: tries }, (_, index) =>
+    `<svg viewBox="0 0 100 100" class="${index < tries - runs ? "" : "lost"}"><use href="#bot"/></svg>`).join("")
+  document.getElementById("queue").innerHTML = Array.from({ length: QUEUE_LIMIT }, (_, index) =>
+    `<li data-index="${index}" class="${queue[index] ? "full" : ""} ${index === current ? "now" : ""} ${index === culprit ? "bad" : ""}">${queue[index] ? MOVES[queue[index]][2] : ""}</li>`).join("")
+  document.getElementById("code").innerHTML = queue.map((key, index) =>
+    `<li class="${index === current ? "now" : ""} ${index === culprit ? "bad" : ""}">${MOVES[key][2]} robô.${MOVES[key][3]}()</li>`).join("")
+
+  // Scrolling the code panel to the lit line, since on phones the panel is short
+  document.querySelector("#code .now, #code .bad")?.scrollIntoView({ block: "nearest" })
+}
+
+// Running the queue step by step. A hidden bug or the edge marks the culprit, and reaching the star wins
+async function play() {
+  if (!queue.length) return
+  running = true
+  culprit = -1
+  runs++
+  let position = start
+  for (const [index, key] of queue.entries()) {
+    draw(index)
+    const [row, column] = [position[0] + MOVES[key][0], position[1] + MOVES[key][1]]
+    const symbol = rows[row]?.[column]
+    if (symbol === undefined) {
+      culprit = index
+      break
+    }
+    position = [row, column]
+    placeRobot(position)
+
+    // Stepping onto the hidden bug before revealing it, so both players see where it was
+    if (symbol === "B") {
+      await wait(400)
+      board.children[row * rows[0].length + column].querySelector(".bug").classList.add("found")
+      culprit = index
+      break
+    }
+    beep([MOVES[key][4] / 2], { type: "square", volume: 0.08, length: 0.1 })
+    await wait(500)
+    if (symbol === "*") return win()
+  }
+
+  // Shaking the robot and sending it back to the start, keeping the queue so the pair fixes only the wrong step
+  beep([300, 200, 120], { type: "sawtooth", volume: 0.15, spacing: 0.15, length: 0.3 })
+  robot.classList.add("shake")
+  draw()
+  await wait(700)
+  robot.classList.remove("shake")
+  placeRobot(start, false)
+  running = false
+
+  // Ending the level when the tries run out, so the pair has to plan the whole path again
+  if (runs >= DIFFICULTIES[difficulty].tries) {
+    beep([392, 330, 262, 196], { type: "sawtooth", volume: 0.12, spacing: 0.18, length: 0.3 })
+    document.getElementById("lost").classList.add("show")
+  }
+}
+
+// Celebrating with falling confetti, then asking the pair to swap roles before the next level
+function win() {
+  beep([523, 659, 784, 1047])
+  const overlay = document.getElementById("win")
+  overlay.querySelectorAll(".confetti").forEach(piece => piece.remove())
+  for (let index = 0; index < 80; index++) {
+    const piece = document.createElement("span")
+    piece.className = "confetti"
+    piece.style.left = Math.random() * 100 + "vw"
+    piece.style.background = `hsl(${Math.random() * 360} 90% 60%)`
+    piece.style.animationDuration = 1.5 + Math.random() * 2 + "s"
+    piece.style.animationDelay = Math.random() * 0.6 + "s"
+    overlay.append(piece)
+  }
+
+  // Awarding 3 stars for reaching the star on the first try, one less for each extra try and one less for peeking
+  const stars = Math.max(1, 3 - (runs - 1) - (peeked ? 1 : 0))
+  for (let index = 0; index < stars; index++) setTimeout(() => beep([1047 + index * 262]), 600 + index * 300)
+  document.getElementById("stars").innerHTML = [0, 1, 2].map(index =>
+    `<svg viewBox="0 0 100 100" class="${index < stars ? "" : "off"}" style="animation-delay: ${index * 0.3}s"><use href="#star"/></svg>`).join("")
+  const swap = document.getElementById("swap")
+  swap.textContent = `🔄 Troquem de lugar! 🧭 ${DIFFICULTIES[difficulty].icon} Fase ${level + 2}`
+  swap.hidden = level + 1 >= levels.length
+  overlay.classList.add("show")
+  level++
+  draw()
+  running = false
+}
+
+// Showing the bugs for 2 seconds to someone playing alone, which costs one star and is not allowed in the Desafio
+function peek() {
+  if (running || document.querySelector(".overlay.show") || board.classList.contains("peek")) return
+  if (!DIFFICULTIES[difficulty].peek) return beep([200], { type: "square", volume: 0.08, length: 0.15 })
+  peeked = true
+  board.classList.add("peek")
+  beep([660, 880], { volume: 0.12 })
+  setTimeout(() => board.classList.remove("peek"), 2000)
+}
+
+// Switching to the five levels of a difficulty, starting from the first
+function chooseDifficulty(index) {
+  difficulty = index
+  levels = DIFFICULTIES[difficulty].levels
+  loadLevel(0)
+}
+
+// Letting the navigator flip through the maps with the arrows, the page keys or the level numbers
+function turnPage(key) {
+  if (key === "ArrowRight" || key === "PageDown") loadLevel((level + 1) % levels.length)
+  else if (key === "ArrowLeft" || key === "PageUp") loadLevel((level + levels.length - 1) % levels.length)
+  else if (levels[key - 1]) loadLevel(key - 1)
+}
+
+// Handling one input, whether it came from the keyboard or from a click on a button
+function press(key) {
+  if (NAVIGATOR) return turnPage(key)
+  startMusic()
+  if (running) return
+
+  // Showing or hiding the full screen QR code that opens the navigator's map on a phone
+  const phone = document.getElementById("phone")
+  if (phone.classList.contains("show")) return phone.classList.remove("show")
+  if (key === "q" || key === "Q") return phone.classList.add("show")
+
+  // Starting from a difficulty button, a key from 1 to 3, or Enter to repeat the last difficulty
+  if (isShown("start")) {
+    if (key !== "Enter" && key !== " " && !DIFFICULTIES[key - 1]) return
+    chooseDifficulty(DIFFICULTIES[key - 1] ? key - 1 : difficulty)
+    return document.getElementById("start").classList.remove("show")
+  }
+  if (isShown("final")) {
+    if (key !== "Enter") return
+    loadLevel(0)
+    return document.getElementById("start").classList.add("show")
+  }
+  if (isShown("lost")) return (key === "Enter" || key === " ") && loadLevel(level)
+  if (isShown("win")) {
+    if (key !== "Enter" && key !== " ") return
+    if (level < levels.length) return loadLevel(level)
+    return document.getElementById("final").classList.add("show")
+  }
+  if (MOVES[key] && queue.length < QUEUE_LIMIT) {
+    queue.push(key)
+    culprit = -1
+    beep([MOVES[key][4]])
+  } else if (key === "Backspace") {
+    queue.splice(culprit >= 0 ? culprit : queue.length - 1, 1)
+    culprit = -1
+    beep([200], { type: "square", volume: 0.08, length: 0.08 })
+  } else if (key === "Enter" || key === " ") return play()
+
+  // Clearing only the queue, so the tries and the bugs already found still count
+  else if (key === "r" || key === "R") {
+    queue = []
+    culprit = -1
+  }
+  else if (levels[key - 1]) return loadLevel(key - 1)
+  else if (key === "PageDown") return loadLevel((level + 1) % levels.length)
+  else if (key === "PageUp") return loadLevel((level + levels.length - 1) % levels.length)
+  else if (key === "e" || key === "E") return peek()
+  else if (key === "m" || key === "M") toggleMute()
+  draw()
+}
+
+function toggleMute() {
+  muted = !muted
+  document.getElementById("mute").textContent = muted ? "🔇" : "🔊"
+}
+
+document.addEventListener("keydown", event => {
+  if (event.repeat || event.metaKey || event.ctrlKey) return
+  event.preventDefault()
+  press(event.key)
+})
+document.querySelectorAll("nav").forEach(buttons => buttons.addEventListener("click", event => event.target.dataset.key && press(event.target.dataset.key)))
+document.getElementById("peek").addEventListener("click", peek)
+document.getElementById("mute").addEventListener("click", toggleMute)
+document.querySelectorAll("#win, #final, #lost, #phone").forEach(overlay => overlay.addEventListener("click", () => press("Enter")))
+
+// Building the difficulty buttons of the first screen and of the navigator's map
+document.getElementById("difficulties").innerHTML = DIFFICULTIES.map((choice, index) =>
+  `<button data-difficulty="${index}" tabindex="-1">${choice.icon}<span>${choice.name}</span></button>`).join("")
+document.getElementById("pick").innerHTML = DIFFICULTIES.map((choice, index) =>
+  `<button data-difficulty="${index}" tabindex="-1">${choice.icon} ${choice.name}</button>`).join("")
+document.getElementById("difficulties").addEventListener("click", event => {
+  const button = event.target.closest("button")
+  if (button) press(String(Number(button.dataset.difficulty) + 1))
+})
+document.getElementById("pick").addEventListener("click", event => {
+  const button = event.target.closest("button")
+  if (button) chooseDifficulty(Number(button.dataset.difficulty))
+})
+document.querySelector("#final .also").addEventListener("click", event => event.stopPropagation())
+
+// Removing a clicked queue step, so a mouse user can fix a step in the middle
+document.getElementById("queue").addEventListener("click", event => {
+  const index = Number(event.target.dataset.index)
+  if (running || !queue[index]) return
+  queue.splice(index, 1)
+  culprit = -1
+  draw()
+})
+
+// Letting the navigator jump to a level by tapping its dot or swiping the map sideways
+document.getElementById("dots").addEventListener("click", event => NAVIGATOR && event.target.dataset.level && loadLevel(Number(event.target.dataset.level)))
+let swipeStart = 0
+board.addEventListener("pointerdown", event => { swipeStart = event.clientX })
+board.addEventListener("pointerup", event => {
+  if (NAVIGATOR && Math.abs(event.clientX - swipeStart) > 50) turnPage(event.clientX < swipeStart ? "ArrowRight" : "ArrowLeft")
+})
+addEventListener("resize", resize)
+if (NAVIGATOR) {
+  document.body.classList.add("navigator")
+  document.getElementById("start").classList.remove("show")
+}
+loadLevel(0)
+</script>
+</body>
+</html>

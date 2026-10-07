@@ -1,0 +1,836 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ninja dos Bugs</title>
+<meta name="description" content="Deslize o dedo para cortar os bugs sem cortar o robô. Um jogo do curso de Engenharia de Software da UNIPAMPA.">
+<meta property="og:title" content="Ninja dos Bugs">
+<meta property="og:description" content="Deslize o dedo para cortar os bugs sem cortar o robô. Um jogo do curso de Engenharia de Software da UNIPAMPA.">
+<meta property="og:url" content="https://medeiros08.github.io/Jogo-ES/escola/ninja/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><ellipse cx='50' cy='62' rx='34' ry='32' fill='%234da3ff' stroke='%231d2a44' stroke-width='6'/><circle cx='50' cy='28' r='19' fill='%231d2a44'/><circle cx='42' cy='27' r='7' fill='%23fff'/><circle cx='58' cy='27' r='7' fill='%23fff'/></svg>">
+<style>
+  :root {
+    --sky: #e8f4ff;
+    --ink: #1d2a44;
+    --cell-line: #b9d3ee;
+    --play: #3cc26b;
+    --bad: #ff4d4d;
+    --now: #4da3ff;
+  }
+  * { box-sizing: border-box }
+  html, body { margin: 0; height: 100%; overflow: hidden; touch-action: manipulation }
+  body {
+    background: var(--sky);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+  header { display: flex; gap: 18px; align-items: center; width: 100%; max-width: 1300px }
+  #lives { display: flex; gap: 6px }
+  #lives svg { width: 44px; height: 44px }
+  #lives svg.lost { filter: grayscale(1); opacity: .3 }
+  #time { flex: 1; height: 26px; border: 4px solid var(--ink); border-radius: 999px; background: #fff; overflow: hidden }
+  #time div { height: 100%; background: var(--play); transform-origin: left }
+  #time.low div { background: var(--bad) }
+  #score {
+    min-width: 100px;
+    padding: 2px 16px;
+    border: 4px solid var(--ink);
+    border-radius: 999px;
+    background: #fff;
+    font-size: 28px;
+    font-weight: 900;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  #mute { font-size: 26px; background: none; border: none; cursor: pointer; width: 48px }
+  main { display: flex; gap: 24px; width: 100%; max-width: 1300px; flex: 1; min-height: 0 }
+  #field { position: relative; flex: 1; min-width: 0; border: 6px solid var(--cell-line); border-radius: 18px; background: #fff; overflow: hidden }
+  #field.shake { animation: shake .12s 4 }
+  @keyframes shake { 25% { transform: translateX(-8px) } 75% { transform: translateX(8px) } }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair }
+  #count { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; font-size: min(30vh, 40vw); font-weight: 900 }
+  #count span { animation: pop .4s ease-out }
+  #code {
+    width: min(320px, 30vw);
+    margin: 0;
+    padding: 12px 12px 12px 48px;
+    background: var(--ink);
+    color: #e8f4ff;
+    border-radius: 18px;
+    font: 600 min(19px, 2.2vw)/1.6 ui-monospace, Menlo, monospace;
+    overflow: hidden;
+  }
+  #code li { padding-left: 4px; white-space: nowrap }
+  #code li::marker { color: #6f86ad }
+  #code li.now { background: var(--now); border-radius: 6px }
+  #code li.bad { background: var(--bad); border-radius: 6px }
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(232, 244, 255, .94);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    text-align: center;
+    overflow: hidden;
+  }
+  .overlay.show { display: flex }
+  .overlay .big { width: min(40vh, 60vw); animation: pop .6s ease-out }
+  h1 { font-size: min(64px, 10vw); font-weight: 900; margin: 0 }
+  .rules { display: flex; gap: 6vw }
+  .rule {
+    position: relative;
+    width: min(28vh, 36vw);
+    aspect-ratio: 1;
+    background: #fff;
+    border: 5px solid var(--ink);
+    border-radius: 28px;
+    display: grid;
+    place-items: center;
+  }
+  .rule svg { width: 80%; height: 80% }
+  .mark {
+    position: absolute;
+    top: -18px;
+    right: -18px;
+    width: min(9vh, 12vw);
+    aspect-ratio: 1;
+    border: 4px solid var(--ink);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: min(5vh, 7vw);
+    font-weight: 900;
+  }
+  .mark.yes { background: var(--play) }
+  .mark.no { background: var(--bad) }
+  .slash { stroke-dasharray: 140; animation: slash 1.6s ease-in-out infinite }
+  @keyframes slash { from { stroke-dashoffset: 140 } 45%, 100% { stroke-dashoffset: -140 } }
+  #final { overflow: auto; justify-content: flex-start; padding: 16px }
+  #final > * { flex-shrink: 0 }
+  #final > :first-child { margin-top: auto }
+  #final > :last-child { margin-bottom: auto }
+  #final .adults span { overflow-wrap: anywhere }
+  #final .big { width: min(18vh, 30vw) }
+  .facts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 1000px; margin: 0; padding: 0; list-style: none }
+  .highlight { background: var(--play); color: #fff; border-radius: 999px; padding: 8px 24px; font-size: min(30px, 5.5vw); font-weight: 900; box-shadow: 0 5px 0 #1f7a41 }
+  .facts li { background: #fff; border: 3px solid var(--ink); border-radius: 999px; padding: 6px 16px; font-size: min(19px, 4vw); font-weight: 700 }
+  #result li { font-size: min(32px, 5.5vw); font-weight: 900; padding: 4px 18px; border-width: 4px }
+  @keyframes pop { from { transform: scale(0) rotate(-90deg) } }
+  #stars { display: flex; gap: 2vw }
+  #stars svg { width: min(22vh, 26vw); height: min(22vh, 26vw); animation: pop .5s ease-out backwards }
+  #stars svg.off { filter: grayscale(1); opacity: .3 }
+  #levels { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px }
+  #levels button {
+    width: min(150px, 27vw);
+    padding: 10px 0 8px;
+    border: none;
+    border-radius: 18px;
+    background: #ffd84d;
+    box-shadow: 0 6px 0 #b8941a;
+    color: var(--ink);
+    font-size: min(44px, 9vw);
+    font-weight: 900;
+    line-height: 1.1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+  #levels button span { font-size: min(20px, 4.4vw) }
+  #levels button:nth-child(1) { background: var(--play); box-shadow: 0 6px 0 #1f7a41; color: #fff }
+  #levels button:nth-child(3) { background: #ff9a3c; box-shadow: 0 6px 0 #b25f14; color: #fff }
+  #levels button:active { transform: translateY(4px) }
+  #levels button.chosen { outline: 5px solid var(--now); outline-offset: 4px }
+  .enter { font-size: 40px; font-weight: 900; background: var(--play); color: #fff; border-radius: 18px; padding: 10px 28px; box-shadow: 0 6px 0 #1f7a41; cursor: pointer }
+  .confetti { position: absolute; top: -20px; width: 14px; height: 22px; animation: fall linear forwards }
+  @keyframes fall { to { transform: translateY(110vh) rotate(720deg) } }
+  #start p, #final p { font-size: min(36px, 5vw); font-weight: 800; margin: 0; max-width: 900px; line-height: 1.3 }
+  #final .adults { display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; font-size: 14px }
+  #final .adults div { display: flex; flex-direction: column; align-items: center; gap: 6px }
+  #final .adults svg { width: 150px; height: 150px }
+  #final .also { color: var(--ink); font-size: min(19px, 4vw); font-weight: 700 }
+  #phone svg { width: min(70vh, 80vw); height: min(70vh, 80vw) }
+  #phone div { font-size: min(32px, 5vw); font-weight: 800 }
+
+  /* Stacking the code under the field and shrinking the header on phones */
+  @media (max-width: 600px) {
+    body { padding: 8px 10px; gap: 8px }
+    header { gap: 8px }
+    #lives { gap: 2px }
+    #lives svg { width: 28px; height: 28px }
+    #time { height: 20px; border-width: 3px }
+    #score { min-width: 64px; padding: 0 10px; border-width: 3px; font-size: 20px }
+    #mute { width: 32px; font-size: 22px }
+    main { flex-direction: column; gap: 8px }
+    #code { width: 100%; height: 72px; flex: none; padding-left: 40px; font-size: 15px }
+    #code li:nth-last-child(n+3) { display: none }
+  }
+</style>
+</head>
+<body>
+
+<header><span id="lives"></span><div id="time"><div id="timefill"></div></div><div id="score">0</div><button id="mute" tabindex="-1">🔊</button></header>
+<main><div id="field"><canvas id="canvas"></canvas><div id="count"></div></div><ol id="code"></ol></main>
+
+<div id="start" class="overlay show">
+  <h1>Ninja dos Bugs</h1>
+  <div class="rules">
+    <div class="rule">
+      <svg id="demo-bug" viewBox="0 0 100 100">
+        <line class="slash" x1="6" y1="90" x2="94" y2="10" stroke="#4da3ff" stroke-width="16" stroke-linecap="round"/>
+        <line class="slash" x1="6" y1="90" x2="94" y2="10" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+      </svg>
+      <span class="mark yes">✓</span>
+    </div>
+    <div class="rule"><svg viewBox="0 0 100 100"><use href="#bot"/></svg><span class="mark no">✗</span></div>
+  </div>
+  <p>Deslize para cortar os bugs.<br>Não corte o robô!</p>
+  <div id="levels"></div>
+</div>
+
+<div id="win" class="overlay"><div id="stars"></div><ul id="result" class="facts"></ul><div class="enter">⏎</div></div>
+
+<div id="final" class="overlay">
+  <svg class="big" viewBox="0 0 100 100"><use href="#bot"/></svg>
+  <p>Você caçou bugs! Isso é Engenharia de Software. Na UNIPAMPA a gente aprende a fazer isso.</p>
+  <div class="highlight">🆓 GRATUITO, com projetos e bolsas</div>
+  <ul class="facts">
+    <li>⭐ Nota máxima no MEC</li>
+    <li>🛠️ Mão na massa desde o 1º semestre</li>
+    <li>🌙 Noturno</li>
+    <li>⏳ 9 semestres</li>
+  </ul>
+  <div class="adults">
+    <div><svg viewBox="0 0 41 41" shape-rendering="crispEdges"><use href="#play-qr"/></svg><b>📱 Jogue no celular</b><span>medeiros08.github.io/Jogo-ES/escola/ninja</span></div>
+    <div><svg viewBox="0 0 41 41" shape-rendering="crispEdges"><rect width="41" height="41" fill="#fff"/><path stroke="#000" d="M4 4.5h7m3 0h1m6 0h1m3 0h1m4 0h7m-33 1h1m5 0h1m1 0h2m2 0h3m2 0h1m2 0h1m5 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m4 0h1m1 0h4m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m4 0h2m1 0h3m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m2 0h1m2 0h1m3 0h5m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m3 0h4m4 0h1m1 0h2m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h1m1 0h1m5 0h3m1 0h1m1 0h1m-25 1h1m5 0h1m1 0h2m3 0h1m1 0h1m1 0h1m1 0h1m3 0h4m2 0h3m-31 1h1m2 0h1m2 0h2m2 0h2m1 0h2m2 0h2m2 0h2m4 0h4m-32 1h2m2 0h5m2 0h1m3 0h1m4 0h1m4 0h1m2 0h1m1 0h2m-32 1h6m1 0h1m1 0h1m4 0h3m1 0h1m4 0h3m1 0h5m-32 1h1m3 0h1m1 0h1m1 0h1m4 0h2m1 0h1m2 0h2m2 0h2m1 0h2m4 0h1m-32 1h2m2 0h1m4 0h3m1 0h1m4 0h3m1 0h1m2 0h2m2 0h3m-27 1h3m1 0h3m2 0h2m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m2 0h1m-31 1h2m1 0h1m3 0h2m1 0h1m1 0h1m1 0h1m3 0h2m1 0h2m1 0h1m1 0h1m1 0h2m1 0h1m-33 1h1m3 0h1m1 0h1m5 0h3m2 0h2m3 0h2m1 0h1m1 0h3m2 0h1m-33 1h2m1 0h3m1 0h2m1 0h2m3 0h1m2 0h6m2 0h1m2 0h4m-33 1h1m4 0h3m1 0h5m1 0h1m3 0h6m2 0h1m1 0h2m1 0h1m-33 1h1m2 0h3m1 0h2m1 0h2m1 0h1m2 0h1m5 0h3m1 0h1m1 0h5m-33 1h1m1 0h2m2 0h3m3 0h1m2 0h1m1 0h1m2 0h1m1 0h1m1 0h2m1 0h3m-30 1h1m2 0h2m2 0h2m1 0h1m2 0h7m2 0h2m4 0h1m1 0h1m-31 1h1m3 0h1m1 0h2m2 0h1m1 0h2m1 0h3m2 0h3m5 0h2m1 0h1m-32 1h1m4 0h1m1 0h2m3 0h1m3 0h1m1 0h1m1 0h1m1 0h1m2 0h2m2 0h4m-33 1h3m1 0h5m2 0h2m2 0h1m3 0h1m3 0h7m1 0h1m-24 1h1m1 0h1m2 0h1m1 0h2m1 0h3m2 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h7m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m2 0h2m1 0h2m6 0h1m2 0h2m3 0h4m-32 1h1m1 0h3m1 0h1m2 0h2m1 0h4m1 0h1m1 0h1m2 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h6m2 0h3m1 0h3m1 0h3m1 0h2m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h2m2 0h3m1 0h2m3 0h1m2 0h2m2 0h2m-33 1h1m5 0h1m2 0h4m1 0h2m4 0h1m4 0h1m1 0h4m-31 1h7m1 0h1m3 0h1m2 0h1m1 0h1m4 0h6m1 0h1m1 0h1"/></svg>
+<b>🌐 Conheça o curso</b><span>cursos.unipampa.edu.br/cursos/engenhariadesoftware</span></div>
+  </div>
+  <a class="also" href="../index.html">🎮 Ver todos os jogos</a>
+</div>
+
+<div id="phone" class="overlay">
+  <svg viewBox="0 0 41 41" shape-rendering="crispEdges"><use href="#play-qr"/></svg>
+  <div>📱 medeiros08.github.io/Jogo-ES/escola/ninja</div>
+</div>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="play-qr" viewBox="0 0 41 41"><rect width="41" height="41" fill="#fff"/><path stroke="#000" d="M4 4.5h7m3 0h1m2 0h1m1 0h3m1 0h2m1 0h2m2 0h7m-33 1h1m5 0h1m3 0h2m1 0h5m2 0h1m1 0h1m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h2m2 0h3m2 0h1m2 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h2m1 0h3m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h2m1 0h1m2 0h1m2 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m1 0h3m1 0h2m3 0h1m5 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h2m1 0h1m3 0h1m2 0h1m2 0h1m1 0h1m-24 1h1m1 0h5m2 0h2m2 0h3m1 0h1m4 0h3m1 0h5m-23 1h1m1 0h1m7 0h3m2 0h1m2 0h2m1 0h2m1 0h1m-33 1h5m1 0h3m2 0h1m3 0h2m1 0h1m1 0h2m6 0h1m1 0h1m-30 1h2m2 0h1m1 0h1m3 0h1m2 0h1m1 0h1m2 0h4m2 0h2m1 0h5m-32 1h1m1 0h4m1 0h1m1 0h1m1 0h1m5 0h1m3 0h1m1 0h2m2 0h2m1 0h2m-32 1h3m1 0h1m1 0h1m1 0h1m2 0h1m1 0h4m2 0h1m2 0h2m1 0h1m2 0h1m1 0h2m-33 1h3m2 0h3m3 0h1m2 0h1m3 0h2m2 0h1m2 0h2m2 0h3m-32 1h3m1 0h2m3 0h4m3 0h1m1 0h5m1 0h3m2 0h2m-31 1h2m2 0h1m1 0h3m1 0h4m3 0h1m1 0h1m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m-32 1h3m1 0h1m2 0h1m2 0h1m2 0h1m1 0h2m1 0h2m1 0h2m2 0h2m1 0h2m1 0h1m-31 1h3m1 0h7m1 0h4m4 0h1m1 0h1m2 0h2m1 0h2m-32 1h1m1 0h2m4 0h1m1 0h4m1 0h1m1 0h5m3 0h8m-33 1h1m2 0h7m1 0h1m1 0h2m1 0h1m2 0h1m2 0h1m1 0h2m1 0h3m1 0h1m-32 1h1m4 0h1m1 0h2m3 0h1m2 0h1m2 0h1m2 0h1m1 0h1m2 0h1m2 0h2m1 0h1m-33 1h1m3 0h3m1 0h4m3 0h2m3 0h1m3 0h3m1 0h4m-32 1h1m4 0h1m1 0h1m2 0h1m4 0h1m3 0h4m2 0h1m2 0h3m1 0h1m-33 1h1m2 0h1m2 0h1m1 0h2m2 0h2m1 0h1m1 0h1m1 0h1m3 0h8m-23 1h2m3 0h2m1 0h1m1 0h2m2 0h1m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h1m1 0h3m1 0h1m2 0h1m4 0h2m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h2m1 0h3m2 0h1m4 0h1m1 0h2m3 0h5m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h1m2 0h1m3 0h2m2 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m1 0h2m2 0h1m1 0h1m1 0h3m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h3m4 0h2m1 0h2m1 0h2m1 0h2m1 0h1m-30 1h1m5 0h1m4 0h1m1 0h1m2 0h1m1 0h1m2 0h1m3 0h2m1 0h1m1 0h1m-31 1h7m1 0h3m1 0h2m3 0h2m1 0h1m2 0h5m3 0h1"/></symbol>
+  <symbol id="bot" viewBox="0 0 100 100">
+    <line x1="50" y1="8" x2="50" y2="22" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="50" cy="8" r="6" fill="#ff4d4d"/>
+    <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/>
+    <circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/>
+    <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+  </symbol>
+  <symbol id="star" viewBox="0 0 100 100">
+    <polygon points="50,6 62,38 96,38 68,58 79,92 50,72 21,92 32,58 4,38 38,38" fill="#ffd84d" stroke="#e0a800" stroke-width="5" stroke-linejoin="round"/>
+  </symbol>
+</svg>
+
+<script>
+// Tuning the round: its length and the gravity in screen heights per second squared
+const ROUND_LENGTH = 30000
+const GRAVITY = 1.5
+
+// Setting each difficulty: how fast things fly, how many robots may be cut, how big the bugs are,
+// how often the robot shows up and the points that earn 2 and 3 stars
+const LEVELS = [
+  { icon: "🌱", name: "Fácil", speed: 0.75, lives: 5, size: 1.15, robots: 0.7, stars: [100, 200] },
+  { icon: "⚡", name: "Normal", speed: 1, lives: 3, size: 1, robots: 1, stars: [150, 300] },
+  { icon: "🔥", name: "Desafio", speed: 1.35, lives: 2, size: 0.9, robots: 1.3, stars: [200, 400] },
+]
+const INK = "#1d2a44"
+
+// Pairing each bug colour with a darker shade for its spots
+const BUG_COLORS = [["#4da3ff", "#2f7fd6"], ["#3cc26b", "#1f7a41"], ["#ff9a3c", "#b25f14"], ["#ff7eb6", "#d14f8a"]]
+const GOLD = ["#ffd84d", "#e0a800"]
+const MEGA = ["#ff4d4d", "#b52a2a"]
+
+// Showing every cut as a line of code, the way the robot game shows every arrow
+const CODE = { bug: "🐛 bug.consertar()", gold: "✨ bugDourado.consertar()", mega: "💥 megaBug.consertar()" }
+const POINTS = { bug: 10, gold: 30, mega: 50 }
+
+// Looping the same cheerful melody as the robot game, where 0 is a rest
+const MELODY = [523, 0, 659, 784, 659, 0, 523, 587, 659, 0, 587, 523, 440, 0, 392, 0]
+
+const field = document.getElementById("field")
+const canvas = document.getElementById("canvas")
+const context = canvas.getContext("2d")
+let width = 0, height = 0
+let things = [], halves = [], sparks = [], labels = [], trail = [], lines = [], lineCount = 0
+let level = 1, score = 0, lives = LEVELS[level].lives, bugsCut = 0, bestCombo = 0, strokeHits = 0, strokeEnd = { x: 0, y: 0 }, anchor
+let running = false, swiping = false, round = 0, roundStart = 0, launchTimer, lastTick = -1, lastFrame = performance.now(), overlayTime = -Infinity
+let muted = false, audio, musicTimer, musicStep = 0
+
+const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds))
+const roundProgress = () => Math.min(1, (performance.now() - roundStart) / ROUND_LENGTH)
+const isShown = id => document.getElementById(id).classList.contains("show")
+const vibrate = pattern => navigator.vibrate?.(pattern)
+
+// Drawing a bug in the same flat style as the robot, with an angry face for the big bug that takes three cuts
+function bugMarkup([body, dark], angry = false) {
+  return `<path d="M26 54 10 46M24 67 8 70M29 81 17 93M74 54 90 46M76 67 92 70M71 81 83 93M43 18 35 6M57 18 65 6" stroke="${INK}" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <circle cx="35" cy="6" r="5" fill="${body}" stroke="${INK}" stroke-width="3"/><circle cx="65" cy="6" r="5" fill="${body}" stroke="${INK}" stroke-width="3"/>
+    <ellipse cx="50" cy="64" rx="30" ry="29" fill="${body}" stroke="${INK}" stroke-width="5"/>
+    <path d="M50 40V91" stroke="${dark}" stroke-width="4"/>
+    <circle cx="38" cy="58" r="6" fill="${dark}"/><circle cx="63" cy="56" r="5" fill="${dark}"/><circle cx="62" cy="78" r="6" fill="${dark}"/><circle cx="38" cy="79" r="4" fill="${dark}"/>
+    <circle cx="50" cy="30" r="17" fill="${INK}"/>
+    <circle cx="43" cy="29" r="6.5" fill="#fff"/><circle cx="57" cy="29" r="6.5" fill="#fff"/>
+    <circle cx="44" cy="30" r="3" fill="${INK}"/><circle cx="58" cy="30" r="3" fill="${INK}"/>
+    ${angry ? '<path d="M36 17 47 22M64 17 53 22" stroke="#fff" stroke-width="4" stroke-linecap="round"/>' : '<path d="M45 39q5 4 10 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>'}`
+}
+
+// Turning a drawing into an image the canvas can paint, spin and cut in half
+function toImage(markup) {
+  const image = new Image()
+  image.src = "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${markup}</svg>`)
+  return image
+}
+const IMAGES = {
+  bug: BUG_COLORS.map(colors => toImage(bugMarkup(colors))),
+  gold: toImage(bugMarkup(GOLD)),
+  mega: toImage(bugMarkup(MEGA, true)),
+  robot: toImage(document.getElementById("bot").innerHTML),
+}
+document.getElementById("demo-bug").insertAdjacentHTML("afterbegin", bugMarkup(BUG_COLORS[0]))
+
+// Playing a short melody with the Web Audio API, created lazily because browsers block audio before the first touch
+function beep(frequencies, { type = "triangle", volume = 0.25, spacing = 0.12, length = 0.25, slide } = {}) {
+  if (muted) return
+  audio ??= new AudioContext()
+  audio.resume()
+  frequencies.forEach((frequency, index) => {
+    const oscillator = audio.createOscillator(), gain = audio.createGain()
+    const begin = audio.currentTime + index * spacing
+    oscillator.type = type
+    oscillator.frequency.setValueAtTime(frequency, begin)
+    if (slide) oscillator.frequency.exponentialRampToValueAtTime(slide, begin + length)
+    gain.gain.setValueAtTime(volume, begin)
+    gain.gain.exponentialRampToValueAtTime(0.001, begin + length)
+    oscillator.connect(gain).connect(audio.destination)
+    oscillator.start(begin)
+    oscillator.stop(begin + length)
+  })
+}
+
+// Starting the soft background music once, on the first touch or key press, with a bass note every four steps
+function startMusic() {
+  musicTimer ??= setInterval(() => {
+    const note = MELODY[musicStep % MELODY.length]
+    if (note) beep([note], { volume: 0.04, length: 0.22 })
+    if (musicStep % 4 === 0) beep([musicStep % 8 ? 196 : 131], { type: "sine", volume: 0.08, length: 0.5 })
+    musicStep++
+  }, 280)
+}
+
+// Matching the canvas pixels to the screen, sharp on retina displays
+function resize() {
+  const ratio = Math.min(2, devicePixelRatio || 1)
+  width = canvas.clientWidth
+  height = canvas.clientHeight
+  canvas.width = Math.round(width * ratio)
+  canvas.height = Math.round(height * ratio)
+  context.setTransform(ratio, 0, 0, ratio, 0, 0)
+}
+
+// Redrawing the score and one robot head per life left
+function drawHud() {
+  document.getElementById("score").textContent = score
+  document.getElementById("lives").innerHTML = Array.from({ length: LEVELS[level].lives }, (_, index) =>
+    `<svg viewBox="0 0 100 100" class="${index < lives ? "" : "lost"}"><use href="#bot"/></svg>`).join("")
+}
+
+// Adding a line to the code panel, keeping the newest one lit and the robot cuts in red
+function log(text, kind = "now") {
+  lines = lines.concat({ text, kind, number: ++lineCount }).slice(-8)
+  document.getElementById("code").innerHTML = lines.map((line, index) =>
+    `<li value="${line.number}" class="${line.kind === "bad" ? "bad" : index === lines.length - 1 ? "now" : ""}">${line.text}</li>`).join("")
+}
+
+// Ringing the level chosen last, which Enter starts again
+function markLevel() {
+  document.querySelectorAll("#levels button").forEach((button, index) => button.classList.toggle("chosen", index === level))
+}
+
+function showOverlay(id) {
+  document.querySelectorAll("#start, #win, #final").forEach(overlay => overlay.classList.toggle("show", overlay.id === id))
+  overlayTime = performance.now()
+}
+
+// Clearing the field, counting down from 3 and starting to throw bugs at the chosen level
+async function startRound(chosen) {
+  const thisRound = ++round
+  level = chosen
+  markLevel()
+  showOverlay()
+  things = []
+  halves = []
+  sparks = []
+  labels = []
+  trail = []
+  lines = []
+  lineCount = 0
+  score = 0
+  lives = LEVELS[level].lives
+  bugsCut = 0
+  bestCombo = 0
+  lastTick = -1
+  document.getElementById("code").innerHTML = ""
+  document.getElementById("time").classList.remove("low")
+  document.getElementById("timefill").style.transform = "scaleX(1)"
+  drawHud()
+  const count = document.getElementById("count")
+  for (const number of ["3", "2", "1"]) {
+    count.innerHTML = `<span>${number}</span>`
+    beep([523], { volume: 0.15, length: 0.15 })
+    await wait(600)
+    if (round !== thisRound) return
+  }
+  count.innerHTML = ""
+  beep([659, 988], { volume: 0.15, spacing: 0.1, length: 0.2 })
+  running = true
+  roundStart = performance.now()
+  launchTimer = setTimeout(wave, 300)
+}
+
+// Throwing one to three things at a time, faster and in bigger groups as the round goes on
+function wave() {
+  if (!running) return
+  const progress = roundProgress()
+  const count = 1 + (Math.random() < 0.3 + progress * 0.5 ? 1 : 0) + (progress > 0.5 && Math.random() < 0.4 ? 1 : 0)
+  for (let index = 0; index < count; index++) setTimeout(launch, index * 150)
+  launchTimer = setTimeout(wave, (1150 - 550 * progress + Math.random() * 250) / LEVELS[level].speed)
+}
+
+// Launching a bug, a golden bug, a big bug or the robot from below the field on an arc that peaks in its upper half
+function launch() {
+  if (!running) return
+  const progress = roundProgress(), roll = Math.random(), { speed, size, robots } = LEVELS[level]
+  let type = "bug"
+  if (progress > 0.3 && roll < 0.07 && !things.some(thing => thing.type === "mega")) type = "mega"
+  else if (roll < 0.15) type = "gold"
+  else if (roll < 0.15 + (0.16 + progress * 0.12) * robots) type = "robot"
+  const radius = (Math.min(width, height) * 0.085 + 8) * size * (type === "mega" ? 1.6 : type === "gold" ? 0.9 : 1)
+
+  // Scaling gravity by the square of the speed, so arcs keep their height but fly faster
+  const gravity = GRAVITY * height * speed * speed * (type === "mega" ? 0.55 : 1)
+  const x = width * (0.15 + Math.random() * 0.7), target = width * (0.2 + Math.random() * 0.6)
+  const vy = -Math.sqrt(2 * gravity * height * (0.5 + Math.random() * 0.3))
+  const colorIndex = Math.floor(Math.random() * BUG_COLORS.length)
+  const color = type === "robot" ? "#4da3ff" : type === "gold" ? GOLD[0] : type === "mega" ? MEGA[0] : BUG_COLORS[colorIndex][0]
+  const image = type === "bug" ? IMAGES.bug[colorIndex] : IMAGES[type]
+  things.push({
+    type, image, color, x, y: height + radius, vx: (target - x) / (-vy / gravity * 1.7), vy, gravity, radius,
+    spin: 0, spinSpeed: (Math.random() - 0.5) * 3, health: type === "mega" ? 3 : 1, lastHit: 0, dead: false,
+  })
+  beep([260], { type: "sine", volume: 0.03, length: 0.16, slide: 700 })
+}
+
+function pointer(event) {
+  const box = canvas.getBoundingClientRect()
+  return { x: event.clientX - box.left, y: event.clientY - box.top, time: performance.now() }
+}
+
+function distanceToSegment(point, from, to) {
+  const dx = to.x - from.x, dy = to.y - from.y, squared = dx * dx + dy * dy
+  const along = squared ? Math.max(0, Math.min(1, ((point.x - from.x) * dx + (point.y - from.y) * dy) / squared)) : 0
+  return Math.hypot(from.x + along * dx - point.x, from.y + along * dy - point.y)
+}
+
+// Cutting everything the finger crossed since the last cut, ignoring a thing hit less than 170 ms ago
+function cut(from, to) {
+  const angle = Math.atan2(to.y - from.y, to.x - from.x)
+  for (const thing of things) {
+    if (thing.dead || to.time - thing.lastHit < 170) continue
+    if (distanceToSegment(thing, from, to) > thing.radius * 0.95) continue
+    thing.lastHit = to.time
+    hit(thing, angle)
+  }
+}
+
+function hit(thing, angle) {
+  if (thing.type === "robot") {
+    thing.dead = true
+    split(thing, angle)
+    burst(thing.x, thing.y, MEGA[0], 16)
+    return loseLife()
+  }
+
+  // Shrinking the big bug and tossing it up again until its third cut
+  if (thing.type === "mega" && thing.health > 1) {
+    thing.health--
+    thing.radius *= 0.85
+    thing.vy = Math.min(thing.vy, -GRAVITY * height * 0.3 * LEVELS[level].speed)
+    burst(thing.x, thing.y, thing.color, 10)
+    addPoints(5, thing)
+    beep([900], { type: "square", volume: 0.06, length: 0.08, slide: 400 })
+    vibrate(15)
+    return
+  }
+  thing.dead = true
+  bugsCut++
+  strokeHits++
+  strokeEnd = { x: thing.x, y: thing.y }
+  addPoints(POINTS[thing.type], thing)
+  log(CODE[thing.type])
+  split(thing, angle)
+  burst(thing.x, thing.y, thing.color, 14)
+  if (thing.type === "bug") beep([1200], { volume: 0.12, length: 0.12, slide: 500 })
+  else beep([880, 1175, 1568], { volume: 0.12, spacing: 0.06, length: 0.15 })
+  vibrate(12)
+}
+
+// Shaking the field and greying out one robot head, ending the round when none is left
+function loseLife() {
+  lives--
+  drawHud()
+  log("🤖 robô.apagar()", "bad")
+  beep([300, 200, 120], { type: "sawtooth", volume: 0.15, spacing: 0.15, length: 0.3 })
+  vibrate([40, 40, 40])
+  field.classList.remove("shake")
+  void field.offsetWidth
+  field.classList.add("shake")
+  if (lives <= 0) finish()
+}
+
+function addPoints(points, thing) {
+  score += points
+  drawHud()
+  labels.push({ text: "+" + points, x: thing.x, y: thing.y - thing.radius, life: 0.8 })
+}
+
+// Paying a bonus when one swipe cuts three or more bugs
+function endSwipe() {
+  if (!swiping) return
+  swiping = false
+  if (strokeHits >= 3 && running) {
+    const bonus = strokeHits * 5
+    score += bonus
+    drawHud()
+    labels.push({ text: `COMBO ×${strokeHits}! +${bonus}`, x: strokeEnd.x, y: strokeEnd.y - 40, life: 1.2, combo: true })
+    log(`🔥 combo(${strokeHits})`)
+    beep([880, 1175, 1568, 2093], { volume: 0.12, spacing: 0.06, length: 0.15 })
+  }
+  bestCombo = Math.max(bestCombo, strokeHits)
+  strokeHits = 0
+}
+
+// Splitting a cut thing into two halves that fly apart across the cut line
+function split(thing, angle) {
+  const normalX = -Math.sin(angle), normalY = Math.cos(angle)
+  for (const side of [-1, 1]) {
+    halves.push({
+      image: thing.image, size: size(thing), x: thing.x, y: thing.y, angle, side,
+      vx: thing.vx * 0.4 + normalX * 140 * side, vy: thing.vy * 0.25 + normalY * 140 * side - 80, spin: 0, spinSpeed: side * 4, life: 1.3,
+    })
+  }
+}
+
+function burst(x, y, color, count) {
+  for (let index = 0; index < count; index++) {
+    const angle = Math.random() * Math.PI * 2, speed = 120 + Math.random() * 260
+    sparks.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, size: 5 + Math.random() * 7, color: index % 3 ? color : INK, life: 0.6 + Math.random() * 0.3 })
+  }
+}
+
+async function finish() {
+  if (!running) return
+  running = false
+  endSwipe()
+  clearTimeout(launchTimer)
+  const thisRound = round
+  await wait(1200)
+  if (round === thisRound) showWin()
+}
+
+// Celebrating with confetti and up to 3 stars, then waiting for a touch or Enter to show the course
+function showWin() {
+  beep([523, 659, 784, 1047])
+  const overlay = document.getElementById("win")
+  overlay.querySelectorAll(".confetti").forEach(piece => piece.remove())
+  for (let index = 0; index < 80; index++) {
+    const piece = document.createElement("span")
+    piece.className = "confetti"
+    piece.style.left = Math.random() * 100 + "vw"
+    piece.style.background = `hsl(${Math.random() * 360} 90% 60%)`
+    piece.style.animationDuration = 1.5 + Math.random() * 2 + "s"
+    piece.style.animationDelay = Math.random() * 0.6 + "s"
+    overlay.append(piece)
+  }
+  const { icon, name, stars: starPoints } = LEVELS[level]
+  const stars = score >= starPoints[1] ? 3 : score >= starPoints[0] ? 2 : 1
+  for (let index = 0; index < stars; index++) setTimeout(() => beep([1047 + index * 262]), 600 + index * 300)
+  document.getElementById("stars").innerHTML = [0, 1, 2].map(index =>
+    `<svg viewBox="0 0 100 100" class="${index < stars ? "" : "off"}" style="animation-delay: ${index * 0.3}s"><use href="#star"/></svg>`).join("")
+  document.getElementById("result").innerHTML = `<li>${icon} ${name}</li><li>🐛 ${bugsCut}</li>${bestCombo >= 3 ? `<li>🔥 ${bestCombo}</li>` : ""}<li>⭐ ${score}</li>`
+  showOverlay("win")
+}
+
+// Running the clock and ticking during the last 5 seconds
+function tick() {
+  const progress = roundProgress()
+  document.getElementById("timefill").style.transform = `scaleX(${1 - progress})`
+  const left = Math.ceil((1 - progress) * ROUND_LENGTH / 1000)
+  if (left <= 5) {
+    document.getElementById("time").classList.add("low")
+    if (left !== lastTick && left > 0) {
+      lastTick = left
+      beep([1000], { type: "square", volume: 0.05, length: 0.05 })
+    }
+  }
+  if (progress >= 1) finish()
+}
+
+function update(seconds, now) {
+  for (const thing of things) {
+    thing.vy += thing.gravity * seconds
+    thing.x += thing.vx * seconds
+    thing.y += thing.vy * seconds
+    thing.spin += thing.spinSpeed * seconds
+    if (thing.vy > 0 && thing.y > height + thing.radius * 2) thing.dead = true
+  }
+  things = things.filter(thing => !thing.dead)
+  for (const half of halves) {
+    half.vy += GRAVITY * height * seconds
+    half.x += half.vx * seconds
+    half.y += half.vy * seconds
+    half.spin += half.spinSpeed * seconds
+    half.life -= seconds
+  }
+  halves = halves.filter(half => half.life > 0 && half.y < height + half.size)
+  for (const spark of sparks) {
+    spark.vy += GRAVITY * height * 0.5 * seconds
+    spark.x += spark.vx * seconds
+    spark.y += spark.vy * seconds
+    spark.life -= seconds
+  }
+  sparks = sparks.filter(spark => spark.life > 0)
+  for (const label of labels) {
+    label.y -= 60 * seconds
+    label.life -= seconds
+  }
+  labels = labels.filter(label => label.life > 0)
+  trail = trail.filter(point => now - point.time < 150)
+}
+
+// Sizing the drawing around a thing, since the legs and antennae reach past its round body
+const size = thing => thing.radius * (thing.type === "robot" ? 2.8 : 2.6)
+
+function circle(x, y, radius) {
+  context.beginPath()
+  context.arc(x, y, radius, 0, Math.PI * 2)
+}
+
+function drawStar(x, y, radius) {
+  context.beginPath()
+  for (let point = 0; point < 10; point++) {
+    const angle = point * Math.PI / 5 - Math.PI / 2, reach = point % 2 ? radius * 0.45 : radius
+    context.lineTo(x + Math.cos(angle) * reach, y + Math.sin(angle) * reach)
+  }
+  context.closePath()
+  context.fillStyle = GOLD[0]
+  context.fill()
+  context.lineWidth = 2
+  context.strokeStyle = GOLD[1]
+  context.stroke()
+}
+
+// Painting the field as a board with soft grid lines, like the cells of the robot game
+function drawBoard() {
+  context.fillStyle = "#fff"
+  context.fillRect(0, 0, width, height)
+  const cell = Math.max(70, Math.min(width, height) / 4)
+  context.beginPath()
+  for (let x = cell; x < width; x += cell) {
+    context.moveTo(x, 0)
+    context.lineTo(x, height)
+  }
+  for (let y = cell; y < height; y += cell) {
+    context.moveTo(0, y)
+    context.lineTo(width, y)
+  }
+  context.lineWidth = 4
+  context.strokeStyle = "#e8f4ff"
+  context.stroke()
+}
+
+function draw(now) {
+  drawBoard()
+  for (const thing of things) {
+
+    // Wrapping the robot in a dashed blue ring, so it reads as a friend to protect
+    if (thing.type === "robot") {
+      context.save()
+      context.setLineDash([8, 7])
+      context.lineWidth = 4
+      context.strokeStyle = "#4da3ff"
+      context.fillStyle = "rgba(232, 244, 255, .9)"
+      circle(thing.x, thing.y, thing.radius * 1.15 * (1 + Math.sin(now * 0.012) * 0.06))
+      context.fill()
+      context.stroke()
+      context.restore()
+    }
+    const drawingSize = size(thing)
+    context.save()
+    context.translate(thing.x, thing.y + Math.sin(now * 0.02 + thing.x) * thing.radius * 0.03)
+    context.rotate(thing.spin * 0.25)
+    context.drawImage(thing.image, -drawingSize / 2, -drawingSize / 2, drawingSize, drawingSize)
+    context.restore()
+    if (thing.type === "gold") {
+      for (let index = 0; index < 3; index++) {
+        const angle = now * 0.004 + index * 2.1
+        drawStar(thing.x + Math.cos(angle) * thing.radius * 1.5, thing.y + Math.sin(angle) * thing.radius * 1.5, thing.radius * 0.28)
+      }
+    }
+    if (thing.type === "mega") {
+      for (let index = 0; index < 3; index++) {
+        circle(thing.x + (index - 1) * 18, thing.y - drawingSize * 0.62, 7)
+        context.fillStyle = index < thing.health ? MEGA[0] : "#d5dde8"
+        context.fill()
+        context.lineWidth = 3
+        context.strokeStyle = INK
+        context.stroke()
+      }
+    }
+  }
+
+  // Clipping each half to its side of the cut line before painting the whole drawing
+  for (const half of halves) {
+    context.save()
+    context.globalAlpha = Math.min(1, half.life * 1.5)
+    context.translate(half.x, half.y)
+    context.rotate(half.spin + half.angle)
+    context.beginPath()
+    context.rect(-half.size, half.side > 0 ? 0 : -half.size, half.size * 2, half.size)
+    context.clip()
+    context.rotate(-half.angle)
+    context.drawImage(half.image, -half.size / 2, -half.size / 2, half.size, half.size)
+    context.restore()
+  }
+  for (const spark of sparks) {
+    context.globalAlpha = Math.min(1, spark.life * 2)
+    context.fillStyle = spark.color
+    context.fillRect(spark.x - spark.size / 2, spark.y - spark.size / 2, spark.size, spark.size)
+  }
+  context.globalAlpha = 1
+
+  context.textAlign = "center"
+  context.textBaseline = "middle"
+  context.lineJoin = "round"
+  for (const label of labels) {
+    context.globalAlpha = Math.min(1, label.life * 2)
+    context.font = `900 ${label.combo ? 30 : 26}px system-ui, -apple-system, "Segoe UI", sans-serif`
+    const x = Math.max(context.measureText(label.text).width / 2 + 8, Math.min(width - context.measureText(label.text).width / 2 - 8, label.x))
+    context.lineWidth = 7
+    context.strokeStyle = INK
+    context.strokeText(label.text, x, label.y)
+    context.fillStyle = label.combo ? GOLD[0] : "#fff"
+    context.fillText(label.text, x, label.y)
+  }
+  context.globalAlpha = 1
+
+  // Drawing the swipe as a blue blade with a white edge that thins out towards its tail
+  context.lineCap = "round"
+  for (const pass of [0, 1]) {
+    for (let index = 1; index < trail.length; index++) {
+      const from = trail[index - 1], to = trail[index]
+      const fade = 1 - (now - to.time) / 150, thickness = (index / trail.length) * 14 * fade + 2
+      context.strokeStyle = pass ? `rgba(255, 255, 255, ${fade})` : `rgba(77, 163, 255, ${fade * 0.85})`
+      context.lineWidth = pass ? thickness : thickness + 10
+      context.beginPath()
+      context.moveTo(from.x, from.y)
+      context.lineTo(to.x, to.y)
+      context.stroke()
+    }
+  }
+}
+
+function frame(now) {
+  const seconds = Math.min(0.05, (now - lastFrame) / 1000)
+  lastFrame = now
+  if (running) tick()
+  update(seconds, now)
+  draw(now)
+  requestAnimationFrame(frame)
+}
+
+// Handling one input, whether it came from the keyboard or from a touch on an overlay
+function press(key) {
+  startMusic()
+  const phone = document.getElementById("phone")
+  if (phone.classList.contains("show")) return phone.classList.remove("show")
+  if (key === "m" || key === "M") return toggleMute()
+  if (running) return
+  if (key === "q" || key === "Q") return phone.classList.add("show")
+  if (key !== "Enter" && key !== " " && !LEVELS[key - 1]) return
+
+  // Ignoring touches right after an overlay opens, so the end of a swipe does not skip the stars
+  if (performance.now() - overlayTime < 700) return
+  if (isShown("start")) return startRound(LEVELS[key - 1] ? key - 1 : level)
+  if (isShown("win")) return showOverlay("final")
+  if (isShown("final")) return showOverlay("start")
+}
+
+function toggleMute() {
+  muted = !muted
+  document.getElementById("mute").textContent = muted ? "🔇" : "🔊"
+}
+
+canvas.addEventListener("pointerdown", event => {
+  startMusic()
+  if (!running) return
+  swiping = true
+  strokeHits = 0
+  anchor = pointer(event)
+  trail = [anchor]
+
+  // Keeping the swipe alive when the finger slides past the edge of the field
+  try { canvas.setPointerCapture(event.pointerId) } catch {}
+})
+canvas.addEventListener("pointermove", event => {
+  if (!swiping || !running) return
+  const point = pointer(event)
+  trail.push(point)
+  if (Math.hypot(point.x - anchor.x, point.y - anchor.y) > 3) {
+    cut(anchor, point)
+    anchor = point
+  }
+})
+canvas.addEventListener("pointerup", endSwipe)
+canvas.addEventListener("pointercancel", endSwipe)
+
+document.addEventListener("keydown", event => {
+  if (event.repeat || event.metaKey || event.ctrlKey) return
+  if (event.key === "Enter" || event.key === " ") event.preventDefault()
+  press(event.key)
+})
+document.getElementById("mute").addEventListener("click", toggleMute)
+
+// Starting only from a level button on the first screen, so a stray touch does not pick a level
+document.getElementById("levels").innerHTML = LEVELS.map((choice, index) =>
+  `<button data-level="${index + 1}" tabindex="-1">${choice.icon}<span>${choice.name}</span></button>`).join("")
+markLevel()
+document.getElementById("levels").addEventListener("click", event => event.target.closest("button") && press(event.target.closest("button").dataset.level))
+document.querySelectorAll(".overlay").forEach(overlay => overlay.addEventListener("click", () => overlay.id !== "start" && press("Enter")))
+document.querySelector("#final .also").addEventListener("click", event => event.stopPropagation())
+document.addEventListener("visibilitychange", () => document.hidden && finish())
+new ResizeObserver(resize).observe(field)
+resize()
+drawHud()
+requestAnimationFrame(frame)
+</script>
+</body>
+</html>

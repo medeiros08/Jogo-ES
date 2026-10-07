@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conecta o Sistema</title>
+<meta name="description" content="Ligue celulares, servidor e banco de dados com cabos e veja os dados correrem pelo sistema. Um jogo do curso de Engenharia de Software da UNIPAMPA.">
+<meta property="og:title" content="Conecta o Sistema">
+<meta property="og:description" content="Ligue celulares, servidor e banco de dados com cabos e veja os dados correrem pelo sistema. Um jogo do curso de Engenharia de Software da UNIPAMPA.">
+<meta property="og:url" content="https://medeiros08.github.io/Jogo-ES/escola/conecta/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='18' y='10' width='64' height='80' rx='10' fill='%23ff9a3c' stroke='%231d2a44' stroke-width='6'/><rect x='28' y='24' width='44' height='14' rx='4' fill='%23fff'/><rect x='28' y='46' width='44' height='14' rx='4' fill='%23fff'/><rect x='28' y='68' width='44' height='10' rx='4' fill='%23fff'/></svg>">
+<style>
+  :root {
+    --sky: #e8f4ff;
+    --ink: #1d2a44;
+    --cell-bg: #ffffff;
+    --cell-line: #b9d3ee;
+    --key: #ffd84d;
+    --play: #3cc26b;
+    --erase: #ff9a3c;
+    --bad: #ff4d4d;
+    --now: #4da3ff;
+    --cell: 100px;
+  }
+  * { box-sizing: border-box }
+  html, body { margin: 0; height: 100%; overflow: hidden; touch-action: manipulation }
+  body {
+    background: var(--sky);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    padding: 12px 16px;
+  }
+  header, #dots { display: flex; gap: 14px; align-items: center }
+  .dot { width: 26px; height: 26px; border-radius: 50%; border: 4px solid var(--ink); background: #fff }
+  .dot.done { background: var(--key) }
+  .dot.now { box-shadow: 0 0 0 5px var(--now) }
+  #mute { margin-left: 24px; font-size: 26px; background: none; border: none; cursor: pointer; width: 48px }
+  #budget {
+    margin-left: 24px;
+    padding: 2px 14px;
+    border: 4px solid var(--ink);
+    border-radius: 999px;
+    background: #fff;
+    font-size: 22px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+  }
+  #budget.over { border-color: var(--bad); color: var(--bad); animation: blink .25s 3 }
+  #board {
+    position: relative;
+    display: grid;
+    gap: 6px;
+    padding: 6px;
+    background: var(--cell-line);
+    border-radius: 18px;
+    touch-action: none;
+    cursor: pointer;
+  }
+  .cell { width: var(--cell); height: var(--cell); background: var(--cell-bg); border-radius: 12px; display: grid; place-items: center }
+  .cell svg { width: 78%; height: 78% }
+  #wires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible }
+  #wires .missing { fill: none; stroke: var(--bad); stroke-width: 6; animation: blink .5s 3 }
+  @keyframes blink { 50% { opacity: .2 } }
+  #board.shake { animation: shake .12s 4 }
+  @keyframes shake { 25% { transform: translateX(-6px) } 75% { transform: translateX(6px) } }
+  main { display: flex; gap: 24px }
+  #code {
+    width: min(360px, 34vw);
+    margin: 0;
+    padding: 12px 12px 12px 48px;
+    background: var(--ink);
+    color: #e8f4ff;
+    border-radius: 18px;
+    font: 600 min(18px, 2.1vw)/1.6 ui-monospace, Menlo, monospace;
+    overflow: auto;
+  }
+  #code li { white-space: nowrap }
+  #code li::marker { color: #6f86ad }
+  #code li.now { background: var(--now); border-radius: 6px }
+  #code li.bad { background: var(--bad); border-radius: 6px; white-space: normal }
+  nav { display: flex; gap: 12px }
+  nav button {
+    width: 88px;
+    height: 88px;
+    border: none;
+    border-radius: 18px;
+    background: var(--key);
+    box-shadow: 0 6px 0 #b8941a;
+    font-size: 46px;
+    font-weight: 900;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  nav button:active { transform: translateY(4px); box-shadow: 0 2px 0 #b8941a }
+  nav .erase { background: var(--erase); box-shadow: 0 6px 0 #b25f14; margin-right: 18px }
+  nav .play { background: var(--play); box-shadow: 0 6px 0 #1f7a41; margin-left: 18px; color: #fff }
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(232, 244, 255, .94);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    text-align: center;
+    overflow: hidden;
+  }
+  .overlay.show { display: flex }
+  .overlay .big { width: min(40vh, 60vw); animation: pop .6s ease-out }
+  h1 { font-size: min(64px, 10vw); font-weight: 900; margin: 0 }
+  .chain { display: flex; align-items: center; gap: 2vw; font-size: min(48px, 8vw); font-weight: 900 }
+  .chain svg { width: min(16vh, 20vw); height: min(16vh, 20vw); background: #fff; border: 5px solid var(--ink); border-radius: 24px; padding: 10px }
+  .chain.no { font-size: min(36px, 6vw) }
+  .chain.no svg { width: min(10vh, 13vw); height: min(10vh, 13vw); border-width: 4px; border-radius: 16px; padding: 6px }
+  .chain.no b { color: var(--bad) }
+  #start { padding: 16px }
+  #start small { font-size: min(18px, 3.8vw); font-weight: 700 }
+  #difficulties { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px }
+  #difficulties button {
+    width: min(150px, 27vw);
+    padding: 10px 0 8px;
+    border: none;
+    border-radius: 18px;
+    background: var(--key);
+    box-shadow: 0 6px 0 #b8941a;
+    color: var(--ink);
+    font-size: min(44px, 9vw);
+    font-weight: 900;
+    line-height: 1.1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+  #difficulties button span { font-size: min(20px, 4.4vw) }
+  #difficulties button:nth-child(1) { background: var(--play); box-shadow: 0 6px 0 #1f7a41; color: #fff }
+  #difficulties button:nth-child(3) { background: var(--erase); box-shadow: 0 6px 0 #b25f14; color: #fff }
+  #difficulties button:active { transform: translateY(4px) }
+  #difficulties button.chosen { outline: 5px solid var(--now); outline-offset: 4px }
+  #start p { font-size: min(30px, 4.6vw); font-weight: 800; margin: 0; max-width: 900px; line-height: 1.3 }
+  #final { overflow: auto; justify-content: flex-start; padding: 16px }
+  #final > * { flex-shrink: 0 }
+  #final > :first-child { margin-top: auto }
+  #final > :last-child { margin-bottom: auto }
+  #final .adults span { overflow-wrap: anywhere }
+  #final .big { width: min(18vh, 30vw) }
+  .facts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 1000px; margin: 0; padding: 0; list-style: none }
+  .highlight { background: var(--play); color: #fff; border-radius: 999px; padding: 8px 24px; font-size: min(30px, 5.5vw); font-weight: 900; box-shadow: 0 5px 0 #1f7a41 }
+  .facts li { background: #fff; border: 3px solid var(--ink); border-radius: 999px; padding: 6px 16px; font-size: min(19px, 4vw); font-weight: 700 }
+  @keyframes pop { from { transform: scale(0) rotate(-90deg) } }
+  #stars { display: flex; gap: 2vw }
+  #stars svg { width: min(22vh, 26vw); height: min(22vh, 26vw); animation: pop .5s ease-out backwards }
+  #stars svg.off { filter: grayscale(1); opacity: .3 }
+  .enter { font-size: 40px; font-weight: 900; background: var(--play); color: #fff; border-radius: 18px; padding: 10px 28px; box-shadow: 0 6px 0 #1f7a41; cursor: pointer }
+  .confetti { position: absolute; top: -20px; width: 14px; height: 22px; animation: fall linear forwards }
+  @keyframes fall { to { transform: translateY(110vh) rotate(720deg) } }
+  #final p { font-size: min(36px, 5vw); font-weight: 800; margin: 0; max-width: 900px; line-height: 1.3 }
+  #final .adults { display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; font-size: 14px }
+  #final .adults div { display: flex; flex-direction: column; align-items: center; gap: 6px }
+  #final .adults svg { width: 150px; height: 150px }
+  #final .also { color: var(--ink); font-size: min(19px, 4vw); font-weight: 700 }
+  #phone svg { width: min(70vh, 80vw); height: min(70vh, 80vw) }
+  #phone div { font-size: min(32px, 5vw); font-weight: 800 }
+
+  /* Stacking the code under the board on phones */
+  @media (max-width: 600px) {
+    main { flex-direction: column; align-items: center; gap: 10px }
+    #code { width: 90vw; max-height: 18vh; font-size: 14px; padding-left: 40px }
+    body { padding: 8px 12px }
+    nav button { width: 80px; height: 80px }
+    header, #dots { gap: 8px }
+    .dot { width: 22px; height: 22px }
+    #budget { margin-left: 10px; padding: 2px 10px; font-size: 18px; border-width: 3px }
+    #mute { margin-left: 10px; width: 36px; font-size: 22px }
+    html, body { overflow: auto }
+  }
+</style>
+</head>
+<body>
+
+<header><span id="dots"></span><span id="budget" hidden></span><button id="mute" tabindex="-1">🔊</button></header>
+<main><div id="board"></div><ol id="code"></ol></main>
+<nav>
+  <button class="erase" data-key="Backspace" tabindex="-1">⌫</button>
+  <button class="play" data-key="Enter" tabindex="-1">▶</button>
+</nav>
+
+<div id="start" class="overlay show">
+  <h1>Conecta o Sistema</h1>
+  <div class="chain">
+    <svg viewBox="0 0 100 100"><use href="#cellphone"/></svg>→<svg viewBox="0 0 100 100"><use href="#server"/></svg>→<svg viewBox="0 0 100 100"><use href="#database"/></svg>
+  </div>
+  <div class="chain no"><svg viewBox="0 0 100 100"><use href="#cellphone"/></svg><b>✗</b><svg viewBox="0 0 100 100"><use href="#database"/></svg></div>
+  <p>Arraste cabos do celular até o servidor e do servidor até o banco de dados. Depois aperte ▶!</p>
+  <div id="difficulties"></div>
+  <small>No Normal e no Desafio o cabo é limitado. Fique de olho no 🔌 lá em cima!</small>
+</div>
+
+<div id="win" class="overlay"><div id="stars"></div><div class="enter">⏎</div></div>
+
+<div id="final" class="overlay">
+  <svg class="big" viewBox="0 0 100 100"><use href="#bot"/></svg>
+  <p>Você ligou um sistema! Isso é Engenharia de Software. Na UNIPAMPA a gente aprende a fazer isso.</p>
+  <div class="highlight">🆓 GRATUITO, com projetos e bolsas</div>
+  <ul class="facts">
+    <li>⭐ Nota máxima no MEC</li>
+    <li>🛠️ Mão na massa desde o 1º semestre</li>
+    <li>🌙 Noturno</li>
+    <li>⏳ 9 semestres</li>
+  </ul>
+  <div class="adults">
+    <div><svg viewBox="0 0 41 41" shape-rendering="crispEdges"><use href="#play-qr"/></svg><b>📱 Jogue no celular</b><span>medeiros08.github.io/Jogo-ES/escola/conecta</span></div>
+    <div><svg viewBox="0 0 41 41" shape-rendering="crispEdges"><rect width="41" height="41" fill="#fff"/><path stroke="#000" d="M4 4.5h7m3 0h1m6 0h1m3 0h1m4 0h7m-33 1h1m5 0h1m1 0h2m2 0h3m2 0h1m2 0h1m5 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m4 0h1m1 0h4m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m4 0h2m1 0h3m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m2 0h1m2 0h1m3 0h5m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m3 0h4m4 0h1m1 0h2m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h1m1 0h1m5 0h3m1 0h1m1 0h1m-25 1h1m5 0h1m1 0h2m3 0h1m1 0h1m1 0h1m1 0h1m3 0h4m2 0h3m-31 1h1m2 0h1m2 0h2m2 0h2m1 0h2m2 0h2m2 0h2m4 0h4m-32 1h2m2 0h5m2 0h1m3 0h1m4 0h1m4 0h1m2 0h1m1 0h2m-32 1h6m1 0h1m1 0h1m4 0h3m1 0h1m4 0h3m1 0h5m-32 1h1m3 0h1m1 0h1m1 0h1m4 0h2m1 0h1m2 0h2m2 0h2m1 0h2m4 0h1m-32 1h2m2 0h1m4 0h3m1 0h1m4 0h3m1 0h1m2 0h2m2 0h3m-27 1h3m1 0h3m2 0h2m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m2 0h1m-31 1h2m1 0h1m3 0h2m1 0h1m1 0h1m1 0h1m3 0h2m1 0h2m1 0h1m1 0h1m1 0h2m1 0h1m-33 1h1m3 0h1m1 0h1m5 0h3m2 0h2m3 0h2m1 0h1m1 0h3m2 0h1m-33 1h2m1 0h3m1 0h2m1 0h2m3 0h1m2 0h6m2 0h1m2 0h4m-33 1h1m4 0h3m1 0h5m1 0h1m3 0h6m2 0h1m1 0h2m1 0h1m-33 1h1m2 0h3m1 0h2m1 0h2m1 0h1m2 0h1m5 0h3m1 0h1m1 0h5m-33 1h1m1 0h2m2 0h3m3 0h1m2 0h1m1 0h1m2 0h1m1 0h1m1 0h2m1 0h3m-30 1h1m2 0h2m2 0h2m1 0h1m2 0h7m2 0h2m4 0h1m1 0h1m-31 1h1m3 0h1m1 0h2m2 0h1m1 0h2m1 0h3m2 0h3m5 0h2m1 0h1m-32 1h1m4 0h1m1 0h2m3 0h1m3 0h1m1 0h1m1 0h1m1 0h1m2 0h2m2 0h4m-33 1h3m1 0h5m2 0h2m2 0h1m3 0h1m3 0h7m1 0h1m-24 1h1m1 0h1m2 0h1m1 0h2m1 0h3m2 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h7m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m2 0h2m1 0h2m6 0h1m2 0h2m3 0h4m-32 1h1m1 0h3m1 0h1m2 0h2m1 0h4m1 0h1m1 0h1m2 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h6m2 0h3m1 0h3m1 0h3m1 0h2m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h2m2 0h3m1 0h2m3 0h1m2 0h2m2 0h2m-33 1h1m5 0h1m2 0h4m1 0h2m4 0h1m4 0h1m1 0h4m-31 1h7m1 0h1m3 0h1m2 0h1m1 0h1m4 0h6m1 0h1m1 0h1"/></svg>
+<b>🌐 Conheça o curso</b><span>cursos.unipampa.edu.br/cursos/engenhariadesoftware</span></div>
+  </div>
+  <a class="also" href="../index.html">🎮 Ver todos os jogos</a>
+</div>
+
+<div id="phone" class="overlay">
+  <svg viewBox="0 0 41 41" shape-rendering="crispEdges"><use href="#play-qr"/></svg>
+  <div>📱 medeiros08.github.io/Jogo-ES/escola/conecta</div>
+</div>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="play-qr" viewBox="0 0 41 41"><rect width="41" height="41" fill="#fff"/><path stroke="#000" d="M4 4.5h7m7 0h2m5 0h1m4 0h7m-33 1h1m5 0h1m1 0h3m2 0h2m1 0h2m2 0h2m4 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h2m2 0h3m2 0h2m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m5 0h1m3 0h3m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h2m1 0h1m1 0h1m2 0h1m2 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m2 0h2m2 0h1m2 0h1m3 0h2m4 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h2m8 0h3m2 0h1m-24 1h1m5 0h1m1 0h1m2 0h5m1 0h1m1 0h1m2 0h5m2 0h3m-31 1h4m3 0h2m4 0h3m1 0h2m1 0h3m4 0h3m-31 1h8m3 0h1m3 0h2m1 0h1m1 0h1m1 0h1m5 0h1m1 0h1m-30 1h1m1 0h1m4 0h1m1 0h1m3 0h3m2 0h2m1 0h1m2 0h8m-33 1h1m2 0h4m1 0h1m1 0h1m1 0h3m1 0h5m2 0h2m1 0h1m-27 1h6m1 0h6m1 0h1m1 0h2m1 0h1m1 0h1m1 0h2m1 0h2m1 0h1m1 0h2m-33 1h3m1 0h6m1 0h1m1 0h1m4 0h1m1 0h1m1 0h1m2 0h2m2 0h3m-32 1h2m3 0h1m2 0h1m1 0h1m3 0h2m2 0h1m1 0h1m3 0h2m1 0h4m1 0h1m-33 1h1m1 0h1m1 0h4m1 0h1m2 0h3m2 0h1m4 0h1m1 0h2m1 0h2m1 0h1m1 0h1m-33 1h5m3 0h1m2 0h7m1 0h5m2 0h1m2 0h2m1 0h1m-32 1h1m4 0h1m2 0h3m2 0h2m3 0h2m2 0h5m1 0h2m1 0h1m-29 1h1m3 0h1m2 0h2m4 0h4m4 0h2m1 0h5m-32 1h1m4 0h3m1 0h1m5 0h1m2 0h1m2 0h1m1 0h2m1 0h3m1 0h1m-32 1h3m2 0h1m2 0h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h2m3 0h4m-31 1h1m1 0h9m2 0h1m1 0h2m7 0h3m1 0h4m-32 1h1m1 0h1m2 0h1m3 0h1m2 0h1m1 0h1m5 0h1m1 0h1m2 0h1m1 0h4m-31 1h2m1 0h5m5 0h1m1 0h2m2 0h2m1 0h1m1 0h5m1 0h1m1 0h1m-25 1h1m1 0h1m3 0h3m1 0h2m2 0h1m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m5 0h1m1 0h2m2 0h1m2 0h4m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m3 0h1m2 0h1m1 0h1m4 0h1m2 0h2m3 0h4m-32 1h1m1 0h3m1 0h1m2 0h1m1 0h3m4 0h3m1 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m2 0h3m2 0h1m1 0h1m2 0h2m2 0h3m1 0h2m1 0h3m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h1m2 0h1m1 0h2m1 0h2m1 0h2m1 0h2m2 0h2m-33 1h1m5 0h1m8 0h2m1 0h2m5 0h4m1 0h1m-31 1h7m1 0h2m1 0h2m1 0h1m2 0h2m1 0h1m2 0h5m3 0h1"/></symbol>
+  <symbol id="bot" viewBox="0 0 100 100">
+    <line x1="50" y1="8" x2="50" y2="22" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="50" cy="8" r="6" fill="#ff4d4d"/>
+    <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/>
+    <circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/>
+    <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+  </symbol>
+  <symbol id="star" viewBox="0 0 100 100">
+    <polygon points="50,6 62,38 96,38 68,58 79,92 50,72 21,92 32,58 4,38 38,38" fill="#ffd84d" stroke="#e0a800" stroke-width="5" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="rock" viewBox="0 0 100 100">
+    <path d="M12 78 L22 40 L44 22 L70 28 L88 52 L84 80 Z" fill="#9aa3ad" stroke="#5b6570" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M40 40 L52 50 M62 60 L70 66" stroke="#5b6570" stroke-width="4"/>
+  </symbol>
+  <symbol id="cellphone" viewBox="0 0 100 100">
+    <rect x="26" y="6" width="48" height="88" rx="10" fill="#fff" stroke="#1d2a44" stroke-width="5"/>
+    <rect x="33" y="16" width="34" height="58" rx="4" fill="#8cc4ff"/>
+    <circle cx="50" cy="84" r="4" fill="#1d2a44"/>
+  </symbol>
+  <symbol id="cellphone-photo" viewBox="0 0 100 100">
+    <rect x="26" y="6" width="48" height="88" rx="10" fill="#fff" stroke="#1d2a44" stroke-width="5"/>
+    <rect x="33" y="16" width="34" height="58" rx="4" fill="#8cc4ff"/>
+    <circle cx="57" cy="30" r="7" fill="#ffd84d"/>
+    <path d="M33 74 V58 Q42 46 50 56 Q58 48 67 58 V74 Z" fill="#3cc26b"/>
+    <circle cx="50" cy="84" r="4" fill="#1d2a44"/>
+  </symbol>
+  <symbol id="server" viewBox="0 0 100 100">
+    <rect x="18" y="8" width="64" height="84" rx="10" fill="#ff9a3c" stroke="#1d2a44" stroke-width="5"/>
+    <rect x="28" y="20" width="44" height="15" rx="4" fill="#fff" stroke="#1d2a44" stroke-width="4"/>
+    <rect x="28" y="43" width="44" height="15" rx="4" fill="#fff" stroke="#1d2a44" stroke-width="4"/>
+    <rect x="28" y="66" width="44" height="15" rx="4" fill="#fff" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="62" cy="27.5" r="4" fill="#3cc26b"/><circle cx="62" cy="50.5" r="4" fill="#3cc26b"/><circle cx="62" cy="73.5" r="4" fill="#3cc26b"/>
+  </symbol>
+  <symbol id="database" viewBox="0 0 100 100">
+    <path d="M20 22 V78 A30 12 0 0 0 80 78 V22" fill="#ffd84d" stroke="#1d2a44" stroke-width="5"/>
+    <path d="M20 41 A30 12 0 0 0 80 41 M20 60 A30 12 0 0 0 80 60" fill="none" stroke="#1d2a44" stroke-width="4"/>
+    <ellipse cx="50" cy="22" rx="30" ry="12" fill="#ffe88a" stroke="#1d2a44" stroke-width="5"/>
+  </symbol>
+</svg>
+
+<script>
+// Grouping five levels per difficulty. Each level is a list of rows of text, with P for a phone, S for the server,
+// D for the database, # for a rock and . for a free cell. A server has only four sides, so it takes at most three phones
+// and the database. From Normal on, only a few of the ways to lay the shortest cables fit together without crossing.
+// The slack is how much cable each level gives beyond the shortest cables: Normal leaves 4 spare cells, Desafio none
+const DIFFICULTIES = [
+  { icon: "🌱", name: "Fácil", slack: Infinity, levels: [
+    [".....", "P.S.D", "....."],
+    ["P..#.", ".#...", "..S#D", "....."],
+    ["P...P", ".....", "#.S.#", "..#..", "..D.."],
+    ["P.#..", "..#.P", "...S.", "##.#.", "....D"],
+    ["P....P", "......", ".#.S.#", ".#...#", "P#.#..", "...#.D"],
+  ] },
+  { icon: "⚡", name: "Normal", slack: 4, levels: [
+    [".#..P#", "..##.D", "......", ".S....", "#...P."],
+    [".P#...", "#....P", "...###", ".....#", "....S.", "D....."],
+    [".#.P..", "#..#.P", ".S.#.#", "...#..", "P.....", ".....D"],
+    ["..#...#", "#.....P", ".S.....", "....##.", "P.....D", "..#.#P."],
+    ["D.P....", ".......", "P.#...#", ".#..S.#", ".......", ".#.#..#", "..#...P"],
+  ] },
+  { icon: "🔥", name: "Desafio", slack: 0, levels: [
+    ["..#P...", "#..#.S.", "P.#....", "..#...P", ".....#.", "..#D..."],
+    ["..##.D.", "P..#..#", "P.....#", "#.#....", "..#....", "....S..", "P....#."],
+    ["P.#P..#", "P......", "...#.#.", "#......", "#..S..#", "....#..", "..D##.."],
+    ["..#.....", ".#.##..P", ".##...#.", ".##..S..", "........", "P....#..", "D.#..P.#"],
+    [".##..P..", "...S.#..", "#....#..", "#.....#.", "#.......", "..##...#", "P.......", "##.#D..P"],
+  ] },
+]
+
+// Allowing only the links of a real system: phones talk to the server, and only the server talks to the database
+const PARTNERS = { P: "S", S: "PD", D: "S" }
+const STEPS = [[0, 1], [1, 0], [0, -1], [-1, 0]]
+const REQUEST = "#ffd84d", ANSWER = "#3cc26b"
+
+// Looping a cheerful melody in the background, where 0 is a rest
+const MELODY = [523, 0, 659, 784, 659, 0, 523, 587, 659, 0, 587, 523, 440, 0, 392, 0]
+const board = document.getElementById("board")
+let difficulty = 0, levels = DIFFICULTIES[difficulty].levels, level, rows, nodes, budget = Infinity, cables = [], drawing = null, delivered = new Set(), missing = new Set(), flow = [], warning = ""
+let cellSize = 100, running = false, muted = false, audio, musicTimer, musicStep = 0, warningTimer
+
+const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds))
+const isShown = id => document.getElementById(id).classList.contains("show")
+const same = (a, b) => a[0] === b[0] && a[1] === b[1]
+const key = ([row, column]) => row * rows[0].length + column
+const symbolAt = ([row, column]) => rows[row]?.[column]
+const isNode = symbol => symbol === "P" || symbol === "S" || symbol === "D"
+const nodeAt = cell => nodes.find(node => same(node.cell, cell))
+const cablesAt = cell => cables.filter(cable => same(cable.cells[0], cell) || same(cable.cells.at(-1), cell))
+
+// Playing a short melody with the Web Audio API, created lazily because browsers block audio before the first key press
+function beep(frequencies, { type = "triangle", volume = 0.25, spacing = 0.12, length = 0.25 } = {}) {
+  if (muted) return
+  audio ??= new AudioContext()
+  audio.resume()
+  frequencies.forEach((frequency, index) => {
+    const oscillator = audio.createOscillator(), gain = audio.createGain()
+    const begin = audio.currentTime + index * spacing
+    oscillator.type = type
+    oscillator.frequency.value = frequency
+    gain.gain.setValueAtTime(volume, begin)
+    gain.gain.exponentialRampToValueAtTime(0.001, begin + length)
+    oscillator.connect(gain).connect(audio.destination)
+    oscillator.start(begin)
+    oscillator.stop(begin + length)
+  })
+}
+
+// Starting the soft background music once, on the first key press or click, with a bass note every four steps
+function startMusic() {
+  musicTimer ??= setInterval(() => {
+    const note = MELODY[musicStep % MELODY.length]
+    if (note) beep([note], { volume: 0.04, length: 0.22 })
+    if (musicStep % 4 === 0) beep([musicStep % 8 ? 196 : 131], { type: "sine", volume: 0.08, length: 0.5 })
+    musicStep++
+  }, 280)
+}
+
+// Sizing the cells so the whole screen fits without scrolling on phones, tablets and laptops
+function resize() {
+  const phone = innerWidth <= 600
+
+  // Leaving room for the 6 px gaps around the cells, which add up on the wider boards
+  cellSize = Math.min((innerHeight * (phone ? 0.5 : 0.6) - 6 * (rows.length + 1)) / rows.length, (innerWidth * (phone ? 0.92 : 0.5) - 6 * (rows[0].length + 1)) / rows[0].length, 130)
+  document.documentElement.style.setProperty("--cell", cellSize + "px")
+  render()
+}
+
+// Finding the middle of a cell in board pixels, where cables bend and packets travel
+const center = ([row, column]) => [6 + column * (cellSize + 6) + cellSize / 2, 6 + row * (cellSize + 6) + cellSize / 2]
+
+// Building the grid of the chosen level with its rocks, and naming the phones in reading order
+function loadLevel(number) {
+  level = number
+  rows = levels[level]
+  cables = []
+  drawing = null
+  delivered = new Set()
+  missing = new Set()
+  flow = []
+  warning = ""
+  board.style.gridTemplateColumns = `repeat(${rows[0].length}, var(--cell))`
+  board.innerHTML = rows.join("").split("").map(symbol =>
+    `<div class="cell">${symbol === "#" ? '<svg><use href="#rock"/></svg>' : ""}</div>`).join("") + '<svg id="wires"></svg>'
+  nodes = rows.flatMap((row, index) => [...row].map((symbol, column) => ({ symbol, cell: [index, column] }))).filter(node => isNode(node.symbol))
+  const phones = nodes.filter(node => node.symbol === "P")
+  nodes.forEach(node => {
+    node.name = node.symbol === "S" ? "servidor" : node.symbol === "D" ? "banco" : "celular" + (phones.length > 1 ? phones.indexOf(node) + 1 : "")
+  })
+  budget = fewestSteps() + DIFFICULTIES[difficulty].slack
+  resize()
+  document.querySelectorAll("#win, #final").forEach(overlay => overlay.classList.remove("show"))
+  document.querySelectorAll("#difficulties button").forEach(button => button.classList.toggle("chosen", Number(button.dataset.difficulty) === difficulty))
+  draw()
+}
+
+// Switching to the five levels of a difficulty, starting from the first
+function chooseDifficulty(index) {
+  difficulty = index
+  levels = DIFFICULTIES[difficulty].levels
+  loadLevel(0)
+}
+
+// Redrawing the cables, the cable being dragged and the machines on top of them
+function render() {
+  const wires = document.getElementById("wires")
+  if (!wires) return
+  wires.setAttribute("viewBox", `0 0 ${board.clientWidth} ${board.clientHeight}`)
+  const line = (cells, color) => {
+    const points = cells.map(cell => center(cell).join(",")).join(" ")
+    return `<polyline points="${points}" stroke="#1d2a44" stroke-width="${cellSize * 0.26}"/><polyline points="${points}" stroke="${color}" stroke-width="${cellSize * 0.15}"/>`
+  }
+  const cableMarkup = cables.map(cable => line(cable.cells, symbolAt(cable.cells[0]) === "P" ? "#4da3ff" : "#3cc26b")).join("")
+  const nodeMarkup = nodes.map(({ symbol, cell }) => {
+    const [x, y] = center(cell), size = cellSize * 0.84
+    const icon = symbol === "S" ? "server" : symbol === "D" ? "database" : delivered.has(key(cell)) ? "cellphone-photo" : "cellphone"
+    return (missing.has(key(cell)) ? `<circle class="missing" cx="${x}" cy="${y}" r="${cellSize * 0.47}"/>` : "") +
+      `<use href="#${icon}" x="${x - size / 2}" y="${y - size / 2}" width="${size}" height="${size}"/>`
+  }).join("")
+  wires.innerHTML = `<g fill="none" stroke-linecap="round" stroke-linejoin="round">${cableMarkup}${drawing ? line(drawing.cells, "#ffd84d") : ""}</g>${nodeMarkup}<g id="packets"></g>`
+  const pill = document.getElementById("budget")
+  pill.hidden = budget === Infinity
+  pill.textContent = `🔌 ${stepsUsed()} / ${budget}`
+}
+
+// Counting the cable laid so far, including the one being dragged, one step per cell crossed
+const stepsUsed = () => cables.concat(drawing ?? []).reduce((sum, cable) => sum + cable.cells.length - 1, 0)
+
+// Stopping a cable that would go over the level's budget, and flashing the counter once per drag
+function outOfCable() {
+  if (drawing.warned) return false
+  drawing.warned = true
+  const pill = document.getElementById("budget")
+  pill.classList.remove("over")
+  void pill.offsetWidth
+  pill.classList.add("over")
+  beep([200, 150], { type: "square", volume: 0.1, spacing: 0.1, length: 0.15 })
+  return false
+}
+
+// Writing every cable as a line of code, then the messages that run through the system, and a red line for any mistake
+function draw() {
+  document.getElementById("dots").innerHTML = levels.map((_, index) =>
+    `<span class="dot ${index < level ? "done" : ""} ${index === level ? "now" : ""}"></span>`).join(" ")
+  const cableLines = cables.map(cable => {
+    const [from, to] = [nodeAt(cable.cells[0]), nodeAt(cable.cells.at(-1))]
+    return `<li>${from.symbol === "P" ? "📱" : "🖥️"} ${from.name}.ligar(${to.name})</li>`
+  })
+  const flowLines = flow.map((text, index) => `<li class="${index === flow.length - 1 ? "now" : ""}">${text}</li>`)
+  document.getElementById("code").innerHTML = cableLines.concat(flowLines, warning ? `<li class="bad">${warning}</li>` : []).join("")
+  document.querySelector("#code li:last-child")?.scrollIntoView({ block: "nearest" })
+}
+
+// Showing a red line in the code panel for a few seconds
+function warn(text) {
+  warning = text
+  beep([300, 200], { type: "sawtooth", volume: 0.12, spacing: 0.12, length: 0.2 })
+  draw()
+  clearTimeout(warningTimer)
+  warningTimer = setTimeout(() => {
+    warning = ""
+    draw()
+  }, 2500)
+}
+
+function cellAt(event) {
+  const box = board.getBoundingClientRect()
+  const cell = [Math.floor((event.clientY - box.top - 3) / (cellSize + 6)), Math.floor((event.clientX - box.left - 3) / (cellSize + 6))]
+  return symbolAt(cell) === undefined ? null : cell
+}
+
+// Growing the dragged cable by one cell, backing up when the finger returns, and finishing it on a machine it may link to
+function extend(cell) {
+  const path = drawing.cells, start = nodeAt(path[0]), symbol = symbolAt(cell)
+  if (path.length > 1 && same(path[path.length - 2], cell)) {
+    path.pop()
+    return true
+  }
+  if (path.some(part => same(part, cell)) || symbol === "#") return false
+  if (isNode(symbol)) {
+    const end = nodeAt(cell)
+    if (!PARTNERS[start.symbol].includes(symbol)) {
+      if (start.symbol + symbol === "PD" || start.symbol + symbol === "DP") warn("❌ O celular não fala direto com o banco. Passe pelo servidor!")
+      return false
+    }
+    if ((symbol !== "S" && cablesAt(cell).length) || cablesAt(cell).some(cable => cablesAt(path[0]).includes(cable))) return false
+    if (stepsUsed() >= budget) return outOfCable()
+    path.push(cell)
+
+    // Keeping every cable pointed from the phone to the server, or from the server to the database
+    if (start.symbol === "D" || end.symbol === "P") path.reverse()
+    cables.push({ cells: path })
+    drawing = null
+    beep([523, 784], { volume: 0.15, spacing: 0.08, length: 0.15 })
+    draw()
+    return false
+  }
+  if (cables.some(cable => cable.cells.some(part => same(part, cell)))) return false
+  if (stepsUsed() >= budget) return outOfCable()
+  path.push(cell)
+  beep([300 + path.length * 40], { type: "sine", volume: 0.05, length: 0.06 })
+  return true
+}
+
+board.addEventListener("pointerdown", event => {
+  startMusic()
+  if (running || document.querySelector(".overlay.show")) return
+  const cell = cellAt(event)
+  if (!cell) return
+
+  // Tapping a cable removes it, so a wrong cable is easy to redo
+  const touched = cables.find(cable => cable.cells.slice(1, -1).some(part => same(part, cell)))
+  if (touched) {
+    cables = cables.filter(cable => cable !== touched)
+    beep([200], { type: "square", volume: 0.08, length: 0.08 })
+    render()
+    return draw()
+  }
+  if (!isNode(symbolAt(cell))) return
+
+  // Dragging again from a phone or the database replaces its cable, since each of them has only one
+  if (symbolAt(cell) !== "S") cables = cables.filter(cable => !cablesAt(cell).includes(cable))
+  drawing = { cells: [cell] }
+  board.setPointerCapture(event.pointerId)
+  render()
+  draw()
+})
+
+// Walking one cell at a time towards the finger, so a fast drag does not skip cells
+board.addEventListener("pointermove", event => {
+  const target = drawing && cellAt(event)
+  if (!target) return
+  for (let guard = 0; drawing && !same(drawing.cells.at(-1), target) && guard < 20; guard++) {
+    const [row, column] = drawing.cells.at(-1)
+    const step = Math.abs(target[0] - row) >= Math.abs(target[1] - column) ? [row + Math.sign(target[0] - row), column] : [row, column + Math.sign(target[1] - column)]
+    if (!extend(step)) break
+  }
+  render()
+})
+
+// Dropping a cable that did not reach a machine
+function release() {
+  if (!drawing) return
+  drawing = null
+  render()
+}
+board.addEventListener("pointerup", release)
+board.addEventListener("pointercancel", release)
+
+// Counting the steps of the shortest cable between two machines, going around rocks and other machines
+function shortest(from, to) {
+  const seen = new Set([key(from)])
+  let frontier = [from]
+  for (let steps = 1; frontier.length; steps++) {
+    const next = []
+    for (const [row, column] of frontier) {
+      for (const [rowStep, columnStep] of STEPS) {
+        const cell = [row + rowStep, column + columnStep]
+        if (same(cell, to)) return steps
+        if (symbolAt(cell) !== "." || seen.has(key(cell))) continue
+        seen.add(key(cell))
+        next.push(cell)
+      }
+    }
+    frontier = next
+  }
+  return Infinity
+}
+
+// Adding up the shortest cable of every link, which the levels are designed to allow all at once
+function fewestSteps() {
+  const server = nodes.find(node => node.symbol === "S").cell, database = nodes.find(node => node.symbol === "D").cell
+  return nodes.filter(node => node.symbol === "P").reduce((sum, phone) => sum + shortest(phone.cell, server), shortest(server, database))
+}
+
+// Moving a packet along a cable, one cell every 160 ms
+function travel(cells, color) {
+  return new Promise(resolve => {
+    const points = cells.map(center), duration = (points.length - 1) * 160
+    let begin
+    const packet = document.createElementNS("http://www.w3.org/2000/svg", "circle")
+    packet.setAttribute("r", cellSize * 0.16)
+    packet.setAttribute("fill", color)
+    packet.setAttribute("stroke", "#1d2a44")
+    packet.setAttribute("stroke-width", 4)
+    document.getElementById("packets").append(packet)
+
+    // Starting the clock on the first frame, since browsers stamp a frame with the time it began,
+    // which can come before the moment the packet was created
+    function step(now) {
+      begin ??= now
+      const progress = Math.min(1, Math.max(0, now - begin) / duration) * (points.length - 1)
+      const index = Math.min(points.length - 2, Math.floor(progress)), fraction = progress - index
+      packet.setAttribute("cx", points[index][0] + (points[index + 1][0] - points[index][0]) * fraction)
+      packet.setAttribute("cy", points[index][1] + (points[index + 1][1] - points[index][1]) * fraction)
+      if (progress < points.length - 1) return requestAnimationFrame(step)
+      packet.remove()
+      resolve()
+    }
+    requestAnimationFrame(step)
+  })
+}
+
+function say(text) {
+  flow.push(text)
+  beep([660], { volume: 0.1, length: 0.12 })
+  draw()
+}
+
+// Testing the system: every machine needs a cable, then a request goes from each phone to the database and the photo comes back
+async function play() {
+  const lonely = nodes.filter(node => !cablesAt(node.cell).length)
+  if (lonely.length) {
+    missing = new Set(lonely.map(node => key(node.cell)))
+    warn(`❌ Falta ligar: ${lonely.map(node => node.name).join(", ")}`)
+    board.classList.remove("shake")
+    void board.offsetWidth
+    board.classList.add("shake")
+    render()
+    setTimeout(() => {
+      missing = new Set()
+      render()
+    }, 1500)
+    return
+  }
+  running = true
+  flow = []
+  const phoneCables = cables.filter(cable => symbolAt(cable.cells[0]) === "P")
+  const databaseCable = cables.find(cable => symbolAt(cable.cells[0]) === "S")
+  say('📱 celular.pedir("foto")')
+  await Promise.all(phoneCables.map(cable => travel(cable.cells, REQUEST)))
+  say('🖥️ servidor.buscar("foto")')
+  await travel(databaseCable.cells, REQUEST)
+  say('🗄️ banco.ler("foto")')
+  await wait(400)
+  say("🖥️ servidor.responder(foto)")
+  await travel(databaseCable.cells.slice().reverse(), ANSWER)
+  await Promise.all(phoneCables.map(cable => travel(cable.cells.slice().reverse(), ANSWER)))
+  phoneCables.forEach(cable => delivered.add(key(cable.cells[0])))
+  say("📱 celular.mostrar(foto) ✓")
+  render()
+  await wait(800)
+  win()
+}
+
+// Celebrating with falling confetti and waiting for the presenter to press Enter
+function win() {
+  beep([523, 659, 784, 1047])
+  const overlay = document.getElementById("win")
+  overlay.querySelectorAll(".confetti").forEach(piece => piece.remove())
+  for (let index = 0; index < 80; index++) {
+    const piece = document.createElement("span")
+    piece.className = "confetti"
+    piece.style.left = Math.random() * 100 + "vw"
+    piece.style.background = `hsl(${Math.random() * 360} 90% 60%)`
+    piece.style.animationDuration = 1.5 + Math.random() * 2 + "s"
+    piece.style.animationDelay = Math.random() * 0.6 + "s"
+    overlay.append(piece)
+  }
+
+  // Awarding 3 stars for the shortest cables, 2 for up to two extra steps and 1 otherwise, with a chime per star
+  const steps = stepsUsed(), fewest = fewestSteps()
+  const stars = steps <= fewest ? 3 : steps <= fewest + 2 ? 2 : 1
+  for (let index = 0; index < stars; index++) setTimeout(() => beep([1047 + index * 262]), 600 + index * 300)
+  document.getElementById("stars").innerHTML = [0, 1, 2].map(index =>
+    `<svg viewBox="0 0 100 100" class="${index < stars ? "" : "off"}" style="animation-delay: ${index * 0.3}s"><use href="#star"/></svg>`).join("")
+  overlay.classList.add("show")
+  level++
+  draw()
+  running = false
+}
+
+// Handling one input, whether it came from the keyboard or from a click on a button
+function press(key) {
+  startMusic()
+  if (running) return
+
+  // Showing or hiding the full screen QR code that opens the game on a phone
+  const phone = document.getElementById("phone")
+  if (phone.classList.contains("show")) return phone.classList.remove("show")
+  if (key === "q" || key === "Q") return phone.classList.add("show")
+
+  // Starting from a difficulty button, a key from 1 to 3, or Enter to repeat the last difficulty
+  if (isShown("start")) {
+    if (key !== "Enter" && key !== " " && !DIFFICULTIES[key - 1]) return
+    chooseDifficulty(DIFFICULTIES[key - 1] ? key - 1 : difficulty)
+    return document.getElementById("start").classList.remove("show")
+  }
+  if (isShown("final")) {
+    if (key !== "Enter") return
+    loadLevel(0)
+    return document.getElementById("start").classList.add("show")
+  }
+  if (isShown("win")) {
+    if (key !== "Enter" && key !== " ") return
+    if (level < levels.length) return loadLevel(level)
+    return document.getElementById("final").classList.add("show")
+  }
+  if (key === "Backspace") {
+    cables.pop()
+    beep([200], { type: "square", volume: 0.08, length: 0.08 })
+  } else if (key === "Enter" || key === " ") return play()
+  else if (key === "r" || key === "R") cables = []
+  else if (levels[key - 1]) return loadLevel(key - 1)
+  else if (key === "PageDown") return loadLevel((level + 1) % levels.length)
+  else if (key === "PageUp") return loadLevel((level + levels.length - 1) % levels.length)
+  else if (key === "m" || key === "M") toggleMute()
+  render()
+  draw()
+}
+
+function toggleMute() {
+  muted = !muted
+  document.getElementById("mute").textContent = muted ? "🔇" : "🔊"
+}
+
+document.addEventListener("keydown", event => {
+  if (event.repeat || event.metaKey || event.ctrlKey) return
+  event.preventDefault()
+  press(event.key)
+})
+document.querySelector("nav").addEventListener("click", event => event.target.dataset.key && press(event.target.dataset.key))
+document.getElementById("mute").addEventListener("click", toggleMute)
+document.querySelectorAll("#win, #final, #phone").forEach(overlay => overlay.addEventListener("click", () => press("Enter")))
+
+// Building the difficulty buttons of the first screen
+document.getElementById("difficulties").innerHTML = DIFFICULTIES.map((choice, index) =>
+  `<button data-difficulty="${index}" tabindex="-1">${choice.icon}<span>${choice.name}</span></button>`).join("")
+document.getElementById("difficulties").addEventListener("click", event => {
+  const button = event.target.closest("button")
+  if (button) press(String(Number(button.dataset.difficulty) + 1))
+})
+document.querySelector("#final .also").addEventListener("click", event => event.stopPropagation())
+addEventListener("resize", resize)
+loadLevel(0)
+</script>
+</body>
+</html>
