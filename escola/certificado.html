@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Certificado de Programador(a) Mirim</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,6 62,38 96,38 68,58 79,92 50,72 21,92 32,58 4,38 38,38' fill='%23ffd84d' stroke='%23e0a800' stroke-width='5'/></svg>">
+<style>
+  :root {
+    --sky: #e8f4ff;
+    --ink: #1d2a44;
+    --cell-line: #b9d3ee;
+    --key: #ffd84d;
+    --play: #3cc26b;
+    --now: #4da3ff;
+  }
+  * { box-sizing: border-box }
+  body {
+    margin: 0;
+    padding: 24px 16px 40px;
+    background: var(--sky);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+
+  /* Form for the teacher, shown only on screen */
+  .form { max-width: 900px; margin: 0 auto 28px; padding: 20px 22px; background: #fff; border: 4px solid var(--ink); border-radius: 24px }
+  .form h1 { margin: 0 0 6px; font-size: min(34px, 7vw); font-weight: 900 }
+  .form p { margin: 0 0 16px; font-size: 17px; font-weight: 600; line-height: 1.45 }
+  .form label { display: block; margin-bottom: 14px; font-size: 17px; font-weight: 800 }
+  .form textarea, .form input { display: block; width: 100%; margin-top: 6px; padding: 10px 12px; border: 3px solid var(--cell-line); border-radius: 12px; font: 600 18px system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink) }
+  .form textarea { height: 150px; resize: vertical }
+  .form .row { display: flex; gap: 14px; flex-wrap: wrap }
+  .form .row label { flex: 1; min-width: 200px }
+  .form button { border: none; border-radius: 16px; padding: 12px 28px; background: var(--play); color: #fff; font-size: 22px; font-weight: 900; box-shadow: 0 5px 0 #1f7a41; cursor: pointer }
+  .form button:active { transform: translateY(3px); box-shadow: 0 2px 0 #1f7a41 }
+  #count { margin-left: 12px; font-size: 17px; font-weight: 700 }
+
+  /* The certificate is sized in units of its own width, so the screen preview and the A4 sheet look the same */
+  .cert {
+    container-type: inline-size;
+    position: relative;
+    width: min(100%, 297mm);
+    aspect-ratio: 297 / 210;
+    margin: 0 auto 28px;
+    background: var(--now);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .frame {
+    position: absolute;
+    inset: 2.2cqw;
+    padding: 3.2cqw 5cqw 2.6cqw;
+    background: #fff;
+    border: 0.7cqw solid var(--ink);
+    border-radius: 3cqw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .corner { position: absolute; width: 7cqw; height: 7cqw }
+  .corner.tl { top: 1.6cqw; left: 1.6cqw; transform: rotate(-14deg) }
+  .corner.tr { top: 1.6cqw; right: 1.6cqw; transform: rotate(14deg) }
+  .mascot { position: absolute; right: 5cqw; bottom: 3cqw; width: 11cqw; height: 11cqw }
+  .title { margin: 0; font-size: 7.4cqw; font-weight: 900; letter-spacing: .06em; line-height: 1 }
+  .subtitle { display: inline-block; margin: 1.2cqw 0 0; padding: .5cqw 3cqw; background: var(--key); border-radius: 999px; font-size: 3.2cqw; font-weight: 900 }
+  .lead { margin: 2.6cqw 0 0; font-size: 2.2cqw; font-weight: 700 }
+  .name { min-width: 62cqw; min-height: 6.6cqw; margin: .8cqw 0 0; padding: 0 2cqw .4cqw; border-bottom: .4cqw dashed var(--ink); font-size: 5cqw; font-weight: 900; line-height: 1.25 }
+  .skills-title { margin: 2.4cqw 0 1.4cqw; font-size: 2.1cqw; font-weight: 700 }
+  .skills { display: flex; gap: 3.4cqw; justify-content: center }
+  .skill { width: 15cqw; display: flex; flex-direction: column; align-items: center; gap: .8cqw; font-size: 1.75cqw; font-weight: 800; line-height: 1.2 }
+  .skill svg { width: 9.5cqw; height: 9.5cqw; padding: .8cqw; background: var(--sky); border: .35cqw solid var(--ink); border-radius: 50% }
+  .bottom { width: 100%; margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; gap: 4cqw; padding-right: 13cqw; font-size: 1.7cqw; font-weight: 700; text-align: left }
+  .field { display: flex; gap: 1cqw; align-items: flex-end; margin-top: 1cqw }
+  .field span { flex: 1; min-width: 22cqw; border-bottom: .25cqw solid var(--ink); padding: 0 .6cqw .2cqw; font-weight: 800 }
+  .sign { text-align: center }
+  .sign div { width: 30cqw; border-bottom: .25cqw solid var(--ink); margin-bottom: .6cqw; height: 3cqw }
+  .credit { margin-top: 1.6cqw; font-size: 1.45cqw; font-weight: 700; color: #4a5a78 }
+
+  /* Printing one certificate per A4 sheet, landscape, with the colors and without the form */
+  @page { size: A4 landscape; margin: 0 }
+  @media print {
+    body { padding: 0; background: #fff }
+    .form { display: none }
+    .cert { width: 297mm; height: 210mm; margin: 0; break-after: page; page-break-after: always }
+    .cert:last-child { break-after: auto; page-break-after: auto }
+  }
+</style>
+</head>
+<body>
+
+<section class="form">
+  <h1>🏅 Certificado de Programador(a) Mirim</h1>
+  <p>Escreva o nome das crianças, um por linha, e aperte Imprimir para sair um certificado por criança, cada um numa folha A4 deitada. Deixe os nomes em branco para imprimir um certificado com a linha vazia, para preencher à mão.</p>
+  <label>Nomes das crianças
+    <textarea id="names" placeholder="Ana Clara&#10;Pedro&#10;Maria Eduarda"></textarea>
+  </label>
+  <div class="row">
+    <label>Escola <input id="school" placeholder="Nome da escola"></label>
+    <label>Data <input id="date" placeholder="dd/mm/aaaa"></label>
+  </div>
+  <button type="button" onclick="print()">🖨️ Imprimir</button><span id="count"></span>
+</section>
+
+<main id="certificates"></main>
+
+<template id="certificate">
+  <article class="cert">
+    <div class="frame">
+      <svg class="corner tl" viewBox="0 0 100 100"><use href="#star"/></svg>
+      <svg class="corner tr" viewBox="0 0 100 100"><use href="#star"/></svg>
+      <svg class="mascot" viewBox="0 0 100 100"><use href="#bot"/></svg>
+      <h1 class="title">CERTIFICADO</h1>
+      <div class="subtitle">🏅 de Programador(a) Mirim</div>
+      <p class="lead">Certificamos que</p>
+      <div class="name"></div>
+      <p class="skills-title">aprendeu como se faz um programa de computador e já sabe:</p>
+      <div class="skills">
+        <div class="skill"><svg viewBox="0 0 100 100"><use href="#bot" x="0" y="10" width="62" height="62"/><use href="#star" x="50" y="40" width="48" height="48"/></svg>montar um algoritmo</div>
+        <div class="skill"><svg viewBox="0 0 100 100"><use href="#bug" x="12" y="12" width="76" height="76"/></svg>caçar bugs</div>
+        <div class="skill"><svg viewBox="0 0 100 100"><use href="#bot" x="0" y="20" width="56" height="56"/><use href="#bot" x="44" y="20" width="56" height="56"/></svg>programar em dupla</div>
+        <div class="skill"><svg viewBox="0 0 100 100"><use href="#cellphone" x="0" y="22" width="40" height="56"/><use href="#server" x="30" y="14" width="44" height="72"/><use href="#database" x="62" y="26" width="38" height="48"/></svg>ligar um sistema</div>
+      </div>
+      <div class="bottom">
+        <div>
+          <div class="field">Escola: <span class="school"></span></div>
+          <div class="field">Data: <span class="date"></span></div>
+        </div>
+        <div class="sign"><div></div>Quem apresentou os jogos</div>
+      </div>
+      <div class="credit">Curso de Engenharia de Software · UNIPAMPA · Campus Alegrete</div>
+    </div>
+  </article>
+</template>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="bot" viewBox="0 0 100 100">
+    <line x1="50" y1="8" x2="50" y2="22" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="50" cy="8" r="6" fill="#ff4d4d"/>
+    <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/>
+    <circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/>
+    <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+  </symbol>
+  <symbol id="star" viewBox="0 0 100 100">
+    <polygon points="50,6 62,38 96,38 68,58 79,92 50,72 21,92 32,58 4,38 38,38" fill="#ffd84d" stroke="#e0a800" stroke-width="5" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="bug" viewBox="0 0 100 100">
+    <path d="M26 54 10 46M24 67 8 70M29 81 17 93M74 54 90 46M76 67 92 70M71 81 83 93M43 18 35 6M57 18 65 6" stroke="#1d2a44" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <circle cx="35" cy="6" r="5" fill="#ff4d4d" stroke="#1d2a44" stroke-width="3"/><circle cx="65" cy="6" r="5" fill="#ff4d4d" stroke="#1d2a44" stroke-width="3"/>
+    <ellipse cx="50" cy="64" rx="30" ry="29" fill="#ff4d4d" stroke="#1d2a44" stroke-width="5"/>
+    <path d="M50 40V91" stroke="#b52a2a" stroke-width="4"/>
+    <circle cx="38" cy="58" r="6" fill="#b52a2a"/><circle cx="63" cy="56" r="5" fill="#b52a2a"/><circle cx="62" cy="78" r="6" fill="#b52a2a"/><circle cx="38" cy="79" r="4" fill="#b52a2a"/>
+    <circle cx="50" cy="30" r="17" fill="#1d2a44"/>
+    <circle cx="43" cy="29" r="6.5" fill="#fff"/><circle cx="57" cy="29" r="6.5" fill="#fff"/>
+    <circle cx="44" cy="30" r="3" fill="#1d2a44"/><circle cx="58" cy="30" r="3" fill="#1d2a44"/>
+    <path d="M45 39q5 4 10 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="cellphone" viewBox="0 0 100 100">
+    <rect x="26" y="6" width="48" height="88" rx="10" fill="#fff" stroke="#1d2a44" stroke-width="5"/>
+    <rect x="33" y="16" width="34" height="58" rx="4" fill="#8cc4ff"/>
+    <circle cx="57" cy="30" r="7" fill="#ffd84d"/>
+    <path d="M33 74 V58 Q42 46 50 56 Q58 48 67 58 V74 Z" fill="#3cc26b"/>
+    <circle cx="50" cy="84" r="4" fill="#1d2a44"/>
+  </symbol>
+  <symbol id="server" viewBox="0 0 100 100">
+    <rect x="18" y="8" width="64" height="84" rx="10" fill="#ff9a3c" stroke="#1d2a44" stroke-width="5"/>
+    <rect x="28" y="20" width="44" height="15" rx="4" fill="#fff" stroke="#1d2a44" stroke-width="4"/>
+    <rect x="28" y="43" width="44" height="15" rx="4" fill="#fff" stroke="#1d2a44" stroke-width="4"/>
+    <rect x="28" y="66" width="44" height="15" rx="4" fill="#fff" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="62" cy="27.5" r="4" fill="#3cc26b"/><circle cx="62" cy="50.5" r="4" fill="#3cc26b"/><circle cx="62" cy="73.5" r="4" fill="#3cc26b"/>
+  </symbol>
+  <symbol id="database" viewBox="0 0 100 100">
+    <path d="M20 22 V78 A30 12 0 0 0 80 78 V22" fill="#ffd84d" stroke="#1d2a44" stroke-width="5"/>
+    <path d="M20 41 A30 12 0 0 0 80 41 M20 60 A30 12 0 0 0 80 60" fill="none" stroke="#1d2a44" stroke-width="4"/>
+    <ellipse cx="50" cy="22" rx="30" ry="12" fill="#ffe88a" stroke="#1d2a44" stroke-width="5"/>
+  </symbol>
+</svg>
+
+<script>
+const template = document.getElementById("certificate")
+const fields = ["names", "school", "date"].map(id => document.getElementById(id))
+
+// Drawing one certificate per name, or a single blank one when no name was typed
+function render() {
+  const names = fields[0].value.split("\n").map(name => name.trim()).filter(Boolean)
+  const list = document.getElementById("certificates")
+  list.replaceChildren(...(names.length ? names : [""]).map(name => {
+    const certificate = template.content.cloneNode(true)
+    certificate.querySelector(".name").textContent = name
+
+    // Shrinking very long full names so they still fit on one line
+    certificate.querySelector(".name").style.fontSize = Math.min(5, 200 / Math.max(1, name.length)) + "cqw"
+    certificate.querySelector(".school").textContent = fields[1].value.trim()
+    certificate.querySelector(".date").textContent = fields[2].value.trim()
+    return certificate
+  }))
+  document.getElementById("count").textContent = names.length
+    ? `${names.length} ${names.length === 1 ? "certificado" : "certificados"}`
+    : "1 certificado em branco"
+}
+
+fields.forEach(field => field.addEventListener("input", render))
+render()
+</script>
+</body>
+</html>
