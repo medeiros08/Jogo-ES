@@ -32,58 +32,23 @@
   .form textarea { height: 150px; resize: vertical }
   .form .row { display: flex; gap: 14px; flex-wrap: wrap }
   .form .row label { flex: 1; min-width: 200px }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center }
   .form button { border: none; border-radius: 16px; padding: 12px 28px; background: var(--play); color: #fff; font-size: 22px; font-weight: 900; box-shadow: 0 5px 0 #1f7a41; cursor: pointer }
   .form button:active { transform: translateY(3px); box-shadow: 0 2px 0 #1f7a41 }
-  #count { margin-left: 12px; font-size: 17px; font-weight: 700 }
+  .form button:disabled { opacity: .6; cursor: wait }
+  #pdf { background: var(--now); box-shadow: 0 5px 0 #2f7fd6 }
+  #pdf:active { box-shadow: 0 2px 0 #2f7fd6 }
+  #count { font-size: 17px; font-weight: 700 }
 
-  /* The certificate is sized in units of its own width, so the screen preview and the A4 sheet look the same */
-  .cert {
-    container-type: inline-size;
-    position: relative;
-    width: min(100%, 297mm);
-    aspect-ratio: 297 / 210;
-    margin: 0 auto 28px;
-    background: var(--now);
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-  .frame {
-    position: absolute;
-    inset: 2.2cqw;
-    padding: 3.2cqw 5cqw 2.6cqw;
-    background: #fff;
-    border: 0.7cqw solid var(--ink);
-    border-radius: 3cqw;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-  .corner { position: absolute; width: 7cqw; height: 7cqw }
-  .corner.tl { top: 1.6cqw; left: 1.6cqw; transform: rotate(-14deg) }
-  .corner.tr { top: 1.6cqw; right: 1.6cqw; transform: rotate(14deg) }
-  .mascot { position: absolute; right: 5cqw; bottom: 3cqw; width: 11cqw; height: 11cqw }
-  .title { margin: 0; font-size: 7.4cqw; font-weight: 900; letter-spacing: .06em; line-height: 1 }
-  .subtitle { display: inline-block; margin: 1.2cqw 0 0; padding: .5cqw 3cqw; background: var(--key); border-radius: 999px; font-size: 3.2cqw; font-weight: 900 }
-  .lead { margin: 2.6cqw 0 0; font-size: 2.2cqw; font-weight: 700 }
-  .name { min-width: 62cqw; min-height: 6.6cqw; margin: .8cqw 0 0; padding: 0 2cqw .4cqw; border-bottom: .4cqw dashed var(--ink); font-size: 5cqw; font-weight: 900; line-height: 1.25 }
-  .skills-title { margin: 2.4cqw 0 1.4cqw; font-size: 2.1cqw; font-weight: 700 }
-  .skills { display: flex; gap: 3.4cqw; justify-content: center }
-  .skill { width: 15cqw; display: flex; flex-direction: column; align-items: center; gap: .8cqw; font-size: 1.75cqw; font-weight: 800; line-height: 1.2 }
-  .skill svg { width: 9.5cqw; height: 9.5cqw; padding: .8cqw; background: var(--sky); border: .35cqw solid var(--ink); border-radius: 50% }
-  .bottom { width: 100%; margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; gap: 4cqw; padding-right: 13cqw; font-size: 1.7cqw; font-weight: 700; text-align: left }
-  .field { display: flex; gap: 1cqw; align-items: flex-end; margin-top: 1cqw }
-  .field span { flex: 1; min-width: 22cqw; border-bottom: .25cqw solid var(--ink); padding: 0 .6cqw .2cqw; font-weight: 800 }
-  .sign { text-align: center }
-  .sign div { width: 30cqw; border-bottom: .25cqw solid var(--ink); margin-bottom: .6cqw; height: 3cqw }
-  .credit { margin-top: 1.6cqw; font-size: 1.45cqw; font-weight: 700; color: #4a5a78 }
+  /* Showing each certificate as one picture, the same one that is printed and put in the PDF */
+  .cert { display: block; width: min(100%, 297mm); margin: 0 auto 28px; box-shadow: 0 8px 0 var(--cell-line) }
 
-  /* Printing one certificate per A4 sheet, landscape, with the colors and without the form */
+  /* Printing one certificate per A4 sheet, landscape, without the form */
   @page { size: A4 landscape; margin: 0 }
   @media print {
     body { padding: 0; background: #fff }
     .form { display: none }
-    .cert { width: 297mm; height: 210mm; margin: 0; break-after: page; page-break-after: always }
+    .cert { width: 297mm; height: 210mm; margin: 0; box-shadow: none; break-after: page; page-break-after: always }
     .cert:last-child { break-after: auto; page-break-after: auto }
   }
 </style>
@@ -92,7 +57,7 @@
 
 <section class="form">
   <h1>🏅 Certificado de Programador(a) Mirim</h1>
-  <p>Escreva o nome das crianças, um por linha, e aperte Imprimir para sair um certificado por criança, cada um numa folha A4 deitada. Deixe os nomes em branco para imprimir um certificado com a linha vazia, para preencher à mão.</p>
+  <p>Escreva o nome das crianças, um por linha. Depois imprima, ou baixe um PDF com um certificado por criança, cada um numa folha A4 deitada. Deixe os nomes em branco para sair um certificado com a linha vazia, para preencher à mão.</p>
   <label>Nomes das crianças
     <textarea id="names" placeholder="Ana Clara&#10;Pedro&#10;Maria Eduarda"></textarea>
   </label>
@@ -100,41 +65,23 @@
     <label>Escola <input id="school" placeholder="Nome da escola"></label>
     <label>Data <input id="date" placeholder="dd/mm/aaaa"></label>
   </div>
-  <button type="button" onclick="print()">🖨️ Imprimir</button><span id="count"></span>
+  <div class="actions">
+    <button type="button" onclick="print()">🖨️ Imprimir</button>
+    <button type="button" id="pdf">📄 Baixar PDF</button>
+    <span id="count"></span>
+  </div>
 </section>
 
 <main id="certificates"></main>
 
-<template id="certificate">
-  <article class="cert">
-    <div class="frame">
-      <svg class="corner tl" viewBox="0 0 100 100"><use href="#star"/></svg>
-      <svg class="corner tr" viewBox="0 0 100 100"><use href="#star"/></svg>
-      <svg class="mascot" viewBox="0 0 100 100"><use href="#bot"/></svg>
-      <h1 class="title">CERTIFICADO</h1>
-      <div class="subtitle">🏅 de Programador(a) Mirim</div>
-      <p class="lead">Certificamos que</p>
-      <div class="name"></div>
-      <p class="skills-title">aprendeu como se faz um programa de computador e já sabe:</p>
-      <div class="skills">
-        <div class="skill"><svg viewBox="0 0 100 100"><use href="#bot" x="0" y="10" width="62" height="62"/><use href="#star" x="50" y="40" width="48" height="48"/></svg>montar um algoritmo</div>
-        <div class="skill"><svg viewBox="0 0 100 100"><use href="#bug" x="12" y="12" width="76" height="76"/></svg>caçar bugs</div>
-        <div class="skill"><svg viewBox="0 0 100 100"><use href="#bot" x="0" y="20" width="56" height="56"/><use href="#bot" x="44" y="20" width="56" height="56"/></svg>programar em dupla</div>
-        <div class="skill"><svg viewBox="0 0 100 100"><use href="#cellphone" x="0" y="22" width="40" height="56"/><use href="#server" x="30" y="14" width="44" height="72"/><use href="#database" x="62" y="26" width="38" height="48"/></svg>ligar um sistema</div>
-      </div>
-      <div class="bottom">
-        <div>
-          <div class="field">Escola: <span class="school"></span></div>
-          <div class="field">Data: <span class="date"></span></div>
-        </div>
-        <div class="sign"><div></div>Quem apresentou os jogos</div>
-      </div>
-      <div class="credit">Curso de Engenharia de Software · UNIPAMPA · Campus Alegrete</div>
-    </div>
-  </article>
-</template>
+<script>
+// Measuring the certificate in tenths of a millimetre, the size of a landscape A4 sheet
+const WIDTH = 2970, HEIGHT = 2100
 
-<svg width="0" height="0" style="position:absolute">
+// Sizing the PDF pages at 200 dots per inch, sharp on paper and light enough for a whole class
+const PIXELS = [2339, 1654]
+
+const SYMBOLS = `
   <symbol id="bot" viewBox="0 0 100 100">
     <line x1="50" y1="8" x2="50" y2="22" stroke="#1d2a44" stroke-width="4"/>
     <circle cx="50" cy="8" r="6" fill="#ff4d4d"/>
@@ -146,6 +93,12 @@
   </symbol>
   <symbol id="star" viewBox="0 0 100 100">
     <polygon points="50,6 62,38 96,38 68,58 79,92 50,72 21,92 32,58 4,38 38,38" fill="#ffd84d" stroke="#e0a800" stroke-width="5" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="medal" viewBox="0 0 100 100">
+    <path d="M30 4 H48 L58 40 H40 Z" fill="#4da3ff" stroke="#1d2a44" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M70 4 H52 L42 40 H60 Z" fill="#ff4d4d" stroke="#1d2a44" stroke-width="5" stroke-linejoin="round"/>
+    <circle cx="50" cy="66" r="28" fill="#ffd84d" stroke="#1d2a44" stroke-width="5"/>
+    <polygon points="50,50 55,61 67,62 58,70 61,82 50,75 39,82 42,70 33,62 45,61" fill="#e0a800"/>
   </symbol>
   <symbol id="bug" viewBox="0 0 100 100">
     <path d="M26 54 10 46M24 67 8 70M29 81 17 93M74 54 90 46M76 67 92 70M71 81 83 93M43 18 35 6M57 18 65 6" stroke="#1d2a44" stroke-width="5" stroke-linecap="round" fill="none"/>
@@ -176,33 +129,166 @@
     <path d="M20 22 V78 A30 12 0 0 0 80 78 V22" fill="#ffd84d" stroke="#1d2a44" stroke-width="5"/>
     <path d="M20 41 A30 12 0 0 0 80 41 M20 60 A30 12 0 0 0 80 60" fill="none" stroke="#1d2a44" stroke-width="4"/>
     <ellipse cx="50" cy="22" rx="30" ry="12" fill="#ffe88a" stroke="#1d2a44" stroke-width="5"/>
-  </symbol>
-</svg>
+  </symbol>`
 
-<script>
-const template = document.getElementById("certificate")
+// Pairing each skill with the drawing of the game that teaches it
+const SKILLS = [
+  ["montar um algoritmo", '<use href="#bot" x="0" y="10" width="62" height="62"/><use href="#star" x="50" y="40" width="48" height="48"/>'],
+  ["caçar bugs", '<use href="#bug" x="12" y="12" width="76" height="76"/>'],
+  ["programar em dupla", '<use href="#bot" x="0" y="20" width="56" height="56"/><use href="#bot" x="44" y="20" width="56" height="56"/>'],
+  ["ligar um sistema", '<use href="#cellphone" x="0" y="22" width="40" height="56"/><use href="#server" x="30" y="14" width="44" height="72"/><use href="#database" x="62" y="26" width="38" height="48"/>'],
+]
+
+const FONT = "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
 const fields = ["names", "school", "date"].map(id => document.getElementById(id))
+const escape = text => text.replace(/[&<>"]/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[character])
+
+// Measuring texts with the same font the certificate uses, so long names and school names shrink just enough
+const ruler = document.createElement("canvas").getContext("2d")
+function measure(text, size, weight) {
+  ruler.font = `${weight} ${size}px ${FONT}`
+  return ruler.measureText(text).width
+}
+const fit = (text, size, width, weight) => Math.min(size, size * width / Math.max(1, measure(text, size, weight)))
+
+// Drawing a whole certificate as one SVG, used for the preview, for printing and for the PDF
+function certificate(name, school, date) {
+  const text = (x, y, size, content, extra = "") => `<text x="${x}" y="${y}" font-size="${size}" ${extra}>${escape(content)}</text>`
+  const skills = SKILLS.map(([label, drawing], index) => {
+    const x = 660 + index * 550
+    return `<circle cx="${x}" cy="1380" r="140" fill="#e8f4ff" stroke="#1d2a44" stroke-width="10"/>
+      <svg x="${x - 105}" y="1275" width="210" height="210" viewBox="0 0 100 100">${drawing}</svg>
+      ${text(x, 1590, 50, label, 'font-weight="800"')}`
+  }).join("")
+
+  // Sizing the yellow band around the medal and the subtitle, centred on the page
+  const subtitle = "de Programador(a) Mirim", band = 60 + 120 + 30 + measure(subtitle, 92, 900) + 60, left = (WIDTH - band) / 2
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${WIDTH} ${HEIGHT}" width="${WIDTH}" height="${HEIGHT}"
+    font-family="${FONT}" font-weight="700" fill="#1d2a44" text-anchor="middle">
+    <defs>${SYMBOLS}</defs>
+    <rect width="${WIDTH}" height="${HEIGHT}" fill="#4da3ff"/>
+    <rect x="65" y="65" width="2840" height="1970" rx="90" fill="#fff" stroke="#1d2a44" stroke-width="21"/>
+    <use href="#star" x="110" y="110" width="210" height="210" transform="rotate(-14 215 215)"/>
+    <use href="#star" x="2650" y="110" width="210" height="210" transform="rotate(14 2755 215)"/>
+    <use href="#bot" x="2470" y="1560" width="330" height="330"/>
+    ${text(1485, 470, 220, "CERTIFICADO", 'font-weight="900" letter-spacing="13"')}
+    <rect x="${left}" y="540" width="${band}" height="150" rx="75" fill="#ffd84d"/>
+    <use href="#medal" x="${left + 60}" y="555" width="120" height="120"/>
+    ${text(left + 210, 645, 92, subtitle, 'font-weight="900" text-anchor="start"')}
+    ${text(1485, 830, 66, "Certificamos que")}
+    ${text(1485, 1010, fit(name, 150, 1850, 900), name, 'font-weight="900"')}
+    <line x1="560" y1="1060" x2="2410" y2="1060" stroke="#1d2a44" stroke-width="12" stroke-dasharray="34 22"/>
+    ${text(1485, 1190, 63, "aprendeu como se faz um programa de computador e já sabe:")}
+    ${skills}
+    ${text(250, 1790, 50, "Escola:", 'text-anchor="start"')}
+    <line x1="440" y1="1800" x2="1400" y2="1800" stroke="#1d2a44" stroke-width="7"/>
+    ${text(460, 1780, fit(school, 50, 920, 800), school, 'text-anchor="start" font-weight="800"')}
+    ${text(250, 1910, 50, "Data:", 'text-anchor="start"')}
+    <line x1="400" y1="1920" x2="1400" y2="1920" stroke="#1d2a44" stroke-width="7"/>
+    ${text(420, 1900, fit(date, 50, 960, 800), date, 'text-anchor="start" font-weight="800"')}
+    <line x1="1580" y1="1830" x2="2300" y2="1830" stroke="#1d2a44" stroke-width="7"/>
+    ${text(1940, 1900, 50, "Quem apresentou os jogos")}
+    ${text(1485, 2005, 43, "Curso de Engenharia de Software · UNIPAMPA · Campus Alegrete", 'fill="#4a5a78"')}
+  </svg>`
+}
+
+const pictureOf = svg => "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg)
+const typedNames = () => fields[0].value.split("\n").map(name => name.trim()).filter(Boolean)
 
 // Drawing one certificate per name, or a single blank one when no name was typed
 function render() {
-  const names = fields[0].value.split("\n").map(name => name.trim()).filter(Boolean)
-  const list = document.getElementById("certificates")
-  list.replaceChildren(...(names.length ? names : [""]).map(name => {
-    const certificate = template.content.cloneNode(true)
-    certificate.querySelector(".name").textContent = name
-
-    // Shrinking very long full names so they still fit on one line
-    certificate.querySelector(".name").style.fontSize = Math.min(5, 200 / Math.max(1, name.length)) + "cqw"
-    certificate.querySelector(".school").textContent = fields[1].value.trim()
-    certificate.querySelector(".date").textContent = fields[2].value.trim()
-    return certificate
+  const names = typedNames()
+  document.getElementById("certificates").replaceChildren(...(names.length ? names : [""]).map(name => {
+    const image = new Image()
+    image.className = "cert"
+    image.alt = name ? `Certificado de ${name}` : "Certificado em branco"
+    image.src = pictureOf(certificate(name, fields[1].value.trim(), fields[2].value.trim()))
+    return image
   }))
   document.getElementById("count").textContent = names.length
     ? `${names.length} ${names.length === 1 ? "certificado" : "certificados"}`
     : "1 certificado em branco"
 }
 
+// Writing a PDF by hand with one JPEG per page, so the file downloads without any library or internet
+function buildPdf(pages, [width, height]) {
+  const encoder = new TextEncoder(), parts = [], offsets = []
+  let size = 0
+  const add = part => {
+    const bytes = typeof part === "string" ? encoder.encode(part) : part
+    parts.push(bytes)
+    size += bytes.length
+  }
+  const open = id => {
+    offsets[id] = size
+    add(`${id} 0 obj\n`)
+  }
+  const draw = "q 841.89 0 0 595.28 0 0 cm /Im0 Do Q"
+  const pageIds = pages.map((_, index) => 3 + index * 3)
+  add("%PDF-1.4\n%âãÏÓ\n")
+  open(1)
+  add("<< /Type /Catalog /Pages 2 0 R >>\nendobj\n")
+  open(2)
+  add(`<< /Type /Pages /Kids [${pageIds.map(id => `${id} 0 R`).join(" ")}] /Count ${pages.length} >>\nendobj\n`)
+  pages.forEach((jpeg, index) => {
+    const page = pageIds[index]
+    open(page)
+    add(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 841.89 595.28] /Resources << /XObject << /Im0 ${page + 2} 0 R >> >> /Contents ${page + 1} 0 R >>\nendobj\n`)
+    open(page + 1)
+    add(`<< /Length ${draw.length} >>\nstream\n${draw}\nendstream\nendobj\n`)
+    open(page + 2)
+    add(`<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`)
+    add(jpeg)
+    add("\nendstream\nendobj\n")
+  })
+  const table = size, count = offsets.length
+  add(`xref\n0 ${count}\n0000000000 65535 f \n${offsets.slice(1).map(offset => `${String(offset).padStart(10, "0")} 00000 n \n`).join("")}`)
+  add(`trailer\n<< /Size ${count} /Root 1 0 R >>\nstartxref\n${table}\n%%EOF\n`)
+  return new Blob(parts, { type: "application/pdf" })
+}
+
+// Painting every certificate on a canvas and turning it into a JPEG page
+async function makePdf() {
+  const canvas = document.createElement("canvas")
+  ;[canvas.width, canvas.height] = PIXELS
+  const context = canvas.getContext("2d")
+  const pages = []
+  for (const image of document.querySelectorAll("#certificates .cert")) {
+    await image.decode()
+    context.fillStyle = "#fff"
+    context.fillRect(0, 0, canvas.width, canvas.height)
+    context.drawImage(image, 0, 0, canvas.width, canvas.height)
+    const jpeg = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", 0.9))
+    pages.push(new Uint8Array(await jpeg.arrayBuffer()))
+  }
+  return buildPdf(pages, PIXELS)
+}
+
+// Naming the file after the child when there is only one certificate
+function fileName() {
+  const names = typedNames()
+  if (names.length !== 1) return names.length ? "certificados.pdf" : "certificado-em-branco.pdf"
+  return "certificado-" + names[0].normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() + ".pdf"
+}
+
+async function downloadPdf() {
+  const button = document.getElementById("pdf")
+  button.disabled = true
+  button.textContent = "⏳ Gerando..."
+  try {
+    const link = document.createElement("a")
+    link.href = URL.createObjectURL(await makePdf())
+    link.download = fileName()
+    link.click()
+    setTimeout(() => URL.revokeObjectURL(link.href), 60000)
+  } finally {
+    button.disabled = false
+    button.textContent = "📄 Baixar PDF"
+  }
+}
+
 fields.forEach(field => field.addEventListener("input", render))
+document.getElementById("pdf").addEventListener("click", downloadPdf)
 render()
 </script>
 </body>
