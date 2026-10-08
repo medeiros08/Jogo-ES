@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slides da aula</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='20' width='72' height='60' rx='16' fill='%234da3ff' stroke='%231d2a44' stroke-width='6'/><circle cx='36' cy='48' r='9' fill='%23fff'/><circle cx='64' cy='48' r='9' fill='%23fff'/></svg>">
+<style>
+  :root {
+    --sky: #e8f4ff;
+    --ink: #1d2a44;
+    --cell-line: #b9d3ee;
+    --key: #ffd84d;
+    --play: #3cc26b;
+    --erase: #ff9a3c;
+    --bad: #ff4d4d;
+    --now: #4da3ff;
+  }
+  * { box-sizing: border-box }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink) }
+  body { display: grid; place-items: center; color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; touch-action: manipulation }
+
+  /* The deck keeps a 16:9 shape and sizes everything in its own height, so it looks the same on any projector */
+  .deck { position: relative; width: min(100vw, 177.78vh); aspect-ratio: 16 / 9; container-type: size; background: var(--sky); overflow: hidden; user-select: none; cursor: pointer }
+  .slide { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 3.4cqh; padding: 6cqh 7cqw 9cqh; text-align: center }
+  .slide.active { display: flex; animation: enter .45s ease-out }
+  @keyframes enter { from { opacity: 0; transform: translateY(3cqh) } }
+  h1 { margin: 0; font-size: 9.5cqh; font-weight: 900; line-height: 1.08 }
+  h2 { margin: 0; font-size: 8cqh; font-weight: 900; line-height: 1.1 }
+  p { margin: 0; font-size: 4cqh; font-weight: 700; line-height: 1.35; max-width: 80cqw }
+  .pill { padding: 1cqh 3.4cqh; background: var(--key); border-radius: 999px; font-size: 3.6cqh; font-weight: 900 }
+  .row { display: flex; gap: 4cqh; align-items: center; justify-content: center }
+  .tile { display: flex; flex-direction: column; align-items: center; gap: 1.4cqh; padding: 3cqh 3.4cqh; background: #fff; border: .9cqh solid var(--ink); border-radius: 5cqh; font-size: 3.6cqh; font-weight: 900 }
+  .tile .emoji { font-size: 11cqh; line-height: 1 }
+  .tile svg { width: 20cqh; height: 20cqh }
+  .note { padding: 2.4cqh 4cqh; background: var(--key); border-radius: 4cqh; font-size: 3.6cqh; font-weight: 800; max-width: 82cqw; line-height: 1.35 }
+  .wave { width: 34cqh; height: 34cqh; animation: wave 2.4s ease-in-out infinite; transform-origin: 50% 90% }
+  @keyframes wave { 50% { transform: rotate(6deg) translateY(-1.5cqh) } }
+  .board { display: grid; grid-template-columns: repeat(4, 13cqh); gap: 1cqh; padding: 1cqh; background: var(--cell-line); border-radius: 2.6cqh }
+  .board div { height: 13cqh; background: #fff; border-radius: 1.8cqh; display: grid; place-items: center }
+  .board svg { width: 80%; height: 80% }
+  .code { margin: 0; padding: 2.4cqh 3.4cqh 2.4cqh 7cqh; background: var(--ink); color: #e8f4ff; border-radius: 3cqh; font: 600 4cqh/1.6 ui-monospace, Menlo, monospace; text-align: left }
+  .code li::marker { color: #6f86ad }
+  .code li.done { background: var(--play); border-radius: 1cqh }
+  .compare .tile { min-width: 40cqh; font-size: 4.4cqh }
+  .compare .tile.good { border-color: var(--play) }
+  .compare .tile.bad { border-color: var(--bad) }
+  .mark { font-size: 8cqh; line-height: 1 }
+  .flow { display: flex; align-items: center; gap: 2cqh }
+  .flow .tile { min-width: 28cqh }
+  .arrow { font-size: 8cqh; font-weight: 900 }
+  .games { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2.4cqh }
+  .games .tile { flex-direction: row; gap: 2cqh; padding: 1.6cqh 2.6cqh; border-width: .7cqh; border-radius: 3cqh; font-size: 3.2cqh; text-align: left }
+  .games .tile svg { width: 11cqh; height: 11cqh; flex: none }
+  .qr { display: flex; flex-direction: column; align-items: center; gap: 1.2cqh; padding: 2.4cqh; background: #fff; border: .9cqh solid var(--ink); border-radius: 4cqh; font-size: 3.2cqh; font-weight: 900 }
+  .qr svg { width: 36cqh; height: 36cqh }
+  .qr small { font-size: 2.3cqh; font-weight: 700 }
+  .highlight { padding: 1.4cqh 4cqh; background: var(--play); color: #fff; border-radius: 999px; font-size: 4.4cqh; font-weight: 900; box-shadow: 0 .9cqh 0 #1f7a41 }
+  .facts { display: flex; flex-wrap: wrap; gap: 1.6cqh; justify-content: center; margin: 0; padding: 0; list-style: none; max-width: 90cqw }
+  .facts li { padding: .8cqh 2cqh; background: #fff; border: .5cqh solid var(--ink); border-radius: 999px; font-size: 2.8cqh; font-weight: 800 }
+  .closing { gap: 2.4cqh; padding-top: 4cqh }
+  .course { display: flex; align-items: center; gap: 5cqh }
+  .course .qr svg { width: 20cqh; height: 20cqh }
+  .course .qr { padding: 1.6cqh 2.4cqh }
+
+  /* Dots and a counter at the bottom, so the presenter knows where the class is */
+  .progress { position: absolute; left: 0; right: 0; bottom: 3cqh; display: flex; justify-content: center; gap: 1.6cqh }
+  .progress span { width: 2.4cqh; height: 2.4cqh; border: .5cqh solid var(--ink); border-radius: 50%; background: #fff }
+  .progress span.seen { background: var(--key) }
+  .progress span.now { box-shadow: 0 0 0 .8cqh var(--now) }
+  .hint { position: fixed; right: 12px; bottom: 8px; color: #8fa3c7; font-size: 13px; font-weight: 700 }
+</style>
+</head>
+<body>
+
+<main class="deck" id="deck">
+
+  <section class="slide">
+    <svg class="wave" viewBox="0 0 100 100"><use href="#bot"/></svg>
+    <h1>Como se faz um programa de computador?</h1>
+    <div class="pill">💻 Engenharia de Software · UNIPAMPA</div>
+  </section>
+
+  <section class="slide">
+    <h2>Quem usou um app ou jogo hoje? 🙋</h2>
+    <div class="row">
+      <div class="tile"><span class="emoji">🎮</span>Jogos</div>
+      <div class="tile"><span class="emoji">📺</span>Vídeos</div>
+      <div class="tile"><span class="emoji">💬</span>Mensagens</div>
+      <div class="tile"><span class="emoji">🗺️</span>Mapas</div>
+    </div>
+    <p>Cada um desses apps foi feito por pessoas, passo a passo!</p>
+  </section>
+
+  <section class="slide">
+    <h2>Um programa é uma lista de passos</h2>
+    <div class="row">
+      <div class="board">
+        <div><svg viewBox="0 0 100 100"><use href="#bot"/></svg></div><div></div><div></div>
+        <div><svg viewBox="0 0 100 100"><use href="#star"/></svg></div>
+      </div>
+      <ol class="code">
+        <li>→ robô.direita()</li>
+        <li>→ robô.direita()</li>
+        <li>→ robô.direita()</li>
+        <li class="done">⭐ chegou!</li>
+      </ol>
+    </div>
+    <p>O computador faz <b>exatamente</b> o que a gente manda, nem mais nem menos.</p>
+  </section>
+
+  <section class="slide">
+    <h2>A ordem importa!</h2>
+    <div class="row compare">
+      <div class="tile good"><span class="mark">✅</span>1. Meia 🧦<br>2. Tênis 👟</div>
+      <div class="tile bad"><span class="mark">❌</span>1. Tênis 👟<br>2. Meia 🧦</div>
+    </div>
+    <p>Os passos na ordem certa para resolver um problema formam um <b>algoritmo</b>.</p>
+  </section>
+
+  <section class="slide">
+    <h2>O que é um bug? 🐛</h2>
+    <div class="row">
+      <svg viewBox="0 0 100 100" style="width: 30cqh; height: 30cqh"><use href="#bug"/></svg>
+      <p style="max-width: 60cqw; text-align: left">Bug é um <b>erro no programa</b>. Ele faz o programa fazer uma coisa que a gente não queria.</p>
+    </div>
+    <div class="note">🦋 Em 1947, a equipe da cientista Grace Hopper achou uma mariposa de verdade presa dentro de um computador. Ela foi colada no caderno com o aviso: “o primeiro bug de verdade encontrado”!</div>
+  </section>
+
+  <section class="slide">
+    <h2>Depurar é caçar e consertar bugs 🔍</h2>
+    <div class="row">
+      <div class="tile"><span class="emoji">🔎</span>1. Achar o<br>passo errado</div>
+      <div class="tile"><span class="emoji">🔧</span>2. Consertar<br>só esse passo</div>
+      <div class="tile"><span class="emoji">▶️</span>3. Testar<br>de novo</div>
+    </div>
+    <p>Todo mundo escreve bugs. Quem programa aprende a caçá-los com calma!</p>
+  </section>
+
+  <section class="slide">
+    <h2>Ninguém faz software sozinho 🤝</h2>
+    <div class="row">
+      <div class="tile"><svg viewBox="0 0 100 100"><use href="#bot"/></svg>🕹️ Piloto<small style="font-size: 2.8cqh; font-weight: 700">escreve o programa</small></div>
+      <div class="tile"><svg viewBox="0 0 100 100"><use href="#bot"/></svg>🧭 Navegador<small style="font-size: 2.8cqh; font-weight: 700">revisa e mostra o caminho</small></div>
+    </div>
+    <p>Isso se chama <b>programação em dupla</b>. E depois eles trocam de lugar!</p>
+  </section>
+
+  <section class="slide">
+    <h2>Como a foto chega no seu celular? 📸</h2>
+    <div class="flow">
+      <div class="tile"><svg viewBox="0 0 100 100"><use href="#cellphone"/></svg>📱 Celular<small style="font-size: 2.8cqh; font-weight: 700">pede a foto</small></div>
+      <span class="arrow">⇄</span>
+      <div class="tile"><svg viewBox="0 0 100 100"><use href="#server"/></svg>🖥️ Servidor<small style="font-size: 2.8cqh; font-weight: 700">busca e responde</small></div>
+      <span class="arrow">⇄</span>
+      <div class="tile"><svg viewBox="0 0 100 100"><use href="#database"/></svg>🗄️ Banco de dados<small style="font-size: 2.8cqh; font-weight: 700">guarda as fotos</small></div>
+    </div>
+    <p>O celular nunca fala direto com o banco de dados: o servidor organiza e protege tudo.</p>
+  </section>
+
+  <section class="slide">
+    <h2>Bora jogar! 🎮</h2>
+    <div class="row">
+      <div class="games">
+        <div class="tile"><svg viewBox="0 0 100 100"><use href="#bot" x="0" y="10" width="62" height="62"/><use href="#star" x="50" y="40" width="48" height="48"/></svg>Robô pega<br>a estrela</div>
+        <div class="tile"><svg viewBox="0 0 100 100"><use href="#bug" x="12" y="12" width="76" height="76"/></svg>Ninja dos<br>Bugs</div>
+        <div class="tile"><svg viewBox="0 0 100 100"><use href="#bot" x="0" y="20" width="56" height="56"/><use href="#bot" x="44" y="20" width="56" height="56"/></svg>Programação<br>em Dupla</div>
+        <div class="tile"><svg viewBox="0 0 100 100"><use href="#cellphone" x="0" y="22" width="40" height="56"/><use href="#server" x="30" y="14" width="44" height="72"/><use href="#database" x="62" y="26" width="38" height="48"/></svg>Conecta o<br>Sistema</div>
+      </div>
+      <div class="qr">
+        <svg viewBox="0 0 41 41" shape-rendering="crispEdges"><use href="#menu-qr"/></svg>
+        📱 Jogue no celular
+        <small>medeiros08.github.io/Jogo-ES/escola</small>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide closing">
+    <h2>Isso é Engenharia de Software! 🏅</h2>
+    <p>Na UNIPAMPA a gente aprende a fazer tudo isso.</p>
+    <div class="highlight">🆓 GRATUITO, com projetos e bolsas</div>
+    <ul class="facts">
+      <li>⭐ Nota máxima no MEC</li>
+      <li>🛠️ Mão na massa desde o 1º semestre</li>
+      <li>🌙 Noturno</li>
+      <li>⏳ 9 semestres</li>
+    </ul>
+    <div class="course">
+      <svg viewBox="0 0 100 100" style="width: 18cqh; height: 18cqh"><use href="#bot"/></svg>
+      <div class="qr">
+        <svg viewBox="0 0 41 41" shape-rendering="crispEdges"><rect width="41" height="41" fill="#fff"/><path stroke="#000" d="M4 4.5h7m3 0h1m6 0h1m3 0h1m4 0h7m-33 1h1m5 0h1m1 0h2m2 0h3m2 0h1m2 0h1m5 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m4 0h1m1 0h4m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m4 0h2m1 0h3m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m2 0h1m2 0h1m3 0h5m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m3 0h4m4 0h1m1 0h2m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h1m1 0h1m5 0h3m1 0h1m1 0h1m-25 1h1m5 0h1m1 0h2m3 0h1m1 0h1m1 0h1m1 0h1m3 0h4m2 0h3m-31 1h1m2 0h1m2 0h2m2 0h2m1 0h2m2 0h2m2 0h2m4 0h4m-32 1h2m2 0h5m2 0h1m3 0h1m4 0h1m4 0h1m2 0h1m1 0h2m-32 1h6m1 0h1m1 0h1m4 0h3m1 0h1m4 0h3m1 0h5m-32 1h1m3 0h1m1 0h1m1 0h1m4 0h2m1 0h1m2 0h2m2 0h2m1 0h2m4 0h1m-32 1h2m2 0h1m4 0h3m1 0h1m4 0h3m1 0h1m2 0h2m2 0h3m-27 1h3m1 0h3m2 0h2m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m2 0h1m-31 1h2m1 0h1m3 0h2m1 0h1m1 0h1m1 0h1m3 0h2m1 0h2m1 0h1m1 0h1m1 0h2m1 0h1m-33 1h1m3 0h1m1 0h1m5 0h3m2 0h2m3 0h2m1 0h1m1 0h3m2 0h1m-33 1h2m1 0h3m1 0h2m1 0h2m3 0h1m2 0h6m2 0h1m2 0h4m-33 1h1m4 0h3m1 0h5m1 0h1m3 0h6m2 0h1m1 0h2m1 0h1m-33 1h1m2 0h3m1 0h2m1 0h2m1 0h1m2 0h1m5 0h3m1 0h1m1 0h5m-33 1h1m1 0h2m2 0h3m3 0h1m2 0h1m1 0h1m2 0h1m1 0h1m1 0h2m1 0h3m-30 1h1m2 0h2m2 0h2m1 0h1m2 0h7m2 0h2m4 0h1m1 0h1m-31 1h1m3 0h1m1 0h2m2 0h1m1 0h2m1 0h3m2 0h3m5 0h2m1 0h1m-32 1h1m4 0h1m1 0h2m3 0h1m3 0h1m1 0h1m1 0h1m1 0h1m2 0h2m2 0h4m-33 1h3m1 0h5m2 0h2m2 0h1m3 0h1m3 0h7m1 0h1m-24 1h1m1 0h1m2 0h1m1 0h2m1 0h3m2 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h7m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m2 0h2m1 0h2m6 0h1m2 0h2m3 0h4m-32 1h1m1 0h3m1 0h1m2 0h2m1 0h4m1 0h1m1 0h1m2 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h6m2 0h3m1 0h3m1 0h3m1 0h2m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h2m2 0h3m1 0h2m3 0h1m2 0h2m2 0h2m-33 1h1m5 0h1m2 0h4m1 0h2m4 0h1m4 0h1m1 0h4m-31 1h7m1 0h1m3 0h1m2 0h1m1 0h1m4 0h6m1 0h1m1 0h1"/></svg>
+        🌐 Conheça o curso
+        <small>cursos.unipampa.edu.br/cursos/engenhariadesoftware</small>
+      </div>
+    </div>
+  </section>
+
+  <nav class="progress" id="progress"></nav>
+</main>
+<div class="hint">← → passam os slides · F tela cheia</div>
+
+<svg width="0" height="0" style="position:absolute">
+  <!-- qr-menu --><symbol id="menu-qr" viewBox="0 0 41 41"><rect width="41" height="41" fill="#fff"/><path stroke="#000" d="M4 4.5h7m2 0h1m2 0h1m1 0h2m10 0h7m-33 1h1m5 0h1m1 0h3m2 0h2m1 0h2m2 0h3m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h1m2 0h3m5 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h3m2 0h1m3 0h1m3 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m5 0h2m1 0h1m2 0h1m2 0h1m2 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m3 0h1m2 0h1m2 0h1m3 0h2m4 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h3m5 0h1m4 0h1m-24 1h1m5 0h1m1 0h3m2 0h3m1 0h1m4 0h5m2 0h3m-32 1h1m1 0h1m1 0h1m2 0h1m1 0h4m1 0h3m1 0h2m2 0h2m4 0h3m-31 1h1m2 0h1m1 0h2m5 0h1m2 0h2m1 0h1m1 0h2m6 0h1m1 0h1m-31 1h2m5 0h4m3 0h3m2 0h2m1 0h1m2 0h8m-27 1h2m3 0h4m1 0h9m1 0h1m-27 1h1m4 0h1m5 0h2m1 0h1m1 0h2m2 0h5m1 0h2m1 0h1m1 0h2m-33 1h1m2 0h4m1 0h4m1 0h1m4 0h2m2 0h1m2 0h2m2 0h3m-31 1h3m1 0h1m2 0h1m2 0h3m1 0h1m2 0h2m4 0h2m1 0h4m1 0h1m-33 1h2m1 0h1m2 0h1m2 0h2m6 0h1m1 0h1m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m-33 1h4m1 0h1m1 0h2m1 0h1m1 0h1m1 0h4m1 0h5m2 0h1m2 0h2m1 0h1m-33 1h2m2 0h3m2 0h1m2 0h1m1 0h2m3 0h2m2 0h5m1 0h2m1 0h1m-25 1h1m1 0h4m3 0h5m3 0h2m1 0h5m-33 1h1m1 0h2m1 0h2m1 0h1m1 0h5m1 0h1m2 0h4m1 0h2m1 0h3m1 0h1m-32 1h2m2 0h1m3 0h4m4 0h1m1 0h1m1 0h1m1 0h2m3 0h4m-31 1h1m1 0h1m1 0h1m1 0h4m3 0h1m1 0h2m3 0h1m3 0h3m1 0h4m-32 1h1m2 0h2m2 0h1m1 0h2m1 0h1m1 0h1m7 0h1m2 0h1m1 0h4m-31 1h3m3 0h1m1 0h1m1 0h1m3 0h3m2 0h2m1 0h1m1 0h5m1 0h1m-23 1h1m1 0h1m1 0h2m1 0h2m1 0h2m2 0h1m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m3 0h6m2 0h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m3 0h2m1 0h3m4 0h1m2 0h2m3 0h4m-32 1h1m1 0h3m1 0h1m2 0h1m3 0h2m3 0h2m1 0h1m2 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m2 0h1m6 0h1m3 0h1m1 0h4m1 0h2m1 0h1m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h2m1 0h2m2 0h2m-33 1h1m5 0h1m5 0h5m1 0h3m4 0h4m1 0h1m-31 1h7m1 0h2m3 0h1m3 0h4m2 0h5m3 0h1"/></symbol><!-- /qr-menu -->
+  <symbol id="bot" viewBox="0 0 100 100">
+    <line x1="50" y1="8" x2="50" y2="22" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="50" cy="8" r="6" fill="#ff4d4d"/>
+    <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/>
+    <circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/>
+    <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+  </symbol>
+  <symbol id="star" viewBox="0 0 100 100">
+    <polygon points="50,6 62,38 96,38 68,58 79,92 50,72 21,92 32,58 4,38 38,38" fill="#ffd84d" stroke="#e0a800" stroke-width="5" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="bug" viewBox="0 0 100 100">
+    <path d="M26 54 10 46M24 67 8 70M29 81 17 93M74 54 90 46M76 67 92 70M71 81 83 93M43 18 35 6M57 18 65 6" stroke="#1d2a44" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <circle cx="35" cy="6" r="5" fill="#ff4d4d" stroke="#1d2a44" stroke-width="3"/><circle cx="65" cy="6" r="5" fill="#ff4d4d" stroke="#1d2a44" stroke-width="3"/>
+    <ellipse cx="50" cy="64" rx="30" ry="29" fill="#ff4d4d" stroke="#1d2a44" stroke-width="5"/>
+    <path d="M50 40V91" stroke="#b52a2a" stroke-width="4"/>
+    <circle cx="38" cy="58" r="6" fill="#b52a2a"/><circle cx="63" cy="56" r="5" fill="#b52a2a"/><circle cx="62" cy="78" r="6" fill="#b52a2a"/><circle cx="38" cy="79" r="4" fill="#b52a2a"/>
+    <circle cx="50" cy="30" r="17" fill="#1d2a44"/>
+    <circle cx="43" cy="29" r="6.5" fill="#fff"/><circle cx="57" cy="29" r="6.5" fill="#fff"/>
+    <circle cx="44" cy="30" r="3" fill="#1d2a44"/><circle cx="58" cy="30" r="3" fill="#1d2a44"/>
+    <path d="M45 39q5 4 10 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="cellphone" viewBox="0 0 100 100">
+    <rect x="26" y="6" width="48" height="88" rx="10" fill="#fff" stroke="#1d2a44" stroke-width="5"/>
+    <rect x="33" y="16" width="34" height="58" rx="4" fill="#8cc4ff"/>
+    <circle cx="57" cy="30" r="7" fill="#ffd84d"/>
+    <path d="M33 74 V58 Q42 46 50 56 Q58 48 67 58 V74 Z" fill="#3cc26b"/>
+    <circle cx="50" cy="84" r="4" fill="#1d2a44"/>
+  </symbol>
+  <symbol id="server" viewBox="0 0 100 100">
+    <rect x="18" y="8" width="64" height="84" rx="10" fill="#ff9a3c" stroke="#1d2a44" stroke-width="5"/>
+    <rect x="28" y="20" width="44" height="15" rx="4" fill="#fff" stroke="#1d2a44" stroke-width="4"/>
+    <rect x="28" y="43" width="44" height="15" rx="4" fill="#fff" stroke="#1d2a44" stroke-width="4"/>
+    <rect x="28" y="66" width="44" height="15" rx="4" fill="#fff" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="62" cy="27.5" r="4" fill="#3cc26b"/><circle cx="62" cy="50.5" r="4" fill="#3cc26b"/><circle cx="62" cy="73.5" r="4" fill="#3cc26b"/>
+  </symbol>
+  <symbol id="database" viewBox="0 0 100 100">
+    <path d="M20 22 V78 A30 12 0 0 0 80 78 V22" fill="#ffd84d" stroke="#1d2a44" stroke-width="5"/>
+    <path d="M20 41 A30 12 0 0 0 80 41 M20 60 A30 12 0 0 0 80 60" fill="none" stroke="#1d2a44" stroke-width="4"/>
+    <ellipse cx="50" cy="22" rx="30" ry="12" fill="#ffe88a" stroke="#1d2a44" stroke-width="5"/>
+  </symbol>
+</svg>
+
+<script>
+const slides = [...document.querySelectorAll(".slide")]
+const progress = document.getElementById("progress")
+let current = 0
+
+// Showing one slide and remembering it in the address, so reloading the page keeps the class where it was
+function show(index) {
+  current = Math.max(0, Math.min(slides.length - 1, index))
+  slides.forEach((slide, number) => slide.classList.toggle("active", number === current))
+  progress.innerHTML = slides.map((_, number) => `<span class="${number < current ? "seen" : ""} ${number === current ? "now" : ""}"></span>`).join("")
+  history.replaceState(null, "", "#" + (current + 1))
+}
+
+function toggleFullscreen() {
+  if (document.fullscreenElement) document.exitFullscreen()
+  else document.documentElement.requestFullscreen?.()
+}
+
+// Moving with the arrows and the keys a presentation clicker sends, and F for full screen
+document.addEventListener("keydown", event => {
+  if (event.metaKey || event.ctrlKey || event.altKey) return
+  if (["ArrowRight", "ArrowDown", "PageDown", " ", "Enter"].includes(event.key)) show(current + 1)
+  else if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace"].includes(event.key)) show(current - 1)
+  else if (event.key === "Home") show(0)
+  else if (event.key === "End") show(slides.length - 1)
+  else if (event.key === "f" || event.key === "F") toggleFullscreen()
+  else return
+  event.preventDefault()
+})
+
+// Clicking the right side of the slide goes forward and the left side goes back, and a swipe works on phones
+let swipeStart = null
+document.getElementById("deck").addEventListener("pointerdown", event => { swipeStart = event.clientX })
+document.getElementById("deck").addEventListener("pointerup", event => {
+  const distance = event.clientX - swipeStart
+  if (Math.abs(distance) > 50) return show(current + (distance < 0 ? 1 : -1))
+  const box = event.currentTarget.getBoundingClientRect()
+  show(current + (event.clientX - box.left > box.width / 3 ? 1 : -1))
+})
+
+show(Number(location.hash.slice(1)) - 1 || 0)
+</script>
+</body>
+</html>

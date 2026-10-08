@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Folha de atividades</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='20' width='72' height='60' rx='16' fill='%234da3ff' stroke='%231d2a44' stroke-width='6'/><circle cx='36' cy='48' r='9' fill='%23fff'/><circle cx='64' cy='48' r='9' fill='%23fff'/></svg>">
+<style>
+  :root {
+    --sky: #e8f4ff;
+    --ink: #1d2a44;
+    --cell-line: #b9d3ee;
+    --key: #ffd84d;
+    --play: #3cc26b;
+    --bad: #ff4d4d;
+    --now: #4da3ff;
+  }
+  * { box-sizing: border-box }
+  body { margin: 0; padding: 24px 16px 40px; background: var(--sky); color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", sans-serif }
+  .bar { max-width: 210mm; margin: 0 auto 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between }
+  .bar p { margin: 0; font-size: 17px; font-weight: 700 }
+  .bar button { border: none; border-radius: 16px; padding: 12px 28px; background: var(--play); color: #fff; font-size: 22px; font-weight: 900; box-shadow: 0 5px 0 #1f7a41; cursor: pointer }
+
+  /* Each sheet is an A4 page measured in its own width, so the screen and the paper look the same */
+  .sheet {
+    container-type: inline-size;
+    width: min(100%, 210mm);
+    aspect-ratio: 210 / 297;
+    margin: 0 auto 24px;
+    padding: 5.5cqw;
+    background: #fff;
+    box-shadow: 0 8px 0 var(--cell-line);
+    display: flex;
+    flex-direction: column;
+    gap: 2.4cqw;
+  }
+  header { display: flex; align-items: center; gap: 3cqw }
+  header svg { width: 13cqw; height: 13cqw; flex: none }
+  header h1 { margin: 0; font-size: 6.4cqw; font-weight: 900; line-height: 1; white-space: nowrap }
+  header .sub { display: inline-block; margin-top: 1.2cqw; padding: .4cqw 2.4cqw; background: var(--key); border-radius: 999px; font-size: 2.6cqw; font-weight: 900 }
+  .name { display: flex; gap: 1.5cqw; align-items: flex-end; font-size: 3cqw; font-weight: 800 }
+  .name span { flex: 1; border-bottom: .4cqw solid var(--ink); height: 4cqw }
+  .name span.short { flex: 0 0 22cqw }
+  .task { border: .7cqw solid var(--ink); border-radius: 4cqw; padding: 3cqw 3.6cqw }
+  .task h2 { margin: 0 0 1cqw; font-size: 3.6cqw; font-weight: 900 }
+  .task p { margin: 0 0 2.4cqw; font-size: 2.55cqw; font-weight: 600; line-height: 1.35 }
+  .task .row { display: flex; gap: 4cqw; align-items: center }
+  .boxes { display: flex; flex-wrap: wrap; gap: 1.2cqw }
+  .boxes span { width: 6.4cqw; height: 6.4cqw; border: .45cqw dashed var(--cell-line); border-radius: 1.4cqw; display: grid; place-items: center; font-size: 4.4cqw; font-weight: 900 }
+  .boxes.given span { border-style: solid; border-color: var(--ink) }
+  .steps { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 1.6cqw 4cqw }
+  .steps li { display: flex; gap: 2cqw; align-items: center; font-size: 2.9cqw; font-weight: 700 }
+  .steps li span { width: 6.4cqw; height: 6.4cqw; flex: none; border: .45cqw solid var(--ink); border-radius: 1.4cqw }
+  .grow { flex: 1 }
+  table { border-collapse: separate; border-spacing: .5cqw; margin: 0 auto }
+  td { width: 6.6cqw; height: 6.6cqw; text-align: center; font-size: 4cqw; font-weight: 800; background: var(--sky); border-radius: 1cqw }
+  .words { display: flex; flex-wrap: wrap; gap: 1.4cqw; justify-content: center; margin-top: 2.4cqw; padding: 0; list-style: none }
+  .words li { padding: .5cqw 2.2cqw; border: .4cqw solid var(--ink); border-radius: 999px; font-size: 2.5cqw; font-weight: 800 }
+  .app { display: flex; gap: 5cqw; align-items: center }
+  .app svg { width: 30cqw; flex: none }
+  .lines { flex: 1; display: flex; flex-direction: column; gap: 3cqw; font-size: 2.8cqw; font-weight: 800 }
+  .lines div { border-bottom: .35cqw solid var(--ink); padding-bottom: 1cqw; min-height: 6cqw; display: flex; align-items: flex-end }
+  .lines div.blank { min-height: 5cqw }
+  footer { margin-top: auto; text-align: center; font-size: 2.1cqw; font-weight: 700; color: #4a5a78 }
+
+  /* Printing each sheet on its own A4 page, without the bar on top */
+  @page { size: A4; margin: 0 }
+  @media print {
+    body { padding: 0; background: #fff }
+    .bar { display: none }
+    .sheet { width: 210mm; height: 297mm; margin: 0; box-shadow: none; break-after: page; page-break-after: always }
+    .sheet:last-of-type { break-after: auto; page-break-after: auto }
+  }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <p>Três folhas A4 para cada criança levar para casa, que podem ser impressas frente e verso. As respostas estão no fim do roteiro da aula.</p>
+  <button type="button" onclick="print()">🖨️ Imprimir</button>
+</div>
+
+<section class="sheet">
+  <header>
+    <svg viewBox="0 0 100 100"><use href="#bot"/></svg>
+    <div>
+      <h1>Folha de atividades</h1>
+      <div class="sub">🏅 Programador(a) Mirim</div>
+    </div>
+  </header>
+  <div class="name">Nome: <span></span> Turma: <span class="short"></span></div>
+
+  <div class="task">
+    <h2>🧩 1. Leve o robô até a estrela</h2>
+    <p>Desenhe o caminho do robô no tabuleiro, sem passar pelas pedras. Depois escreva as setas do caminho nos quadradinhos. Isso é um algoritmo!</p>
+    <div class="row">
+      <svg id="maze" style="width: 46cqw"></svg>
+      <div>
+        <p><b>Setas:</b> → ← ↑ ↓</p>
+        <div class="boxes" id="maze-boxes" style="width: 32cqw"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="task">
+    <h2>🐛 2. Ache o bug</h2>
+    <p>O robô seguiu as setas de baixo e bateu na pedra! Circule a seta errada. Depois escreva as setas certas na linha de baixo.</p>
+    <div class="row">
+      <svg id="bug-board" style="width: 32cqw"></svg>
+      <div class="grow">
+        <div class="boxes given" id="bug-program"></div>
+        <div style="height: 2.4cqw"></div>
+        <div class="boxes" id="bug-fix"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Jogos de Engenharia de Software · UNIPAMPA · medeiros08.github.io/Jogo-ES/escola</footer>
+</section>
+
+<section class="sheet">
+  <div class="task">
+    <h2>🔤 3. Caça-palavras</h2>
+    <p>Encontre as 8 palavras de quem faz programas. Elas estão na horizontal (→) ou na vertical (↓).</p>
+    <table id="words-grid"></table>
+    <ul class="words" id="words-list"></ul>
+  </div>
+
+  <footer>Jogos de Engenharia de Software · UNIPAMPA · medeiros08.github.io/Jogo-ES/escola</footer>
+</section>
+
+<section class="sheet">
+  <div class="task">
+    <h2>🪥 4. Coloque os passos em ordem</h2>
+    <p>Os passos para escovar os dentes estão misturados. Numere de 1 a 4 na ordem certa. Uma receita também é um algoritmo!</p>
+    <ul class="steps">
+      <li><span></span>Escovar os dentes</li>
+      <li><span></span>Pegar a escova</li>
+      <li><span></span>Enxaguar a boca</li>
+      <li><span></span>Colocar a pasta na escova</li>
+    </ul>
+  </div>
+
+  <div class="task grow">
+    <h2>📱 5. Invente um app</h2>
+    <p>Desenhe na tela do celular um app que você gostaria de criar. Pode ser um jogo, um app para a escola ou para ajudar alguém!</p>
+    <div class="app">
+      <svg viewBox="0 0 100 180" style="width: 40cqw">
+        <rect x="4" y="4" width="92" height="172" rx="16" fill="#fff" stroke="#1d2a44" stroke-width="5"/>
+        <rect x="12" y="20" width="76" height="132" rx="6" fill="#fff" stroke="#b9d3ee" stroke-width="3"/>
+        <circle cx="50" cy="164" r="5" fill="#1d2a44"/>
+        <rect x="40" y="10" width="20" height="4" rx="2" fill="#b9d3ee"/>
+      </svg>
+      <div class="lines">
+        <div>Nome do app:</div>
+        <div>O que ele faz?</div>
+        <div class="blank"></div>
+        <div>Quem vai usar?</div>
+        <div class="blank"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Quem faz apps e jogos estuda Engenharia de Software. Na UNIPAMPA a gente aprende a fazer isso!</footer>
+</section>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="bot" viewBox="0 0 100 100">
+    <line x1="50" y1="8" x2="50" y2="22" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="50" cy="8" r="6" fill="#ff4d4d"/>
+    <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/>
+    <circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/>
+    <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+  </symbol>
+  <symbol id="star" viewBox="0 0 100 100">
+    <polygon points="50,6 62,38 96,38 68,58 79,92 50,72 21,92 32,58 4,38 38,38" fill="#ffd84d" stroke="#e0a800" stroke-width="5" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="rock" viewBox="0 0 100 100">
+    <path d="M12 78 L22 40 L44 22 L70 28 L88 52 L84 80 Z" fill="#9aa3ad" stroke="#5b6570" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M40 40 L52 50 M62 60 L70 66" stroke="#5b6570" stroke-width="4"/>
+  </symbol>
+</svg>
+
+<script>
+// Describing the boards like the levels of the robot game: R for the robot, * for the star, # for a rock.
+// The answers in the lesson plan (roteiro.html) depend on these boards and on the word search below
+const MAZE = ["R..#..", "##.#.#", "......", ".####.", "....#*"]
+const BUG_BOARD = ["..#*", "R...", "...."]
+const BUG_PROGRAM = ["→", "→", "↑", "→"]
+const WORD_ROWS = [
+  "AMMPSERVIDOR", "OCNUTRDOSVRD", "NSIOURSSAUHA", "EBSDVORERHCD", "DZPRTITNJPOO", "TZSRNOGJIRDS",
+  "ABEZDUPLAOIV", "PSROBORMGGGI", "ALGORITMOROR", "PSROBTBJLAPD", "PSIPUFORCMZI", "RMDGGOEPAACA",
+]
+const WORDS = ["ALGORITMO", "PROGRAMA", "SERVIDOR", "CODIGO", "DUPLA", "DADOS", "ROBO", "BUG"]
+
+// Drawing a board as cells of the same light blue grid used in the games
+function drawBoard(svg, rows) {
+  const cell = 100, gap = 8, width = rows[0].length * (cell + gap) + gap, height = rows.length * (cell + gap) + gap
+  const icons = { R: "bot", "*": "star", "#": "rock" }
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`)
+  svg.innerHTML = `<rect width="${width}" height="${height}" rx="20" fill="#b9d3ee"/>` + rows.flatMap((row, r) => [...row].map((symbol, c) => {
+    const x = gap + c * (cell + gap), y = gap + r * (cell + gap)
+    return `<rect x="${x}" y="${y}" width="${cell}" height="${cell}" rx="14" fill="#fff"/>` +
+      (icons[symbol] ? `<use href="#${icons[symbol]}" x="${x + 10}" y="${y + 10}" width="${cell - 20}" height="${cell - 20}"/>` : "")
+  })).join("")
+}
+
+const boxes = (element, contents) => { element.innerHTML = contents.map(content => `<span>${content}</span>`).join("") }
+
+drawBoard(document.getElementById("maze"), MAZE)
+drawBoard(document.getElementById("bug-board"), BUG_BOARD)
+boxes(document.getElementById("maze-boxes"), Array(12).fill(""))
+boxes(document.getElementById("bug-program"), BUG_PROGRAM)
+boxes(document.getElementById("bug-fix"), Array(BUG_PROGRAM.length).fill(""))
+document.getElementById("words-grid").innerHTML = WORD_ROWS.map(row => `<tr>${[...row].map(letter => `<td>${letter}</td>`).join("")}</tr>`).join("")
+document.getElementById("words-list").innerHTML = WORDS.map(word => `<li>${word}</li>`).join("")
+</script>
+</body>
+</html>
