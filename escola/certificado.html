@@ -57,13 +57,14 @@
 
 <section class="form">
   <h1>🏅 Certificado de Programador(a) Mirim</h1>
-  <p>Escreva o nome das crianças, um por linha. Depois imprima, ou baixe um PDF com um certificado por criança, cada um numa folha A4 deitada. Deixe os nomes em branco para sair um certificado com a linha vazia, para preencher à mão.</p>
+  <p>Escreva o nome das crianças, um por linha, e preencha a escola, a data e o nome de quem apresentou os jogos. Depois imprima, ou baixe um PDF com um certificado por criança, cada um numa folha A4 deitada. Deixe os nomes em branco para sair um certificado com a linha vazia, para preencher à mão.</p>
   <label>Nomes das crianças
     <textarea id="names" placeholder="Ana Clara&#10;Pedro&#10;Maria Eduarda"></textarea>
   </label>
   <div class="row">
     <label>Escola <input id="school" placeholder="Nome da escola"></label>
     <label>Data <input id="date" placeholder="dd/mm/aaaa"></label>
+    <label>Quem apresentou <input id="presenter" placeholder="Seu nome"></label>
   </div>
   <div class="actions">
     <button type="button" onclick="print()">🖨️ Imprimir</button>
@@ -140,7 +141,7 @@ const SKILLS = [
 ]
 
 const FONT = "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
-const fields = ["names", "school", "date"].map(id => document.getElementById(id))
+const fields = ["names", "school", "date", "presenter"].map(id => document.getElementById(id))
 const escape = text => text.replace(/[&<>"]/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[character])
 
 // Measuring texts with the same font the certificate uses, so long names and school names shrink just enough
@@ -152,7 +153,7 @@ function measure(text, size, weight) {
 const fit = (text, size, width, weight) => Math.min(size, size * width / Math.max(1, measure(text, size, weight)))
 
 // Drawing a whole certificate as one SVG, used for the preview, for printing and for the PDF
-function certificate(name, school, date) {
+function certificate(name, school, date, presenter) {
   const text = (x, y, size, content, extra = "") => `<text x="${x}" y="${y}" font-size="${size}" ${extra}>${escape(content)}</text>`
   const skills = SKILLS.map(([label, drawing], index) => {
     const x = 660 + index * 550
@@ -186,8 +187,9 @@ function certificate(name, school, date) {
     ${text(250, 1910, 50, "Data:", 'text-anchor="start"')}
     <line x1="400" y1="1920" x2="1400" y2="1920" stroke="#1d2a44" stroke-width="7"/>
     ${text(420, 1900, fit(date, 50, 960, 800), date, 'text-anchor="start" font-weight="800"')}
-    <line x1="1580" y1="1830" x2="2300" y2="1830" stroke="#1d2a44" stroke-width="7"/>
-    ${text(1940, 1900, 50, "Quem apresentou os jogos")}
+    <line x1="1540" y1="1830" x2="2420" y2="1830" stroke="#1d2a44" stroke-width="7"/>
+    ${text(1980, 1810, fit(presenter, 56, 840, 800), presenter, 'font-weight="800"')}
+    ${text(1980, 1900, 50, "Quem apresentou os jogos")}
     ${text(1485, 2005, 43, "Curso de Engenharia de Software · UNIPAMPA · Campus Alegrete", 'fill="#4a5a78"')}
   </svg>`
 }
@@ -202,7 +204,7 @@ function render() {
     const image = new Image()
     image.className = "cert"
     image.alt = name ? `Certificado de ${name}` : "Certificado em branco"
-    image.src = pictureOf(certificate(name, fields[1].value.trim(), fields[2].value.trim()))
+    image.src = pictureOf(certificate(name, ...fields.slice(1).map(field => field.value.trim())))
     return image
   }))
   document.getElementById("count").textContent = names.length
