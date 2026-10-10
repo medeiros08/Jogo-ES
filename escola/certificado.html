@@ -5,50 +5,60 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Certificado de Programador(a) Mirim</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,6 62,38 96,38 68,58 79,92 50,72 21,92 32,58 4,38 38,38' fill='%23ffd84d' stroke='%23e0a800' stroke-width='5'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --sky: #e8f4ff;
-    --ink: #1d2a44;
-    --cell-line: #b9d3ee;
-    --key: #ffd84d;
-    --play: #3cc26b;
-    --now: #4da3ff;
+    --sky1: #5fbcff;
+    --sky2: #cdeeff;
+    --ink: #2f2a4a;
+    --line: #cfcbe6;
+    --blue: #4da3ff;
+    --pink: #ff5f8f;
+    --mint: #4fd6a6;
+    --yellow: #ffd23f;
+    --font: "Fredoka", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
   }
   * { box-sizing: border-box }
   body {
     margin: 0;
     padding: 24px 16px 40px;
-    background: var(--sky);
+    background: linear-gradient(180deg, var(--sky1) 0, var(--sky2) 520px) no-repeat var(--sky2);
     color: var(--ink);
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-family: var(--font);
   }
 
   /* Form for the teacher, shown only on screen */
-  .form { max-width: 900px; margin: 0 auto 28px; padding: 20px 22px; background: #fff; border: 4px solid var(--ink); border-radius: 24px }
-  .form h1 { margin: 0 0 6px; font-size: min(34px, 7vw); font-weight: 900 }
-  .form p { margin: 0 0 16px; font-size: 17px; font-weight: 600; line-height: 1.45 }
-  .form label { display: block; margin-bottom: 14px; font-size: 17px; font-weight: 800 }
-  .form textarea, .form input { display: block; width: 100%; margin-top: 6px; padding: 10px 12px; border: 3px solid var(--cell-line); border-radius: 12px; font: 600 18px system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink) }
+  .form { position: relative; max-width: 900px; margin: 0 auto 32px; padding: 22px 24px; background: #fff; border: 4px solid var(--ink); border-radius: 28px; box-shadow: 0 7px 0 rgba(47, 42, 74, .25) }
+  .form h1 { display: flex; align-items: center; gap: 14px; margin: 0 0 10px; font-size: min(40px, 8vw); font-weight: 700; line-height: 1.05; color: #fff; -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; text-shadow: 0 4px 0 var(--ink) }
+  .form h1 svg { width: min(70px, 14vw); height: min(70px, 14vw); flex: none; animation: swing 2.6s ease-in-out infinite; transform-origin: 50% 0 }
+  @keyframes swing { 50% { transform: rotate(8deg) } }
+  .form h1 .y { color: var(--yellow) }
+  .form p { margin: 0 0 18px; font-size: 17px; font-weight: 500; line-height: 1.45 }
+  .form label { display: block; margin-bottom: 14px; font-size: 17px; font-weight: 600 }
+  .form textarea, .form input { display: block; width: 100%; margin-top: 6px; padding: 10px 14px; border: 3px solid var(--line); border-radius: 14px; font: 500 18px var(--font); color: var(--ink) }
+  .form textarea:focus, .form input:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 4px rgba(77, 163, 255, .35) }
   .form textarea { height: 150px; resize: vertical }
   .form .row { display: flex; gap: 14px; flex-wrap: wrap }
   .form .row label { flex: 1; min-width: 200px }
-  .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center }
-  .form button { border: none; border-radius: 16px; padding: 12px 28px; background: var(--play); color: #fff; font-size: 22px; font-weight: 900; box-shadow: 0 5px 0 #1f7a41; cursor: pointer }
-  .form button:active { transform: translateY(3px); box-shadow: 0 2px 0 #1f7a41 }
+  .actions { display: flex; flex-wrap: wrap; gap: 14px; align-items: center }
+  .form button { display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; background: var(--mint); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 5px 0 var(--ink); color: #fff; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; font: 700 22px var(--font); cursor: pointer }
+  .form button svg { width: 24px; height: 24px }
+  .form button:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink) }
   .form button:disabled { opacity: .6; cursor: wait }
-  #pdf { background: var(--now); box-shadow: 0 5px 0 #2f7fd6 }
-  #pdf:active { box-shadow: 0 2px 0 #2f7fd6 }
-  #count { font-size: 17px; font-weight: 700 }
+  #pdf { background: var(--blue) }
+  #count { font-size: 17px; font-weight: 600 }
 
   /* Showing each certificate as one picture, the same one that is printed and put in the PDF */
-  .cert { display: block; width: min(100%, 297mm); margin: 0 auto 28px; box-shadow: 0 8px 0 var(--cell-line) }
+  .cert { display: block; width: min(100%, 297mm); margin: 0 auto 28px; border: 4px solid var(--ink); border-radius: 12px; box-shadow: 0 8px 0 rgba(47, 42, 74, .25) }
 
   /* Printing one certificate per A4 sheet, landscape, without the form */
   @page { size: A4 landscape; margin: 0 }
   @media print {
     body { padding: 0; background: #fff }
     .form { display: none }
-    .cert { width: 297mm; height: 210mm; margin: 0; box-shadow: none; break-after: page; page-break-after: always }
+    .cert { width: 297mm; height: 210mm; margin: 0; border: none; border-radius: 0; box-shadow: none; break-after: page; page-break-after: always }
     .cert:last-child { break-after: auto; page-break-after: auto }
   }
 </style>
@@ -56,7 +66,7 @@
 <body>
 
 <section class="form">
-  <h1>🏅 Certificado de Programador(a) Mirim</h1>
+  <h1><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M30 4 H48 L58 40 H40 Z" fill="#4da3ff" stroke="#2f2a4a" stroke-width="5" stroke-linejoin="round"/><path d="M70 4 H52 L42 40 H60 Z" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="5" stroke-linejoin="round"/><circle cx="50" cy="66" r="28" fill="#ffd23f" stroke="#2f2a4a" stroke-width="5"/><polygon points="50,50 55,61 67,62 58,70 61,82 50,75 39,82 42,70 33,62 45,61" fill="#e0a800"/></svg><span>Certificado de <span class="y">Programador(a) Mirim</span></span></h1>
   <p>Escreva o nome das crianças, um por linha, e preencha a escola, a data e o nome de quem apresentou os jogos. Depois imprima, ou baixe um PDF com um certificado por criança, cada um numa folha A4 deitada. Deixe os nomes em branco para sair um certificado com a linha vazia, para preencher à mão.</p>
   <label>Nomes das crianças
     <textarea id="names" placeholder="Ana Clara&#10;Pedro&#10;Maria Eduarda"></textarea>
@@ -67,8 +77,8 @@
     <label>Quem apresentou <input id="presenter" placeholder="Seu nome"></label>
   </div>
   <div class="actions">
-    <button type="button" onclick="print()">🖨️ Imprimir</button>
-    <button type="button" id="pdf">📄 Baixar PDF</button>
+    <button type="button" onclick="print()"><svg viewBox="0 0 24 24"><path d="M7 9 V3 H17 V9 M7 18 H4 V10 H20 V18 H17 M7 14 H17 V21 H7 Z" fill="#fff" stroke="#2f2a4a" stroke-width="2.4" stroke-linejoin="round"/></svg>Imprimir</button>
+    <button type="button" id="pdf"><svg viewBox="0 0 24 24"><path d="M6 3 H14 L19 8 V21 H6 Z M14 3 V8 H19" fill="#fff" stroke="#2f2a4a" stroke-width="2.4" stroke-linejoin="round"/></svg><span id="pdf-label">Baixar PDF</span></button>
     <span id="count"></span>
   </div>
 </section>
@@ -274,9 +284,9 @@ function fileName() {
 }
 
 async function downloadPdf() {
-  const button = document.getElementById("pdf")
+  const button = document.getElementById("pdf"), label = document.getElementById("pdf-label")
   button.disabled = true
-  button.textContent = "⏳ Gerando..."
+  label.textContent = "Gerando..."
   try {
     const link = document.createElement("a")
     link.href = URL.createObjectURL(await makePdf())
@@ -285,7 +295,7 @@ async function downloadPdf() {
     setTimeout(() => URL.revokeObjectURL(link.href), 60000)
   } finally {
     button.disabled = false
-    button.textContent = "📄 Baixar PDF"
+    label.textContent = "Baixar PDF"
   }
 }
 

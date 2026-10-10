@@ -2,156 +2,273 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Jogos de Engenharia de Software</title>
 <meta name="description" content="Quatro jogos para crianças de 6 a 14 anos descobrirem como se faz software. Feitos pelo curso de Engenharia de Software da UNIPAMPA.">
+<meta name="theme-color" content="#5fbcff">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='20' width='72' height='60' rx='16' fill='%234da3ff' stroke='%231d2a44' stroke-width='6'/><circle cx='36' cy='48' r='9' fill='%23fff'/><circle cx='64' cy='48' r='9' fill='%23fff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --sky: #e8f4ff;
-    --ink: #1d2a44;
-    --cell-line: #b9d3ee;
-    --key: #ffd84d;
-    --play: #3cc26b;
-    --erase: #ff9a3c;
-    --now: #4da3ff;
+    --sky1: #5fbcff; --sky2: #cdeeff; --hill: #8ddf6a; --hill2: #6cc653;
+    --ink: #2f2a4a; --soft: #5d5880;
+    --blue: #4da3ff; --pink: #ff5f8f; --mint: #4fd6a6; --orange: #ff8a3d; --purple: #8c73ff; --yellow: #ffd23f;
+    --font: "Fredoka", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
   }
-  * { box-sizing: border-box }
-  body {
-    margin: 0;
-    padding: 24px 16px 40px;
-    background: var(--sky);
-    color: var(--ink);
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  }
-  header { text-align: center; margin: 0 auto 28px; max-width: 900px }
-  header svg { width: min(120px, 26vw); height: min(120px, 26vw) }
-  h1 { margin: 8px 0 6px; font-size: min(48px, 9vw); font-weight: 900; line-height: 1.1 }
-  header p { margin: 0; font-size: min(22px, 4.6vw); font-weight: 700 }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent }
+  body { margin: 0; min-height: 100vh; background: var(--sky2); color: var(--ink); font-family: var(--font); font-size: 18px; line-height: 1.45 }
+  a { color: inherit }
+  .g { transform-box: fill-box; transform-origin: center }
 
-  /* Showing the games as big cards, two per row on a projector and one per row on a phone */
-  .games { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 22px; max-width: 1100px; margin: 0 auto }
-  .game {
-    display: flex;
-    gap: 18px;
-    align-items: center;
-    padding: 18px;
-    background: #fff;
-    border: 5px solid var(--ink);
-    border-radius: 28px;
-    box-shadow: 0 8px 0 var(--cell-line);
-    color: inherit;
-    text-decoration: none;
-  }
-  .game:active { transform: translateY(4px); box-shadow: 0 4px 0 var(--cell-line) }
-  .game svg { flex: none; width: min(110px, 24vw); height: min(110px, 24vw); background: var(--sky); border-radius: 20px; padding: 8px }
-  .game h2 { margin: 0 0 6px; font-size: min(28px, 6vw); font-weight: 900; line-height: 1.15 }
-  .game p { margin: 0 0 10px; font-size: min(19px, 4.2vw); font-weight: 600; line-height: 1.35 }
-  .tags { display: flex; flex-wrap: wrap; gap: 8px }
-  .tags span { border-radius: 999px; padding: 4px 12px; font-size: min(16px, 3.6vw); font-weight: 800 }
-  .age { background: var(--key) }
-  .topic { background: var(--sky) }
+  /* The scenery behind everything: sky, drifting clouds, floating bits of code and two hills */
+  .sky { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 78%) }
+  .cloud { position: absolute; background: #fff; border-radius: 999px; opacity: .92; animation: drift 46s linear infinite }
+  .cloud::before, .cloud::after { content: ""; position: absolute; background: #fff; border-radius: 50% }
+  .cloud::before { width: 55%; height: 160%; left: 15%; bottom: 20% }
+  .cloud::after { width: 40%; height: 130%; right: 12%; bottom: 25% }
+  .c1 { width: 130px; height: 36px; top: 9%; animation-delay: -8s }
+  .c2 { width: 92px; height: 26px; top: 34%; animation-duration: 60s; animation-delay: -30s }
+  .c3 { width: 160px; height: 42px; top: 4%; animation-duration: 75s; animation-delay: -50s; opacity: .7 }
+  @keyframes drift { from { transform: translateX(-30vw) } to { transform: translateX(130vw) } }
+  .bit { position: absolute; font-weight: 700; color: rgba(255, 255, 255, .6); font-size: 24px; animation: float 9s ease-in-out infinite }
+  .b1 { left: 5%; top: 20% } .b2 { right: 7%; top: 13%; animation-delay: -2s } .b3 { left: 10%; top: 62%; animation-delay: -4s } .b4 { right: 12%; top: 48%; animation-delay: -1s }
+  @keyframes float { 50% { transform: translateY(-16px) rotate(8deg) } }
+  .hills { position: absolute; left: 0; right: 0; bottom: 0; height: 17vh }
+  .hills::before, .hills::after { content: ""; position: absolute; bottom: -40%; border-radius: 50% }
+  .hills::before { left: -20%; width: 90%; height: 140%; background: var(--hill) }
+  .hills::after { right: -25%; width: 95%; height: 120%; background: var(--hill2) }
+  .page { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: max(18px, env(safe-area-inset-top)) 16px 30px }
 
-  details { max-width: 1100px; margin: 36px auto 0; padding: 18px 22px; background: #fff; border: 4px solid var(--ink); border-radius: 24px; font-size: 18px; line-height: 1.5 }
-  summary { font-size: 24px; font-weight: 900; cursor: pointer }
-  details h3 { margin: 20px 0 8px; font-size: 20px }
-  details ul, details ol { margin: 0; padding-left: 24px }
-  details li { margin-bottom: 6px }
-  .levels { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; padding: 0 !important }
-  .levels li { border-radius: 16px; padding: 10px 16px; font-weight: 800; color: #fff }
-  .levels li:nth-child(1) { background: var(--play) }
-  .levels li:nth-child(2) { background: var(--key); color: var(--ink) }
-  .levels li:nth-child(3) { background: var(--erase) }
-  .materials { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none }
-  .materials li { padding: 12px 14px; background: var(--sky); border: 3px solid var(--ink); border-radius: 18px; font-size: 16px; line-height: 1.35 }
-  .materials b { display: block; font-size: 18px }
-  .materials a { margin-right: 10px }
-  details a { color: var(--ink); font-weight: 800 }
+  /* Title and Bit the robot talking */
+  header { text-align: center }
+  h1 { margin: 6px 0 0; font-size: clamp(38px, 9.5vw, 70px); font-weight: 700; line-height: 1.02; color: #fff; -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; text-shadow: 0 6px 0 var(--ink) }
+  h1 span { display: inline-block; animation: hop 3.4s ease-in-out infinite }
+  h1 .w1 { color: var(--yellow) } h1 .w2 { animation-delay: .2s } h1 .w3 { color: var(--pink); animation-delay: .4s } h1 .w4 { color: var(--mint); animation-delay: .6s }
+  @keyframes hop { 0%, 78%, 100% { transform: translateY(0) } 86% { transform: translateY(-9px) rotate(-3deg) } 93% { transform: translateY(0) rotate(1deg) } }
+  .hello { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 18px auto 0; max-width: 900px }
+  .bot { width: clamp(92px, 25vw, 128px); flex: none; overflow: visible; cursor: pointer }
+  .bot-body { animation: bob 2.6s ease-in-out infinite }
+  .bot.jump .bot-body { animation: jump .7s cubic-bezier(.3, 1.4, .6, 1) }
+  @keyframes bob { 50% { transform: translateY(-5px) } }
+  @keyframes jump { 40% { transform: translateY(-26px) rotate(-10deg) } 70% { transform: translateY(2px) rotate(4deg) } }
+  .bot-eyes { animation: blink 4.2s infinite }
+  @keyframes blink { 0%, 91%, 97%, 100% { transform: scaleY(1) } 94% { transform: scaleY(.1) } }
+  .bot-light { animation: glow 1.4s ease-in-out infinite }
+  @keyframes glow { 50% { fill: #ffd23f } }
+  .bubble { position: relative; max-width: 380px; padding: 12px 18px; background: #fff; border: 4px solid var(--ink); border-radius: 24px; box-shadow: 0 5px 0 rgba(47, 42, 74, .25); font: 600 clamp(17px, 4.4vw, 22px) var(--font); color: var(--ink); text-align: left; cursor: pointer }
+  .bubble::before { content: ""; position: absolute; left: -15px; top: 50%; margin-top: -11px; border: 11px solid transparent; border-right-color: var(--ink); border-left: 0 }
+  .bubble::after { content: ""; position: absolute; left: -8px; top: 50%; margin-top: -7px; border: 7px solid transparent; border-right-color: #fff; border-left: 0 }
+  .bubble.pop { animation: pop .35s cubic-bezier(.3, 1.6, .6, 1) }
+  @keyframes pop { from { transform: scale(.85); opacity: .3 } }
   /* Showing the QR code of the published menu on a projector, and hiding it on phones that are already here */
-  .phone-qr { display: inline-flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 18px; padding: 14px 20px; background: #fff; border: 4px solid var(--ink); border-radius: 22px }
-  .phone-qr svg { width: 180px; height: 180px }
-  .phone-qr b { font-size: 22px }
-  .phone-qr span { font-size: 15px; font-weight: 600 }
-  @media (max-width: 600px) { .phone-qr { display: none } }
-  footer { max-width: 1100px; margin: 28px auto 0; text-align: center; font-size: 15px; font-weight: 600 }
+  .phone-qr { display: none }
+  @media (min-width: 760px) {
+    .phone-qr { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-left: 18px; padding: 10px 12px 8px; background: #fff; border: 4px solid var(--ink); border-radius: 22px; box-shadow: 0 6px 0 rgba(47, 42, 74, .25); transform: rotate(3deg); font-weight: 700; animation: wobble 5s ease-in-out infinite }
+    .phone-qr svg { width: 150px; height: 150px }
+    .phone-qr span { font-size: 14px; font-weight: 500 }
+  }
+  @keyframes wobble { 0%, 100% { transform: rotate(3deg) } 50% { transform: rotate(-2deg) translateY(-4px) } }
+
+  /* Game cards: the whole card is the button, with a little scene of the game */
+  .games { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); gap: 26px; max-width: 980px; margin: 34px auto 0 }
+  .game { display: flex; flex-direction: column; overflow: hidden; background: #fff; border: 4px solid var(--ink); border-radius: 28px; box-shadow: 0 8px 0 rgba(47, 42, 74, .28); text-decoration: none; animation: rise .6s cubic-bezier(.3, 1.4, .6, 1) backwards; transition: transform .25s cubic-bezier(.3, 1.5, .6, 1) }
+  .game:nth-child(2) { animation-delay: .1s } .game:nth-child(3) { animation-delay: .2s } .game:nth-child(4) { animation-delay: .3s }
+  @keyframes rise { from { opacity: 0; transform: translateY(34px) scale(.94) } }
+  .game:hover { transform: translateY(-6px) rotate(-1deg) }
+  .game:nth-child(even):hover { transform: translateY(-6px) rotate(1deg) }
+  .game:active { transform: translateY(3px) scale(.98) }
+  .stage { position: relative; height: 170px; overflow: hidden; background-color: var(--c); background-image: radial-gradient(rgba(255, 255, 255, .3) 2px, transparent 2.5px); background-size: 18px 18px; border-bottom: 4px solid var(--ink) }
+  .stage svg { position: absolute; inset: 0; width: 100%; height: 100% }
+  .body { display: flex; flex: 1; flex-direction: column; gap: 6px; padding: 14px 18px 18px }
+  .game h2 { margin: 0; font-size: 28px; font-weight: 700; line-height: 1.1 }
+  .game p { margin: 0; font-weight: 500; color: var(--soft) }
+  .meta { display: flex; align-items: center; gap: 8px; font-weight: 600 !important; color: var(--ink) !important }
+  .dot { width: 14px; height: 14px; flex: none; background: var(--c); border: 3px solid var(--ink); border-radius: 50% }
+  .play { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: auto; min-height: 56px; background: var(--c); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 5px 0 var(--ink); color: #fff; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; font-size: 24px; font-weight: 700 }
+  .play svg { width: 22px; height: 22px; overflow: visible }
+
+  /* The scenes inside the game cards */
+  .r-walk { animation: r-walk 4.6s ease-in-out infinite }
+  @keyframes r-walk {
+    0%, 8% { transform: translate(14px, 8px); opacity: 1 }
+    28% { transform: translate(84px, 8px) }
+    48% { transform: translate(84px, 60px) }
+    70%, 88% { transform: translate(110px, 60px); opacity: 1 }
+    93% { transform: translate(110px, 60px); opacity: 0 }
+    94% { transform: translate(14px, 8px); opacity: 0 }
+    100% { transform: translate(14px, 8px); opacity: 1 }
+  }
+  .r-star { animation: r-star 4.6s ease-in-out infinite }
+  @keyframes r-star { 0%, 68%, 92%, 100% { transform: scale(1) rotate(0) } 76% { transform: scale(1.4) rotate(25deg) } 84% { transform: scale(.95) rotate(-8deg) } }
+  .n1 { animation: n-arc 2.6s infinite }
+  .n2 { animation: n-arc2 2.6s infinite; animation-delay: -1.3s }
+  @keyframes n-arc {
+    0% { transform: translate(30px, 130px) rotate(0); animation-timing-function: cubic-bezier(.2, .6, .4, 1) }
+    50% { transform: translate(64px, 18px) rotate(160deg); animation-timing-function: cubic-bezier(.6, 0, .8, .4) }
+    100% { transform: translate(98px, 130px) rotate(320deg) }
+  }
+  @keyframes n-arc2 {
+    0% { transform: translate(160px, 130px) rotate(0); animation-timing-function: cubic-bezier(.2, .6, .4, 1) }
+    50% { transform: translate(126px, 26px) rotate(-160deg); animation-timing-function: cubic-bezier(.6, 0, .8, .4) }
+    100% { transform: translate(92px, 130px) rotate(-320deg) }
+  }
+  .n-slash { stroke-dasharray: 140; animation: n-slash 2.6s infinite }
+  @keyframes n-slash { 0%, 44% { stroke-dashoffset: 140; opacity: 1 } 52% { stroke-dashoffset: 0; opacity: 1 } 70%, 100% { stroke-dashoffset: 0; opacity: 0 } }
+  .d-hop { animation: d-hop 1s ease-in-out infinite }
+  @keyframes d-hop { 0%, 60%, 100% { transform: translateY(0) } 30% { transform: translateY(-12px) } }
+  .d-arrow { animation: d-arrow 4s steps(1, end) infinite }
+  @keyframes d-arrow { 0% { transform: rotate(0) } 25% { transform: rotate(90deg) } 50% { transform: rotate(0) } 75% { transform: rotate(-90deg) } }
+  .c-flow { stroke-dasharray: 5 7; animation: c-flow .7s linear infinite }
+  @keyframes c-flow { to { stroke-dashoffset: -12 } }
+
+  /* For the teacher: one big sheet of paper with tape */
+  details { position: relative; max-width: 980px; margin: 46px auto 0; padding: 26px 24px 22px; background: #fff; border: 4px solid var(--ink); border-radius: 12px 12px 30px 12px; box-shadow: 0 8px 0 rgba(47, 42, 74, .28) }
+  details::before { content: ""; position: absolute; top: -16px; left: 50%; width: 110px; height: 30px; margin-left: -55px; background: var(--pink); opacity: .75; border: 2px solid rgba(47, 42, 74, .35); transform: rotate(-3deg) }
+  summary { display: flex; align-items: center; gap: 12px; font-size: clamp(26px, 6vw, 34px); font-weight: 700; cursor: pointer; list-style: none }
+  summary::-webkit-details-marker { display: none }
+  summary::after { content: "+"; display: grid; place-items: center; width: 40px; height: 40px; margin-left: auto; background: var(--yellow); border: 3px solid var(--ink); border-radius: 50%; font-size: 28px; line-height: 1; transition: transform .2s }
+  details[open] summary::after { transform: rotate(45deg) }
+  summary svg { width: 52px; height: 52px; flex: none }
+  details h3 { margin: 26px 0 10px; font-size: 24px; font-weight: 700 }
+  details ul { margin: 0; padding-left: 24px }
+  details li { margin-bottom: 8px }
+  details a { font-weight: 700 }
+  .levels { display: flex; flex-wrap: wrap; gap: 10px; padding: 0 !important; list-style: none }
+  .levels li { padding: 8px 16px; border: 3px solid var(--ink); border-radius: 999px; font-weight: 700 }
+  .materials { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 14px; padding: 0 !important; list-style: none }
+  .materials li { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 14px 16px; background: var(--c); border: 3px solid var(--ink); border-radius: 18px; line-height: 1.35 }
+  .materials b { display: flex; align-items: center; gap: 10px; font-size: 20px }
+  .materials b svg { width: 40px; height: 40px; flex: none }
+  .materials span { font-weight: 500 }
+  .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px }
+  .links a { padding: 3px 14px; background: #fff; border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink); text-decoration: none }
+  kbd { padding: 1px 8px; background: var(--sky2); border: 2px solid var(--ink); border-radius: 8px; font: inherit; font-weight: 700 }
+  footer { position: relative; z-index: 1; padding: 34px 16px 26px; text-align: center; font-weight: 600 }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important }
+  }
 </style>
 </head>
 <body>
 
+<div class="sky" aria-hidden="true">
+  <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+  <span class="bit b1">&lt;/&gt;</span><span class="bit b2">{ }</span><span class="bit b3">01</span><span class="bit b4">if</span>
+  <div class="hills"></div>
+</div>
+
+<div class="page">
 <header>
-  <svg viewBox="0 0 100 100"><use href="#bot"/></svg>
-  <h1>Jogos de Engenharia de Software</h1>
-  <p>Escolha um jogo e descubra como se faz um programa de computador!</p>
-  <div class="phone-qr">
-    <svg viewBox="0 0 41 41" shape-rendering="crispEdges"><use href="#menu-qr"/></svg>
-    <b>📱 Jogue no celular</b>
-    <span>medeiros08.github.io/Jogo-ES/escola</span>
+  <h1><span class="w1">Jogos</span> <span class="w2">de</span> <span class="w3">Engenharia</span> <span class="w2">de</span> <span class="w4">Software</span></h1>
+  <div class="hello">
+    <svg class="bot" id="bot" viewBox="0 0 100 100" role="button" tabindex="0" aria-label="Bit, o robô. Toque nele!">
+      <g class="bot-body">
+        <line x1="50" y1="8" x2="50" y2="22" stroke="#1d2a44" stroke-width="4"/>
+        <circle class="bot-light" cx="50" cy="8" r="6" fill="#ff4d4d"/>
+        <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+        <g class="g bot-eyes"><circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/><circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/></g>
+        <circle cx="27" cy="57" r="4" fill="#ff8fb0"/><circle cx="73" cy="57" r="4" fill="#ff8fb0"/>
+        <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+      </g>
+    </svg>
+    <button class="bubble" type="button" id="bubble">Oi! Eu sou o Bit. Escolha um jogo e descubra como se faz um programa de computador!</button>
+    <div class="phone-qr">
+      <svg viewBox="0 0 41 41" shape-rendering="crispEdges"><use href="#menu-qr"/></svg>
+      Jogue no celular
+      <span>medeiros08.github.io/Jogo-ES/escola</span>
+    </div>
   </div>
 </header>
 
 <main class="games">
-  <a class="game" href="robo/index.html">
-    <svg viewBox="0 0 100 100"><use href="#bot" x="0" y="10" width="62" height="62"/><use href="#star" x="50" y="40" width="48" height="48"/></svg>
-    <div>
+  <a class="game" href="robo/index.html" style="--c: var(--blue)">
+    <div class="stage" aria-hidden="true"><svg viewBox="0 0 200 120">
+      <path d="M37 31 H107 V83 H133" stroke="#fff" stroke-width="5" stroke-dasharray="1 10" stroke-linecap="round" fill="none" opacity=".85"/>
+      <g class="g r-star"><use href="#star" x="134" y="58" width="48" height="48"/></g>
+      <g class="r-walk"><use href="#bot" width="46" height="46"/></g></svg></div>
+    <div class="body">
       <h2>Robô pega a estrela</h2>
       <p>Monte as setas e leve o robô até a estrela.</p>
-      <div class="tags"><span class="age">🎂 a partir de 6 anos</span><span class="topic">🧩 Algoritmo</span></div>
+      <p class="meta"><span class="dot"></span>A partir de 6 anos · Algoritmo</p>
+      <span class="play"><svg viewBox="0 0 24 24"><path d="M7 4.5 L19.5 12 L7 19.5 Z" fill="#fff" stroke="#2f2a4a" stroke-width="2.5" stroke-linejoin="round"/></svg>Jogar</span>
     </div>
   </a>
-  <a class="game" href="ninja/index.html">
-    <svg viewBox="0 0 100 100"><use href="#bug" x="12" y="12" width="76" height="76"/><line x1="10" y1="88" x2="90" y2="12" stroke="#4da3ff" stroke-width="12" stroke-linecap="round"/><line x1="10" y1="88" x2="90" y2="12" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg>
-    <div>
+  <a class="game" href="ninja/index.html" style="--c: var(--pink)">
+    <div class="stage" aria-hidden="true"><svg viewBox="0 0 200 120">
+      <g class="g n1"><use href="#bug" width="42" height="42"/></g>
+      <g class="g n2"><use href="#bug" width="34" height="34"/></g>
+      <path class="n-slash" d="M34 78 L140 -7" stroke="#fff" stroke-width="7" stroke-linecap="round"/></svg></div>
+    <div class="body">
       <h2>Ninja dos Bugs</h2>
       <p>Deslize o dedo para cortar os bugs, sem cortar o robô.</p>
-      <div class="tags"><span class="age">🎂 a partir de 6 anos</span><span class="topic">🐛 Depuração</span></div>
+      <p class="meta"><span class="dot"></span>A partir de 6 anos · Depuração</p>
+      <span class="play"><svg viewBox="0 0 24 24"><path d="M7 4.5 L19.5 12 L7 19.5 Z" fill="#fff" stroke="#2f2a4a" stroke-width="2.5" stroke-linejoin="round"/></svg>Jogar</span>
     </div>
   </a>
-  <a class="game" href="dupla/index.html">
-    <svg viewBox="0 0 100 100"><use href="#bot" x="0" y="20" width="56" height="56"/><use href="#bot" x="44" y="20" width="56" height="56"/></svg>
-    <div>
+  <a class="game" href="dupla/index.html" style="--c: var(--mint)">
+    <div class="stage" aria-hidden="true"><svg viewBox="0 0 200 120">
+      <g class="g d-hop"><use href="#bot" x="20" y="58" width="58" height="58"/></g>
+      <use href="#bot" x="120" y="58" width="58" height="58"/>
+      <rect x="92" y="4" width="76" height="44" rx="12" fill="#fff" stroke="#1d2a44" stroke-width="4"/>
+      <path d="M138 46 L150 62 L154 46" fill="#fff" stroke="#1d2a44" stroke-width="4" stroke-linejoin="round"/>
+      <rect x="137" y="40" width="19" height="6" fill="#fff"/>
+      <g class="g d-arrow"><path d="M119 26 H141 M133 18 L141 26 L133 34" stroke="#1d2a44" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g></svg></div>
+    <div class="body">
       <h2>Programação em Dupla</h2>
       <p>Um pilota o robô e o outro, que vê os bugs escondidos, mostra o caminho.</p>
-      <div class="tags"><span class="age">🎂 a partir de 7 anos</span><span class="topic">🤝 Trabalho em equipe</span></div>
+      <p class="meta"><span class="dot"></span>A partir de 7 anos · Trabalho em equipe</p>
+      <span class="play"><svg viewBox="0 0 24 24"><path d="M7 4.5 L19.5 12 L7 19.5 Z" fill="#fff" stroke="#2f2a4a" stroke-width="2.5" stroke-linejoin="round"/></svg>Jogar</span>
     </div>
   </a>
-  <a class="game" href="conecta/index.html">
-    <svg viewBox="0 0 100 100"><use href="#cellphone" x="0" y="22" width="40" height="56"/><use href="#server" x="30" y="14" width="44" height="72"/><use href="#database" x="62" y="26" width="38" height="48"/></svg>
-    <div>
+  <a class="game" href="conecta/index.html" style="--c: var(--orange)">
+    <div class="stage" aria-hidden="true"><svg viewBox="0 0 200 120">
+      <path d="M36 70 H86 M114 70 H162" stroke="#1d2a44" stroke-width="10" stroke-linecap="round"/>
+      <path class="c-flow" d="M162 70 H114 M86 70 H36" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+      <rect x="-8" y="-7" width="16" height="13" rx="3" fill="#8cc4ff" stroke="#1d2a44" stroke-width="3"><animateMotion dur="2.6s" repeatCount="indefinite" path="M172 70 H24"/></rect>
+      <use href="#cellphone" x="2" y="34" width="46" height="70"/>
+      <use href="#server" x="72" y="20" width="56" height="88"/>
+      <use href="#database" x="146" y="40" width="50" height="58"/></svg></div>
+    <div class="body">
       <h2>Conecta o Sistema</h2>
       <p>Ligue os cabos e faça a foto chegar do banco de dados até o celular.</p>
-      <div class="tags"><span class="age">🎂 a partir de 8 anos</span><span class="topic">🖥️ Sistemas</span></div>
+      <p class="meta"><span class="dot"></span>A partir de 8 anos · Sistemas</p>
+      <span class="play"><svg viewBox="0 0 24 24"><path d="M7 4.5 L19.5 12 L7 19.5 Z" fill="#fff" stroke="#2f2a4a" stroke-width="2.5" stroke-linejoin="round"/></svg>Jogar</span>
     </div>
   </a>
 </main>
 
 <details>
-  <summary>👩‍🏫 Para o professor</summary>
+  <summary><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#bot" x="6" y="14" width="52" height="52"/><path d="M8 19 L32 9 L56 19 L32 29 Z" fill="#2f2a4a"/><path d="M19 23 V31 Q32 37 45 31 V23" fill="#2f2a4a"/><path d="M50 21 V34" stroke="#ffd23f" stroke-width="3" stroke-linecap="round"/><circle cx="50" cy="35" r="3.5" fill="#ffd23f"/></svg>Para o professor</summary>
 
   <h3>Materiais para a aula</h3>
   <ul class="materials">
-    <li><b>🗺️ Roteiro da aula</b>Passo a passo de 45 a 50 minutos, por idade, com cartões de seta e respostas.<br><a href="roteiro.pdf">PDF</a><a href="roteiro.html">ver na tela</a></li>
-    <li><b>🖥️ Slides</b>10 telas para o projetor, da abertura ao curso. Passe com as setas, F para tela cheia.<br><a href="slides.html">abrir os slides</a></li>
-    <li><b>✏️ Folha de atividades</b>Labirinto, ache o bug, caça-palavras e invente um app. Três folhas por criança.<br><a href="atividades.pdf">PDF</a><a href="atividades.html">ver na tela</a></li>
-    <li><b>🧭 Mapas do navegador</b>As 15 fases da Programação em Dupla, para jogar sem celular.<br><a href="mapas-dupla.pdf">PDF</a><a href="mapas-dupla.html">ver na tela</a></li>
-    <li><b>🏅 Certificado</b>Um por criança, com os nomes da turma, impresso ou em PDF.<br><a href="certificado.html">preencher</a><a href="certificado.pdf">em branco</a></li>
+    <li style="--c: #fff1a8"><b><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M6 14 L22 8 L42 14 L58 8 V50 L42 56 L22 50 L6 56 Z" fill="#fff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><path d="M12 46 Q20 30 29 37 T47 22" stroke="#ff5f8f" stroke-width="4" stroke-dasharray="1 7" stroke-linecap="round" fill="none"/><path d="M45 15 l8 8 m0 -8 l-8 8" stroke="#ff5f8f" stroke-width="4" stroke-linecap="round"/></svg>Roteiro da aula</b><span>Passo a passo de 45 a 50 minutos, por idade, com cartões de seta e respostas.</span><span class="links"><a href="roteiro.pdf">PDF</a><a href="roteiro.html">Ver na tela</a></span></li>
+    <li style="--c: #cfe6ff"><b><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="6" y="8" width="52" height="36" rx="5" fill="#fff" stroke="#2f2a4a" stroke-width="4"/><rect x="14" y="16" width="22" height="6" rx="3" fill="#ff5f8f"/><rect x="14" y="26" width="34" height="5" rx="2.5" fill="#4da3ff"/><rect x="14" y="34" width="26" height="5" rx="2.5" fill="#4fd6a6"/><path d="M32 44 V54 M21 59 L32 52 L43 59" stroke="#2f2a4a" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Slides</b><span>Dez telas para o projetor, da abertura ao curso. Passe com as setas e use F para tela cheia.</span><span class="links"><a href="slides.html">Abrir os slides</a></span></li>
+    <li style="--c: #c9f5e3"><b><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="6" width="38" height="52" rx="5" fill="#fff" stroke="#2f2a4a" stroke-width="4"/><path d="M16 19 H38 M16 28 H38 M16 37 H30" stroke="#8cc4ff" stroke-width="4" stroke-linecap="round"/><g transform="rotate(32 48 36)"><rect x="43" y="14" width="11" height="34" rx="2" fill="#ffd23f" stroke="#2f2a4a" stroke-width="3"/><path d="M43 48 L48.5 59 L54 48 Z" fill="#ffe1b0" stroke="#2f2a4a" stroke-width="3" stroke-linejoin="round"/></g></svg>Folha de atividades</b><span>Labirinto, ache o bug, caça-palavras e invente um app. Três folhas por criança.</span><span class="links"><a href="atividades.pdf">PDF</a><a href="atividades.html">Ver na tela</a></span></li>
+    <li style="--c: #ffdcc4"><b><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="6" y="6" width="52" height="52" rx="7" fill="#fff" stroke="#2f2a4a" stroke-width="4"/><path d="M23.3 6 V58 M40.6 6 V58 M6 23.3 H58 M6 40.6 H58" stroke="#b9d3ee" stroke-width="3"/><path d="M15 49 V32 H32 V15 H46" stroke="#4da3ff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M41 9 L48 15 L41 21" stroke="#4da3ff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Mapas do navegador</b><span>As 15 fases da Programação em Dupla, para jogar sem celular.</span><span class="links"><a href="mapas-dupla.pdf">PDF</a><a href="mapas-dupla.html">Ver na tela</a></span></li>
+    <li style="--c: #ffd6e3"><b><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M22 4 L30 26 M42 4 L34 26" stroke="#4da3ff" stroke-width="9"/><circle cx="32" cy="40" r="18" fill="#ffd23f" stroke="#2f2a4a" stroke-width="4"/><use href="#star" x="22" y="30" width="20" height="20"/></svg>Certificado</b><span>Um por criança, com os nomes da turma, impresso ou em PDF.</span><span class="links"><a href="certificado.html">Preencher</a><a href="certificado.pdf">Em branco</a></span></li>
   </ul>
 
   <h3>Qual nível escolher</h3>
   <p>Os jogos Ninja dos Bugs, Programação em Dupla e Conecta o Sistema têm três níveis. Uma sugestão pela idade:</p>
   <ul class="levels">
-    <li>🌱 Fácil: 6 a 8 anos</li>
-    <li>⚡ Normal: 9 a 11 anos</li>
-    <li>🔥 Desafio: 12 a 14 anos</li>
+    <li style="background: var(--mint)">Fácil: 6 a 8 anos</li>
+    <li style="background: var(--yellow)">Normal: 9 a 11 anos</li>
+    <li style="background: var(--orange)">Desafio: 12 a 14 anos</li>
   </ul>
 
   <h3>Como jogar com a turma</h3>
   <ul>
     <li><b>No projetor:</b> abra este menu no notebook e as crianças se revezam no teclado ou no mouse. Todos os jogos funcionam sem internet.</li>
-    <li><b>No celular:</b> se houver internet, mostre este menu no projetor e peça para as crianças escanearem o QR code do topo. Cada uma escolhe o jogo no próprio celular. Dentro dos jogos, a tecla Q também mostra um QR code em tela cheia.</li>
+    <li><b>No celular:</b> se houver internet, mostre este menu no projetor e peça para as crianças escanearem o QR code do topo. Cada uma escolhe o jogo no próprio celular. Dentro dos jogos, a tecla <kbd>Q</kbd> também mostra um QR code em tela cheia.</li>
     <li><b>Programação em Dupla sem celular:</b> imprima os <a href="mapas-dupla.pdf">mapas do navegador</a>, que são 8 folhas A4 com as 15 fases. Uma criança ou um grupo segura o mapa da fase e guia quem está no teclado. Os mapas também podem ser vistos <a href="mapas-dupla.html">na tela</a>.</li>
   </ul>
 
-  <h3>🏅 Certificado de Programador(a) Mirim</h3>
+  <h3>Certificado de Programador(a) Mirim</h3>
   <p>No fim da apresentação, cada criança pode levar um certificado para casa. Abra a <a href="certificado.html">página do certificado</a>, escreva os nomes da turma, um por linha, e imprima. Sai um certificado por criança, numa folha A4 deitada. Se preferir preencher à mão, imprima o <a href="certificado.pdf">certificado em branco</a>.</p>
 
   <h3>O que cada jogo ensina</h3>
@@ -164,15 +281,16 @@
 
   <h3>Teclas úteis no projetor</h3>
   <ul>
-    <li><b>Enter</b> ou <b>Espaço</b> avança, <b>M</b> liga e desliga o som e <b>Q</b> mostra o QR code em tela cheia.</li>
-    <li>No Robô pega a estrela e na Programação em Dupla, as setas do teclado montam o caminho e <b>Backspace</b> apaga um passo.</li>
-    <li><b>F11</b> deixa o navegador em tela cheia.</li>
+    <li><kbd>Enter</kbd> ou <kbd>Espaço</kbd> avança, <kbd>M</kbd> liga e desliga o som e <kbd>Q</kbd> mostra o QR code em tela cheia.</li>
+    <li>No Robô pega a estrela e na Programação em Dupla, as setas do teclado montam o caminho e <kbd>Backspace</kbd> apaga um passo.</li>
+    <li><kbd>F11</kbd> deixa o navegador em tela cheia.</li>
   </ul>
 </details>
+</div>
 
 <footer>Feito para divulgar o curso de Engenharia de Software da UNIPAMPA, no Campus Alegrete.</footer>
 
-<svg width="0" height="0" style="position:absolute">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <!-- qr-menu --><symbol id="menu-qr" viewBox="0 0 41 41"><rect width="41" height="41" fill="#fff"/><path stroke="#000" d="M4 4.5h7m2 0h1m2 0h1m1 0h2m10 0h7m-33 1h1m5 0h1m1 0h3m2 0h2m1 0h2m2 0h3m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h1m2 0h3m5 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h3m2 0h1m3 0h1m3 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m5 0h2m1 0h1m2 0h1m2 0h1m2 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m3 0h1m2 0h1m2 0h1m3 0h2m4 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h3m5 0h1m4 0h1m-24 1h1m5 0h1m1 0h3m2 0h3m1 0h1m4 0h5m2 0h3m-32 1h1m1 0h1m1 0h1m2 0h1m1 0h4m1 0h3m1 0h2m2 0h2m4 0h3m-31 1h1m2 0h1m1 0h2m5 0h1m2 0h2m1 0h1m1 0h2m6 0h1m1 0h1m-31 1h2m5 0h4m3 0h3m2 0h2m1 0h1m2 0h8m-27 1h2m3 0h4m1 0h9m1 0h1m-27 1h1m4 0h1m5 0h2m1 0h1m1 0h2m2 0h5m1 0h2m1 0h1m1 0h2m-33 1h1m2 0h4m1 0h4m1 0h1m4 0h2m2 0h1m2 0h2m2 0h3m-31 1h3m1 0h1m2 0h1m2 0h3m1 0h1m2 0h2m4 0h2m1 0h4m1 0h1m-33 1h2m1 0h1m2 0h1m2 0h2m6 0h1m1 0h1m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m-33 1h4m1 0h1m1 0h2m1 0h1m1 0h1m1 0h4m1 0h5m2 0h1m2 0h2m1 0h1m-33 1h2m2 0h3m2 0h1m2 0h1m1 0h2m3 0h2m2 0h5m1 0h2m1 0h1m-25 1h1m1 0h4m3 0h5m3 0h2m1 0h5m-33 1h1m1 0h2m1 0h2m1 0h1m1 0h5m1 0h1m2 0h4m1 0h2m1 0h3m1 0h1m-32 1h2m2 0h1m3 0h4m4 0h1m1 0h1m1 0h1m1 0h2m3 0h4m-31 1h1m1 0h1m1 0h1m1 0h4m3 0h1m1 0h2m3 0h1m3 0h3m1 0h4m-32 1h1m2 0h2m2 0h1m1 0h2m1 0h1m1 0h1m7 0h1m2 0h1m1 0h4m-31 1h3m3 0h1m1 0h1m1 0h1m3 0h3m2 0h2m1 0h1m1 0h5m1 0h1m-23 1h1m1 0h1m1 0h2m1 0h2m1 0h2m2 0h1m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m3 0h6m2 0h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m3 0h2m1 0h3m4 0h1m2 0h2m3 0h4m-32 1h1m1 0h3m1 0h1m2 0h1m3 0h2m3 0h2m1 0h1m2 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m2 0h1m6 0h1m3 0h1m1 0h4m1 0h2m1 0h1m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h2m1 0h2m2 0h2m-33 1h1m5 0h1m5 0h5m1 0h3m4 0h4m1 0h1m-31 1h7m1 0h2m3 0h1m3 0h4m2 0h5m3 0h1"/></symbol><!-- /qr-menu -->
   <symbol id="bot" viewBox="0 0 100 100">
     <line x1="50" y1="8" x2="50" y2="22" stroke="#1d2a44" stroke-width="4"/>
@@ -217,5 +335,29 @@
     <ellipse cx="50" cy="22" rx="30" ry="12" fill="#ffe88a" stroke="#1d2a44" stroke-width="5"/>
   </symbol>
 </svg>
+
+<script>
+  // Bit says something new every time a child taps him
+  const LINES = [
+    "Oi! Eu sou o Bit. Escolha um jogo e descubra como se faz um programa de computador!",
+    "No Robô pega a estrela, a ordem das setas é o seu programa.",
+    "Bug é um erro no programa. Corte os bugs, mas cuidado com o robô!",
+    "Jogue em dupla: um pilota e o outro mostra o caminho. Depois troquem!",
+    "Sabia que o celular conversa com um servidor para buscar suas fotos?",
+  ]
+  let line = 0
+  function talk() {
+    line = (line + 1) % LINES.length
+    const bubble = document.getElementById("bubble"), bot = document.getElementById("bot")
+    bubble.textContent = LINES[line]
+    bubble.classList.remove("pop")
+    bot.classList.remove("jump")
+    void bubble.offsetWidth
+    bubble.classList.add("pop")
+    bot.classList.add("jump")
+  }
+  document.getElementById("bot").onclick = document.getElementById("bubble").onclick = talk
+  document.getElementById("bot").onkeydown = event => (event.key === "Enter" || event.key === " ") && talk()
+</script>
 </body>
 </html>

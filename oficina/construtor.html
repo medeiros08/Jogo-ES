@@ -2,85 +2,119 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Construtor de prompts</title>
 <meta name="description" content="Monte em um minuto um bom pedido para o Gemini criar atividades, jogos, histórias e planos de aula para a sua turma.">
+<meta name="theme-color" content="#5fbcff">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='20' width='72' height='60' rx='16' fill='%234da3ff' stroke='%231d2a44' stroke-width='6'/><circle cx='36' cy='48' r='9' fill='%23fff'/><circle cx='64' cy='48' r='9' fill='%23fff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --sky: #e8f4ff;
-    --ink: #1d2a44;
-    --cell-line: #b9d3ee;
-    --key: #ffd84d;
-    --play: #3cc26b;
-    --erase: #ff9a3c;
-    --bad: #ff4d4d;
-    --now: #4da3ff;
+    --sky1: #5fbcff; --sky2: #cdeeff; --hill: #8ddf6a; --hill2: #6cc653;
+    --ink: #2f2a4a; --soft: #5d5880; --line: #cfcbe6;
+    --blue: #4da3ff; --pink: #ff5f8f; --mint: #4fd6a6; --orange: #ff8a3d; --purple: #8c73ff; --yellow: #ffd23f;
+    --font: "Fredoka", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
 
     /* One colour per part of the prompt, the same in the legend, the labels and the result */
     --role: #4da3ff;
-    --task: #3cc26b;
-    --context: #ffd84d;
-    --format: #ff9a3c;
+    --task: #4fd6a6;
+    --context: #ffd23f;
+    --format: #ff8a3d;
   }
-  * { box-sizing: border-box }
-  body { margin: 0; padding: 24px 16px 48px; background: var(--sky); color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 16px; line-height: 1.45 }
-  a { color: var(--ink); font-weight: 800 }
-  header { max-width: 1180px; margin: 0 auto 22px; display: flex; gap: 18px; align-items: center; flex-wrap: wrap }
-  header svg { width: 88px; height: 88px; flex: none }
-  h1 { margin: 0; font-size: min(40px, 8vw); font-weight: 900; line-height: 1.05 }
-  header p { margin: 6px 0 10px; font-size: 18px; font-weight: 700 }
-  .back { display: inline-block; margin-bottom: 6px; font-size: 15px; text-decoration: none }
-  .parts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none }
-  .parts li { padding: 4px 12px; border-radius: 999px; font-size: 15px; font-weight: 800 }
-  .role { background: var(--role); color: #fff }
-  .task { background: var(--task); color: #fff }
-  .context { background: var(--context) }
-  .format { background: var(--format); color: #fff }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent }
+  [hidden] { display: none !important }
+  body { margin: 0; min-height: 100vh; background: var(--sky2); color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.45 }
+  a { color: var(--ink); font-weight: 600 }
+  .g { transform-box: fill-box; transform-origin: center }
 
-  .layout { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; align-items: start }
-  .card { padding: 20px 22px; background: #fff; border: 4px solid var(--ink); border-radius: 24px }
-  .card + .card { margin-top: 18px }
-  h2 { margin: 0 0 12px; font-size: 22px; font-weight: 900 }
-  h2 .number { display: inline-grid; place-items: center; width: 34px; height: 34px; margin-right: 8px; background: var(--ink); color: #fff; border-radius: 50%; font-size: 18px }
-  label { display: block; margin-bottom: 12px; font-weight: 800 }
-  label small { font-weight: 600 }
-  select, input[type=text], textarea { display: block; width: 100%; margin-top: 6px; padding: 10px 12px; border: 3px solid var(--cell-line); border-radius: 12px; background: #fff; font: 600 17px system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink) }
-  select:focus, input:focus, textarea:focus { outline: none; border-color: var(--now) }
-  textarea { min-height: 70px; resize: vertical }
-  .kinds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px }
-  .kinds button { padding: 12px 8px; border: 3px solid var(--cell-line); border-radius: 18px; background: #fff; font: 800 15px system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px }
-  .kinds button span { font-size: 34px; line-height: 1 }
-  .kinds button.chosen { border-color: var(--ink); background: var(--key); box-shadow: 0 4px 0 #b8941a }
-  .checks { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 6px 0 12px }
-  .checks label { margin: 0; display: flex; gap: 6px; align-items: center; font-weight: 700 }
-  .checks input, .ask input { width: 20px; height: 20px; accent-color: var(--now) }
-  .ask { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; background: var(--sky); border-radius: 14px; font-weight: 700 }
-  .privacy { margin-top: 14px; padding: 12px 14px; background: #fff3f3; border: 3px solid var(--bad); border-radius: 14px; font-weight: 700 }
+  /* The scenery behind everything: sky, drifting clouds and two hills */
+  .sky { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 78%) }
+  .cloud { position: absolute; background: #fff; border-radius: 999px; opacity: .92; animation: drift 46s linear infinite }
+  .cloud::before, .cloud::after { content: ""; position: absolute; background: #fff; border-radius: 50% }
+  .cloud::before { width: 55%; height: 160%; left: 15%; bottom: 20% }
+  .cloud::after { width: 40%; height: 130%; right: 12%; bottom: 25% }
+  .c1 { width: 130px; height: 36px; top: 9%; animation-delay: -8s }
+  .c2 { width: 92px; height: 26px; top: 40%; animation-duration: 60s; animation-delay: -30s }
+  @keyframes drift { from { transform: translateX(-30vw) } to { transform: translateX(130vw) } }
+  .hills { position: absolute; left: 0; right: 0; bottom: 0; height: 17vh }
+  .hills::before, .hills::after { content: ""; position: absolute; bottom: -40%; border-radius: 50% }
+  .hills::before { left: -20%; width: 90%; height: 140%; background: var(--hill) }
+  .hills::after { right: -25%; width: 95%; height: 120%; background: var(--hill2) }
+  .page { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: max(18px, env(safe-area-inset-top)) 16px 48px }
+
+  /* Top: back link, title, Bit and the four colours */
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; margin-bottom: 26px }
+  .back { display: inline-flex; align-items: center; gap: 4px; margin-bottom: 10px; padding: 3px 14px 3px 8px; background: #fff; border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink); font-size: 15px; text-decoration: none }
+  .back svg { width: 18px; height: 18px }
+  h1 { margin: 0; font-size: clamp(40px, 9vw, 64px); font-weight: 700; line-height: 1.02; color: #fff; -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; text-shadow: 0 5px 0 var(--ink) }
+  h1 span { display: inline-block; animation: hop 3.4s ease-in-out infinite }
+  h1 .w1 { color: var(--yellow) } h1 .w2 { animation-delay: .2s } h1 .w3 { color: var(--pink); animation-delay: .4s }
+  @keyframes hop { 0%, 78%, 100% { transform: translateY(0) } 86% { transform: translateY(-9px) rotate(-3deg) } 93% { transform: translateY(0) rotate(1deg) } }
+  header p { margin: 12px 0 14px; font-size: 19px; font-weight: 600 }
+  .bot { width: 104px; flex: none; overflow: visible }
+  .bot-body { animation: bob 2.6s ease-in-out infinite }
+  @keyframes bob { 50% { transform: translateY(-5px) } }
+  .bot-eyes { animation: blink 4.2s infinite }
+  @keyframes blink { 0%, 91%, 97%, 100% { transform: scaleY(1) } 94% { transform: scaleY(.1) } }
+  .parts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none }
+  .parts li, .part b { display: inline-flex; align-items: center; gap: 6px; padding: 2px 12px 2px 3px; background: var(--c); border: 3px solid var(--ink); border-radius: 999px; font-weight: 600 }
+  .parts i, .part b i { display: grid; place-items: center; width: 24px; height: 24px; background: #fff; border: 2px solid var(--ink); border-radius: 50%; font-style: normal; font-weight: 700; font-size: 14px }
+  .role { --c: var(--role) } .task { --c: var(--task) } .context { --c: var(--context) } .format { --c: var(--format) }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start }
+  .card { padding: 20px 22px; background: #fff; border: 4px solid var(--ink); border-radius: 26px; box-shadow: 0 7px 0 rgba(47, 42, 74, .25) }
+  .card + .card { margin-top: 22px }
+  h2 { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; font-size: 26px; font-weight: 700; line-height: 1.15 }
+  h2 small { font-size: 16px; font-weight: 500 }
+  h2 .number { display: grid; place-items: center; width: 46px; height: 46px; flex: none; background: var(--c); border: 3px solid var(--ink); border-radius: 50%; box-shadow: 0 3px 0 var(--ink); color: #fff; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; font-size: 26px }
+  h2 svg { width: 42px; height: 42px; flex: none; overflow: visible }
+  label { display: block; margin-bottom: 14px; font-weight: 600 }
+  label small { font-weight: 500 }
+  select, input[type=text], textarea { display: block; width: 100%; margin-top: 6px; padding: 10px 14px; border: 3px solid var(--line); border-radius: 14px; background: #fff; font: 500 17px var(--font); color: var(--ink) }
+  select:focus, input:focus, textarea:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 4px rgba(77, 163, 255, .35) }
+  textarea { min-height: 72px; resize: vertical }
+  .kinds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px }
+  .kinds button { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 8px 10px; background: #fff; border: 3px solid var(--line); border-radius: 20px; font: 600 15px var(--font); color: var(--ink); line-height: 1.2; cursor: pointer; transition: transform .2s cubic-bezier(.3, 1.5, .6, 1) }
+  .kinds button:hover { transform: translateY(-3px) rotate(-2deg); border-color: var(--ink) }
+  .kinds svg { width: 52px; height: 52px; overflow: visible }
+  .kinds button.chosen { background: var(--yellow); border-color: var(--ink); box-shadow: 0 5px 0 var(--ink); transform: translateY(-3px) }
+  .kinds button.chosen svg { animation: wiggle .6s ease-in-out }
+  @keyframes wiggle { 25% { transform: rotate(-10deg) scale(1.1) } 75% { transform: rotate(8deg) scale(1.1) } }
+  .needs-title { display: block; margin-bottom: 4px; font-weight: 600 }
+  .checks { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 14px }
+  .checks label { display: flex; align-items: center; gap: 8px; margin: 0; padding: 5px 12px; background: var(--sky2); border: 2px solid transparent; border-radius: 999px; font-weight: 500; cursor: pointer }
+  .checks label:has(input:checked) { background: var(--yellow); border-color: var(--ink) }
+  .checks input, .ask input { width: 20px; height: 20px; accent-color: var(--ink) }
+  .ask { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; background: var(--sky2); border-radius: 16px; font-weight: 600; cursor: pointer }
+  .privacy { display: flex; align-items: center; gap: 12px; margin-top: 14px; padding: 12px 14px; background: #ffd6e3; border: 3px solid var(--ink); border-radius: 16px; font-weight: 600 }
+  .privacy svg { width: 36px; height: 36px; flex: none }
 
   /* The result stays in view on a computer while the teacher changes the choices */
   .result { position: sticky; top: 16px }
-  .prompt { max-height: 62vh; overflow: auto; padding: 4px 2px }
-  .part { margin-bottom: 12px; padding: 10px 14px; border-left: 8px solid; border-radius: 10px; background: #fafcff }
-  .part.role-part { border-color: var(--role) }
-  .part.task-part { border-color: var(--task) }
-  .part.context-part { border-color: var(--context) }
-  .part.format-part { border-color: var(--format) }
-  .part b { display: inline-block; margin-bottom: 4px; padding: 1px 10px; border-radius: 999px; font-size: 14px }
+  .prompt { max-height: 60vh; overflow: auto; padding: 4px 2px }
+  .part { margin-bottom: 12px; padding: 10px 14px 12px; border: 3px solid var(--c); border-left-width: 10px; border-radius: 14px; background: #fff }
+  .part.role-part { --c: var(--role) } .part.task-part { --c: var(--task) } .part.context-part { --c: var(--context) } .part.format-part { --c: var(--format) } .part.ask-part { --c: var(--purple) }
+  .part b { margin-bottom: 6px; font-size: 15px }
   .part ul { margin: 4px 0 0; padding-left: 20px }
   .part p { margin: 0 }
-  .empty { padding: 26px 10px; text-align: center; font-weight: 700; color: #4a5a78 }
-  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 6px }
-  .actions button, .actions a { border: none; border-radius: 16px; padding: 12px 22px; font: 900 19px system-ui, -apple-system, "Segoe UI", sans-serif; text-decoration: none; cursor: pointer }
-  #copy { background: var(--play); color: #fff; box-shadow: 0 5px 0 #1f7a41 }
-  #open { background: var(--now); color: #fff; box-shadow: 0 5px 0 #2f7fd6 }
-  .actions button:active, .actions a:active { transform: translateY(3px) }
-  #copied { align-self: center; font-weight: 800; color: #1f7a41 }
-  .tip { margin-top: 10px; padding: 12px 14px; background: var(--key); border-radius: 14px; font-weight: 700 }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 16px 0 8px }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 54px; padding: 8px 22px; background: var(--c); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 5px 0 var(--ink); color: #fff; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; font: 700 21px var(--font); text-decoration: none; cursor: pointer; transition: transform .1s, box-shadow .1s }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--ink) }
+  .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink) }
+  .btn svg { width: 22px; height: 22px; overflow: visible }
+  #copy { --c: var(--mint) }
+  #open { --c: var(--blue) }
+  #copied { font-weight: 700; color: #1f8a60 }
+  .tip { margin-top: 10px; padding: 12px 14px; background: #fff1a8; border: 3px dashed var(--ink); border-radius: 16px; font-weight: 500 }
   .next { margin: 0; padding: 0; list-style: none }
-  .next li { display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; padding: 10px 0; border-top: 2px dashed var(--cell-line) }
+  .next li { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 0; border-top: 3px dashed var(--line); font-weight: 500 }
   .next li:first-child { border-top: none }
-  .next button { flex: none; border: 2px solid var(--ink); border-radius: 10px; padding: 4px 10px; background: #fff; font-weight: 800; cursor: pointer }
+  .next button { flex: none; padding: 4px 14px; background: #fff; border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink); font: 600 15px var(--font); color: var(--ink); cursor: pointer }
+  .next button:active { transform: translateY(3px); box-shadow: none }
+  .spin { animation: spin 7s linear infinite }
+  @keyframes spin { to { transform: rotate(360deg) } }
 
   @media (max-width: 860px) {
     .layout { grid-template-columns: 1fr }
@@ -89,30 +123,48 @@
   }
   @media (max-width: 480px) {
     .kinds { grid-template-columns: repeat(2, 1fr) }
+    .bot { width: 80px }
+    .btn { font-size: 19px; padding: 8px 16px }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important }
   }
 </style>
 </head>
 <body>
 
+<div class="sky" aria-hidden="true"><div class="cloud c1"></div><div class="cloud c2"></div><div class="hills"></div></div>
+
+<div class="page">
 <header>
-  <svg viewBox="0 0 100 100"><use href="#bot"/></svg>
+  <svg class="bot" viewBox="0 0 100 100" aria-hidden="true">
+    <g class="bot-body">
+      <line x1="50" y1="8" x2="50" y2="22" stroke="#1d2a44" stroke-width="4"/>
+      <circle cx="50" cy="8" r="6" fill="#ff4d4d"/>
+      <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+      <g class="g bot-eyes"><circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/><circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/></g>
+      <circle cx="27" cy="57" r="4" fill="#ff8fb0"/><circle cx="73" cy="57" r="4" fill="#ff8fb0"/>
+      <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+    </g>
+  </svg>
   <div>
-    <a class="back" href="index.html">← Oficina de Prompts</a>
-    <h1>Construtor de prompts</h1>
+    <a class="back" href="index.html"><svg viewBox="0 0 24 24"><path d="M15 4.5 L7.5 12 L15 19.5" fill="none" stroke="#2f2a4a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Oficina de Prompts</a>
+    <h1><span class="w1">Construtor</span> <span class="w2">de</span> <span class="w3">prompts</span></h1>
     <p>Monte em um minuto um bom pedido para o Gemini criar material para a sua turma.</p>
-    <ul class="parts"><li class="role">👤 Papel</li><li class="task">🎯 Tarefa</li><li class="context">🧭 Contexto</li><li class="format">📐 Formato</li></ul>
+    <ul class="parts"><li class="role"><i>P</i>Papel</li><li class="task"><i>T</i>Tarefa</li><li class="context"><i>C</i>Contexto</li><li class="format"><i>F</i>Formato</li></ul>
   </div>
 </header>
 
 <div class="layout">
   <form id="form" autocomplete="off">
     <section class="card">
-      <h2><span class="number">1</span>O que você quer criar?</h2>
+      <h2><span class="number" style="--c: var(--blue)">1</span>O que você quer criar?</h2>
       <div class="kinds" id="kinds"></div>
     </section>
 
     <section class="card">
-      <h2><span class="number">2</span>Para quem?</h2>
+      <h2><span class="number" style="--c: var(--pink)">2</span>Para quem?</h2>
       <label>Turma
         <select id="stage"></select>
       </label>
@@ -122,7 +174,7 @@
     </section>
 
     <section class="card">
-      <h2><span class="number">3</span>Sobre o quê?</h2>
+      <h2><span class="number" style="--c: var(--mint)">3</span>Sobre o quê?</h2>
       <label>Tema
         <input type="text" id="topic" placeholder="Por exemplo: animais do Pampa, frações, o ciclo da água">
       </label>
@@ -135,7 +187,7 @@
     </section>
 
     <section class="card">
-      <h2><span class="number">4</span>Detalhes <small style="font-size: 16px">(opcional)</small></h2>
+      <h2><span class="number" style="--c: var(--orange)">4</span>Detalhes <small>(opcional)</small></h2>
       <label>Tempo
         <select id="time">
           <option value="">Sem tempo definido</option>
@@ -152,46 +204,35 @@
           <option value="no celular das crianças e também no projetor">Nos dois</option>
         </select>
       </label>
-      <b>Na turma há crianças com:</b>
+      <span class="needs-title">Na turma há crianças com:</span>
       <div class="checks" id="needs"></div>
       <label>Algo mais que o Gemini precisa saber? <small>(opcional)</small>
         <textarea id="extra" placeholder="Por exemplo: a turma adora futebol; não temos impressora colorida"></textarea>
       </label>
       <label class="ask"><input type="checkbox" id="ask">Pedir para o Gemini me fazer perguntas antes de começar</label>
-      <div class="privacy">🔒 Nunca escreva o nome ou dados das crianças no Gemini. Fale da turma de um jeito geral.</div>
+      <div class="privacy"><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="7" y="16" width="22" height="17" rx="4" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="3"/><path d="M11.5 16 V11 A6.5 6.5 0 0 1 24.5 11 V16" fill="none" stroke="#2f2a4a" stroke-width="3"/><circle cx="18" cy="24" r="2.6" fill="#2f2a4a"/></svg>Nunca escreva o nome ou dados das crianças no Gemini. Fale da turma de um jeito geral.</div>
     </section>
   </form>
 
   <aside class="result">
     <section class="card">
-      <h2>✨ Seu prompt</h2>
+      <h2><svg viewBox="0 0 64 64" aria-hidden="true"><g class="g spin"><path d="M32 4 C34 22 42 30 60 32 C42 34 34 42 32 60 C30 42 22 34 4 32 C22 30 30 22 32 4 Z" fill="#8c73ff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/></g></svg>Seu prompt</h2>
       <div class="prompt" id="prompt"></div>
       <div class="actions">
-        <button type="button" id="copy">📋 Copiar prompt</button>
-        <a id="open" href="https://gemini.google.com/app" target="_blank" rel="noopener">✨ Abrir o Gemini</a>
+        <button class="btn" type="button" id="copy"><svg viewBox="0 0 24 24"><path d="M9 8 H19 A1.5 1.5 0 0 1 20.5 9.5 V19.5 A1.5 1.5 0 0 1 19 21 H9 A1.5 1.5 0 0 1 7.5 19.5 V9.5 A1.5 1.5 0 0 1 9 8 Z M16 8 V4.5 A1.5 1.5 0 0 0 14.5 3 H5 A1.5 1.5 0 0 0 3.5 4.5 V14.5 A1.5 1.5 0 0 0 5 16 H7.5" fill="#fff" stroke="#2f2a4a" stroke-width="2.4" stroke-linejoin="round"/></svg>Copiar prompt</button>
+        <a class="btn" id="open" href="https://gemini.google.com/app" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M12 2 C12.8 8.5 15.5 11.2 22 12 C15.5 12.8 12.8 15.5 12 22 C11.2 15.5 8.5 12.8 2 12 C8.5 11.2 11.2 8.5 12 2 Z" fill="#fff" stroke="#2f2a4a" stroke-width="2.2" stroke-linejoin="round"/></svg>Abrir o Gemini</a>
         <span id="copied"></span>
       </div>
       <div class="tip" id="tip"></div>
     </section>
     <section class="card">
-      <h2>🔁 Depois, continue a conversa</h2>
+      <h2><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M8 12 H44 V36 H26 L16 46 V36 H8 Z" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><path d="M50 24 H58 V48 H50 V56 L42 48 H30 V42" fill="#fff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/></svg>Depois, continue a conversa</h2>
       <p style="margin: 0 0 8px">Um bom resultado quase nunca vem no primeiro pedido. Quando o Gemini responder, peça ajustes como estes:</p>
       <ul class="next" id="next"></ul>
     </section>
   </aside>
 </div>
-
-<svg width="0" height="0" style="position:absolute">
-  <symbol id="bot" viewBox="0 0 100 100">
-    <line x1="50" y1="8" x2="50" y2="22" stroke="#1d2a44" stroke-width="4"/>
-    <circle cx="50" cy="8" r="6" fill="#ff4d4d"/>
-    <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
-    <circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/>
-    <circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/>
-    <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
-  </symbol>
-</svg>
+</div>
 
 <script>
 // Describing every class the teacher can pick: its age, its stage and how well the children read
@@ -231,10 +272,20 @@ const AREAS = {
 
 const NEEDS = ["autismo (TEA)", "TDAH", "deficiência visual", "deficiência auditiva", "dificuldade de leitura", "altas habilidades"]
 
+// The pictures of each kind of material, drawn instead of emojis
+const KIND_ICONS = {
+  atividade: '<rect x="8" y="6" width="38" height="52" rx="5" fill="#fff" stroke="#2f2a4a" stroke-width="4"/><path d="M16 19 H38 M16 28 H38 M16 37 H30" stroke="#8cc4ff" stroke-width="4" stroke-linecap="round"/><g transform="rotate(32 48 36)"><rect x="43" y="14" width="11" height="34" rx="2" fill="#ffd23f" stroke="#2f2a4a" stroke-width="3"/><path d="M43 48 L48.5 59 L54 48 Z" fill="#ffe1b0" stroke="#2f2a4a" stroke-width="3" stroke-linejoin="round"/><rect x="43" y="9" width="11" height="7" rx="2" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="3"/></g>',
+  jogo: '<rect x="4" y="18" width="56" height="30" rx="15" fill="#8c73ff" stroke="#2f2a4a" stroke-width="4"/><path d="M18 26 V40 M11 33 H25" stroke="#fff" stroke-width="5" stroke-linecap="round"/><circle cx="42" cy="28" r="4.5" fill="#ffd23f" stroke="#2f2a4a" stroke-width="2.5"/><circle cx="50" cy="37" r="4.5" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="2.5"/>',
+  historia: '<path d="M32 16 Q20 8 6 12 V52 Q20 48 32 56 Q44 48 58 52 V12 Q44 8 32 16 Z" fill="#fff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><path d="M32 16 V56" stroke="#2f2a4a" stroke-width="3"/><path d="M12 24 Q19 22 26 25 M12 33 Q19 31 26 34 M38 25 Q45 22 52 24 M38 34 Q45 31 52 33" stroke="#ff5f8f" stroke-width="3" fill="none" stroke-linecap="round"/>',
+  plano: '<rect x="12" y="10" width="40" height="50" rx="5" fill="#fff" stroke="#2f2a4a" stroke-width="4"/><rect x="22" y="4" width="20" height="11" rx="3" fill="#ffd23f" stroke="#2f2a4a" stroke-width="3"/><path d="M19 27 l4 4 l7 -8 M19 43 l4 4 l7 -8" stroke="#4fd6a6" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M35 28 H45 M35 44 H45" stroke="#8cc4ff" stroke-width="4" stroke-linecap="round"/>',
+  quiz: '<path d="M6 10 H58 V42 H30 L17 55 V42 H6 Z" fill="#ff8a3d" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><text x="32" y="36" text-anchor="middle" font-size="28" font-weight="700" fill="#fff" stroke="#2f2a4a" stroke-width="5" paint-order="stroke">?</text>',
+  adaptar: '<path d="M8 20 H24 A7 7 0 1 1 38 20 H54 V34 A7 7 0 1 0 54 48 V58 H8 V46 A7 7 0 1 0 8 32 Z" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/>',
+}
+
 // Each kind of material brings its own wording for the four parts and its own follow-up requests
 const KINDS = {
   atividade: {
-    icon: "✏️", label: "Atividade para imprimir", maker: "atividades impressas",
+    label: "Atividade para imprimir", maker: "atividades impressas",
     task: topic => `Crie uma atividade para imprimir sobre "${topic}".`,
     format: early => [
       "Uma folha A4 com título, espaço para o nome e uma instrução curta para a criança.",
@@ -244,7 +295,7 @@ const KINDS = {
     next: ["Crie mais 3 exercícios no mesmo estilo.", "Transforme essa atividade em um jogo no Canvas, com estrelas no final."],
   },
   jogo: {
-    icon: "🎮", label: "Jogo interativo", maker: "jogos educativos digitais",
+    label: "Jogo interativo", maker: "jogos educativos digitais",
     task: topic => `Crie um jogo educativo interativo sobre "${topic}", para jogar no navegador.`,
     format: early => [
       "Um único arquivo HTML que funcione no navegador do celular e do computador, sem instalar nada.",
@@ -259,7 +310,7 @@ const KINDS = {
     next: ["Testei e encontrei um problema: quando eu [o que você fez], acontece [o que aconteceu], mas deveria [o que você esperava]. Conserte só isso.", "Troque as perguntas do jogo por estas: [cole as suas perguntas].", "Adicione narração em voz alta das instruções."],
   },
   historia: {
-    icon: "📖", label: "História", maker: "histórias para ler com a turma",
+    label: "História", maker: "histórias para ler com a turma",
     task: topic => `Escreva uma história curta e divertida sobre "${topic}".`,
     format: early => [
       `Um título e ${early ? "de 5 a 7 parágrafos bem curtos" : "de 6 a 10 parágrafos curtos"}, para ler em voz alta em poucos minutos.`,
@@ -269,7 +320,7 @@ const KINDS = {
     next: ["Transforme a história em um teatrinho para 5 crianças.", "Sugira 4 cenas da história para as crianças desenharem."],
   },
   plano: {
-    icon: "🗺️", label: "Plano de aula", maker: "planos de aula",
+    label: "Plano de aula", maker: "planos de aula",
     task: topic => `Crie um plano de aula sobre "${topic}".`,
     format: () => [
       "Uma tabela com objetivos, habilidades da BNCC, materiais e tempo total.",
@@ -280,7 +331,7 @@ const KINDS = {
     next: ["Crie a atividade impressa que acompanha esse plano.", "Sugira uma brincadeira de 5 minutos para começar a aula."],
   },
   quiz: {
-    icon: "❓", label: "Quiz ou avaliação", maker: "quizzes e avaliações",
+    label: "Quiz ou avaliação", maker: "quizzes e avaliações",
     task: topic => `Crie um quiz de 8 perguntas sobre "${topic}".`,
     format: early => early ? [
       "8 perguntas para o professor fazer em voz alta, com 3 respostas que as crianças mostram apontando para desenhos.",
@@ -294,7 +345,7 @@ const KINDS = {
     next: ["Transforme esse quiz em um jogo no Canvas, com estrelas no final.", "Crie mais 8 perguntas no mesmo nível."],
   },
   adaptar: {
-    icon: "🧩", label: "Adaptar um material", maker: "materiais adaptados para inclusão",
+    label: "Adaptar um material", maker: "materiais adaptados para inclusão",
     task: topic => `Adapte o material que está no fim desta mensagem${topic ? `, sobre "${topic}"` : ""}.`,
     format: () => [
       "Mantenha o conteúdo e os objetivos do material original.",
@@ -359,14 +410,14 @@ function render() {
   const prompt = buildPrompt(), details = KINDS[kind]
   const list = lines => `<ul>${lines.map(line => `<li>${escape(line).replace(/\n/g, "<br>")}</li>`).join("")}</ul>`
   $("prompt").innerHTML = `
-    <div class="part role-part"><b class="role">👤 Papel</b><p>${escape(prompt.role)}</p></div>
-    <div class="part task-part"><b class="task">🎯 Tarefa</b><p>${escape(prompt.task)}</p></div>
-    <div class="part context-part"><b class="context">🧭 Contexto</b>${list(prompt.context)}</div>
-    <div class="part format-part"><b class="format">📐 Formato</b>${list(prompt.format)}</div>
-    ${prompt.ask ? `<div class="part"><b style="background: var(--sky)">❔ Antes de começar</b><p>Antes de criar, me faça até 3 perguntas para entender melhor o que eu preciso. Só comece depois das minhas respostas.</p></div>` : ""}`
+    <div class="part role-part"><b class="role"><i>P</i>Papel</b><p>${escape(prompt.role)}</p></div>
+    <div class="part task-part"><b class="task"><i>T</i>Tarefa</b><p>${escape(prompt.task)}</p></div>
+    <div class="part context-part"><b class="context"><i>C</i>Contexto</b>${list(prompt.context)}</div>
+    <div class="part format-part"><b class="format"><i>F</i>Formato</b>${list(prompt.format)}</div>
+    ${prompt.ask ? `<div class="part ask-part"><b style="--c: #e2dbff"><i>?</i>Antes de começar</b><p>Antes de criar, me faça até 3 perguntas para entender melhor o que eu preciso. Só comece depois das minhas respostas.</p></div>` : ""}`
   $("tip").innerHTML = kind === "jogo"
-    ? "🎮 No Gemini, ative o <b>Canvas</b> no menu de ferramentas da caixa de mensagem antes de enviar. Assim o jogo aparece pronto para testar ao lado da conversa."
-    : "💡 Leia a resposta com atenção antes de usar com a turma. O Gemini pode errar fatos ou usar palavras difíceis para a idade."
+    ? "<b>Dica:</b> no Gemini, ative o <b>Canvas</b> no menu de ferramentas da caixa de mensagem antes de enviar. Assim o jogo aparece pronto para testar ao lado da conversa."
+    : "<b>Dica:</b> leia a resposta com atenção antes de usar com a turma. O Gemini pode errar fatos ou usar palavras difíceis para a idade."
   $("next").innerHTML = details.next.concat(COMMON_NEXT).map(text =>
     `<li><span>${escape(text)}</span><button type="button" data-copy="${escape(text)}">Copiar</button></li>`).join("")
   $("paste-box").hidden = kind !== "adaptar"
@@ -396,7 +447,7 @@ function fillAreas() {
 }
 
 $("kinds").innerHTML = Object.entries(KINDS).map(([id, details]) =>
-  `<button type="button" data-kind="${id}" class="${id === kind ? "chosen" : ""}"><span>${details.icon}</span>${details.label}</button>`).join("")
+  `<button type="button" data-kind="${id}" class="${id === kind ? "chosen" : ""}"><svg viewBox="0 0 64 64" aria-hidden="true">${KIND_ICONS[id]}</svg>${details.label}</button>`).join("")
 $("stage").innerHTML = STAGES.map(group => `<optgroup label="${group.group}">${group.items.map(([id, label]) => `<option value="${id}">${label}</option>`).join("")}</optgroup>`).join("")
 $("stage").value = "f2"
 $("needs").innerHTML = NEEDS.map(need => `<label><input type="checkbox" value="${need}">${need}</label>`).join("")
@@ -415,14 +466,14 @@ $("form").addEventListener("change", render)
 $("form").addEventListener("submit", event => event.preventDefault())
 $("copy").addEventListener("click", async () => {
   await copyText(toText(buildPrompt()))
-  $("copied").textContent = "✅ Copiado! Agora cole no Gemini."
+  $("copied").textContent = "Copiado! Agora cole no Gemini."
   setTimeout(() => { $("copied").textContent = "" }, 4000)
 })
 $("next").addEventListener("click", async event => {
   const button = event.target.closest("button")
   if (!button) return
   await copyText(button.dataset.copy)
-  button.textContent = "✅ Copiado"
+  button.textContent = "Copiado!"
   setTimeout(() => { button.textContent = "Copiar" }, 2500)
 })
 render()

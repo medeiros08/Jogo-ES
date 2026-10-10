@@ -5,191 +5,245 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Slides da aula</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='20' width='72' height='60' rx='16' fill='%234da3ff' stroke='%231d2a44' stroke-width='6'/><circle cx='36' cy='48' r='9' fill='%23fff'/><circle cx='64' cy='48' r='9' fill='%23fff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --sky: #e8f4ff;
-    --ink: #1d2a44;
-    --cell-line: #b9d3ee;
-    --key: #ffd84d;
-    --play: #3cc26b;
-    --erase: #ff9a3c;
-    --bad: #ff4d4d;
-    --now: #4da3ff;
+    --sky1: #5fbcff; --sky2: #cdeeff; --hill: #8ddf6a; --hill2: #6cc653;
+    --ink: #2f2a4a; --soft: #5d5880;
+    --blue: #4da3ff; --pink: #ff5f8f; --mint: #4fd6a6; --orange: #ff8a3d; --purple: #8c73ff; --yellow: #ffd23f;
+    --font: "Fredoka", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
   }
   * { box-sizing: border-box }
-  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink) }
-  body { display: grid; place-items: center; color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; touch-action: manipulation }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--sky2) }
+  body { display: grid; place-items: center; color: var(--ink); font-family: var(--font); touch-action: manipulation }
+  .g { transform-box: fill-box; transform-origin: center }
 
   /* The deck keeps a 16:9 shape and sizes everything in its own height, so it looks the same on any projector */
-  .deck { position: relative; width: min(100vw, 177.78vh); aspect-ratio: 16 / 9; container-type: size; background: var(--sky); overflow: hidden; user-select: none; cursor: pointer }
-  .slide { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 3.4cqh; padding: 6cqh 7cqw 9cqh; text-align: center }
-  .slide.active { display: flex; animation: enter .45s ease-out }
-  @keyframes enter { from { opacity: 0; transform: translateY(3cqh) } }
-  h1 { margin: 0; font-size: 9.5cqh; font-weight: 900; line-height: 1.08 }
-  h2 { margin: 0; font-size: 8cqh; font-weight: 900; line-height: 1.1 }
-  p { margin: 0; font-size: 4cqh; font-weight: 700; line-height: 1.35; max-width: 80cqw }
-  .pill { padding: 1cqh 3.4cqh; background: var(--key); border-radius: 999px; font-size: 3.6cqh; font-weight: 900 }
+  .deck { position: relative; width: min(100vw, 177.78vh); aspect-ratio: 16 / 9; container-type: size; overflow: hidden; background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 80%); user-select: none; cursor: pointer }
+  .cloud { position: absolute; background: #fff; border-radius: 999px; opacity: .9; animation: drift 50s linear infinite }
+  .cloud::before, .cloud::after { content: ""; position: absolute; background: #fff; border-radius: 50% }
+  .cloud::before { width: 55%; height: 160%; left: 15%; bottom: 20% }
+  .cloud::after { width: 40%; height: 130%; right: 12%; bottom: 25% }
+  .c1 { width: 22cqh; height: 6cqh; top: 7%; animation-delay: -10s }
+  .c2 { width: 15cqh; height: 4.4cqh; top: 30%; animation-duration: 64s; animation-delay: -40s; opacity: .75 }
+  @keyframes drift { from { transform: translateX(-30cqw) } to { transform: translateX(130cqw) } }
+  .hills { position: absolute; left: 0; right: 0; bottom: 0; height: 13cqh }
+  .hills::before, .hills::after { content: ""; position: absolute; bottom: -40%; border-radius: 50% }
+  .hills::before { left: -20%; width: 90%; height: 140%; background: var(--hill) }
+  .hills::after { right: -25%; width: 95%; height: 120%; background: var(--hill2) }
+
+  .slide { position: absolute; inset: 0; z-index: 1; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 3.4cqh; padding: 5cqh 7cqw 10cqh; text-align: center }
+  .slide.active { display: flex; animation: enter .5s cubic-bezier(.3, 1.4, .6, 1) }
+  @keyframes enter { from { opacity: 0; transform: translateY(4cqh) scale(.97) } }
+  h1, h2 { margin: 0; font-weight: 700; color: #fff; -webkit-text-stroke: 1cqh var(--ink); paint-order: stroke fill; text-shadow: 0 1cqh 0 var(--ink) }
+  h1 { font-size: 10.5cqh; line-height: 1.05 }
+  h2 { font-size: 8.4cqh; line-height: 1.08 }
+  h1 .y, h2 .y { color: var(--yellow) } h1 .p, h2 .p { color: var(--pink) } h2 .m { color: var(--mint) }
+  p { margin: 0; max-width: 80cqw; font-size: 4.2cqh; font-weight: 600; line-height: 1.35 }
+  p b { color: var(--ink); background: linear-gradient(transparent 58%, var(--yellow) 58%) }
+  .pill { padding: 1cqh 3.4cqh; background: var(--ink); color: #fff; border-radius: 999px; font-size: 3.6cqh; font-weight: 600 }
   .row { display: flex; gap: 4cqh; align-items: center; justify-content: center }
-  .tile { display: flex; flex-direction: column; align-items: center; gap: 1.4cqh; padding: 3cqh 3.4cqh; background: #fff; border: .9cqh solid var(--ink); border-radius: 5cqh; font-size: 3.6cqh; font-weight: 900 }
-  .tile .emoji { font-size: 11cqh; line-height: 1 }
-  .tile svg { width: 20cqh; height: 20cqh }
-  .note { padding: 2.4cqh 4cqh; background: var(--key); border-radius: 4cqh; font-size: 3.6cqh; font-weight: 800; max-width: 82cqw; line-height: 1.35 }
-  .wave { width: 34cqh; height: 34cqh; animation: wave 2.4s ease-in-out infinite; transform-origin: 50% 90% }
+  .tile { display: flex; flex-direction: column; align-items: center; gap: 1.4cqh; padding: 3cqh 3.4cqh; background: var(--c, #fff); border: .8cqh solid var(--ink); border-radius: 5cqh; box-shadow: 0 1.2cqh 0 rgba(47, 42, 74, .28); font-size: 3.8cqh; font-weight: 700; line-height: 1.15; animation: pop .6s cubic-bezier(.3, 1.5, .6, 1) backwards }
+  .active .tile:nth-child(2) { animation-delay: .12s } .active .tile:nth-child(3) { animation-delay: .24s } .active .tile:nth-child(4) { animation-delay: .36s }
+  @keyframes pop { from { opacity: 0; transform: scale(.6) rotate(-6deg) } }
+  .tile svg { width: 18cqh; height: 18cqh; overflow: visible }
+  .tile small { font-size: 2.8cqh; font-weight: 500 }
+  .tile .tag { padding: .4cqh 2cqh; background: #fff; border: .5cqh solid var(--ink); border-radius: 999px; font-size: 3.2cqh }
+  .note { position: relative; max-width: 82cqw; padding: 3cqh 4cqh 2.4cqh; background: #fff1a8; border: .7cqh solid var(--ink); border-radius: 2cqh 2cqh 5cqh 2cqh; box-shadow: 0 1cqh 0 rgba(47, 42, 74, .25); font-size: 3.5cqh; font-weight: 500; line-height: 1.35; transform: rotate(-1deg) }
+  .note::before { content: ""; position: absolute; top: -2.4cqh; left: 50%; width: 16cqh; height: 4.4cqh; margin-left: -8cqh; background: var(--pink); opacity: .75; border: .3cqh solid rgba(47, 42, 74, .35); transform: rotate(-3deg) }
+  .wave { width: 34cqh; height: 34cqh; animation: wave 2.4s ease-in-out infinite; transform-origin: 50% 90%; overflow: visible }
   @keyframes wave { 50% { transform: rotate(6deg) translateY(-1.5cqh) } }
-  .board { display: grid; grid-template-columns: repeat(4, 13cqh); gap: 1cqh; padding: 1cqh; background: var(--cell-line); border-radius: 2.6cqh }
+  .bot-eyes { animation: blink 4.2s infinite }
+  @keyframes blink { 0%, 91%, 97%, 100% { transform: scaleY(1) } 94% { transform: scaleY(.1) } }
+
+  /* Slide 3: the robot walks while the matching step lights up */
+  .board { position: relative; display: grid; grid-template-columns: repeat(4, 13cqh); gap: 1cqh; padding: 1cqh; background: var(--ink); border-radius: 2.6cqh; box-shadow: 0 1.2cqh 0 rgba(47, 42, 74, .28) }
   .board div { height: 13cqh; background: #fff; border-radius: 1.8cqh; display: grid; place-items: center }
   .board svg { width: 80%; height: 80% }
-  .code { margin: 0; padding: 2.4cqh 3.4cqh 2.4cqh 7cqh; background: var(--ink); color: #e8f4ff; border-radius: 3cqh; font: 600 4cqh/1.6 ui-monospace, Menlo, monospace; text-align: left }
-  .code li::marker { color: #6f86ad }
-  .code li.done { background: var(--play); border-radius: 1cqh }
-  .compare .tile { min-width: 40cqh; font-size: 4.4cqh }
-  .compare .tile.good { border-color: var(--play) }
-  .compare .tile.bad { border-color: var(--bad) }
-  .mark { font-size: 8cqh; line-height: 1 }
-  .flow { display: flex; align-items: center; gap: 2cqh }
+  .board .walker { position: absolute; left: 1cqh; top: 1cqh; width: 13cqh; height: 13cqh; background: none; animation: walk 5s ease-in-out infinite }
+  @keyframes walk { 0%, 14% { transform: translateX(0) } 26%, 34% { transform: translateX(14cqh) } 46%, 54% { transform: translateX(28cqh) } 66%, 92% { transform: translateX(42cqh) } 100% { transform: translateX(0) } }
+  .steps { display: grid; gap: 1.2cqh; margin: 0; padding: 0; list-style: none }
+  .steps li { display: flex; align-items: center; gap: 1.6cqh; padding: 1cqh 2.6cqh 1cqh 1.2cqh; background: #fff; border: .6cqh solid var(--ink); border-radius: 999px; font-size: 3.8cqh; font-weight: 600; text-align: left; animation: 5s infinite }
+  .steps li i { display: grid; place-items: center; width: 6cqh; height: 6cqh; background: var(--blue); border: .5cqh solid var(--ink); border-radius: 50%; font-style: normal }
+  .steps li i svg { width: 3.6cqh; height: 3.6cqh }
+  .steps li:nth-child(1) { animation-name: s1 } .steps li:nth-child(2) { animation-name: s2 } .steps li:nth-child(3) { animation-name: s3 } .steps li:nth-child(4) { animation-name: s4 }
+  @keyframes s1 { 14%, 26% { background: var(--yellow); transform: scale(1.06) } }
+  @keyframes s2 { 34%, 46% { background: var(--yellow); transform: scale(1.06) } }
+  @keyframes s3 { 54%, 66% { background: var(--yellow); transform: scale(1.06) } }
+  @keyframes s4 { 66%, 92% { background: var(--mint); transform: scale(1.06) } }
+
+  /* Slide 8: the photo travels along the cables */
+  .flow { display: flex; align-items: center; gap: 1.6cqh }
   .flow .tile { min-width: 28cqh }
-  .arrow { font-size: 8cqh; font-weight: 900 }
+  .cable { width: 12cqh; height: 6cqh; overflow: visible }
+  .cable .run { stroke-dasharray: 3 5; animation: run .6s linear infinite }
+  @keyframes run { to { stroke-dashoffset: -8 } }
+
   .games { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2.4cqh }
-  .games .tile { flex-direction: row; gap: 2cqh; padding: 1.6cqh 2.6cqh; border-width: .7cqh; border-radius: 3cqh; font-size: 3.2cqh; text-align: left }
-  .games .tile svg { width: 11cqh; height: 11cqh; flex: none }
-  .qr { display: flex; flex-direction: column; align-items: center; gap: 1.2cqh; padding: 2.4cqh; background: #fff; border: .9cqh solid var(--ink); border-radius: 4cqh; font-size: 3.2cqh; font-weight: 900 }
+  .games .tile { flex-direction: row; gap: 2cqh; padding: 1.6cqh 2.6cqh; border-width: .7cqh; border-radius: 3cqh; font-size: 3.4cqh; text-align: left }
+  .games .tile svg { width: 11cqh; height: 11cqh; flex: none; background: rgba(255, 255, 255, .55); border-radius: 2cqh }
+  .qr { display: flex; flex-direction: column; align-items: center; gap: 1cqh; padding: 2.2cqh; background: #fff; border: .8cqh solid var(--ink); border-radius: 4cqh; box-shadow: 0 1.2cqh 0 rgba(47, 42, 74, .28); font-size: 3.2cqh; font-weight: 700; transform: rotate(2deg) }
   .qr svg { width: 36cqh; height: 36cqh }
-  .qr small { font-size: 2.3cqh; font-weight: 700 }
-  .highlight { padding: 1.4cqh 4cqh; background: var(--play); color: #fff; border-radius: 999px; font-size: 4.4cqh; font-weight: 900; box-shadow: 0 .9cqh 0 #1f7a41 }
+  .qr small { font-size: 2.3cqh; font-weight: 500 }
+  .highlight { padding: 1.4cqh 4cqh; background: var(--orange); border: .7cqh solid var(--ink); border-radius: 999px; box-shadow: 0 1cqh 0 var(--ink); color: #fff; -webkit-text-stroke: .9cqh var(--ink); paint-order: stroke fill; font-size: 4.6cqh; font-weight: 700; animation: breathe 1.8s ease-in-out infinite }
+  @keyframes breathe { 50% { transform: scale(1.05) } }
   .facts { display: flex; flex-wrap: wrap; gap: 1.6cqh; justify-content: center; margin: 0; padding: 0; list-style: none; max-width: 90cqw }
-  .facts li { padding: .8cqh 2cqh; background: #fff; border: .5cqh solid var(--ink); border-radius: 999px; font-size: 2.8cqh; font-weight: 800 }
+  .facts li { padding: .8cqh 2.4cqh; background: var(--c); border: .5cqh solid var(--ink); border-radius: 999px; font-size: 2.9cqh; font-weight: 600 }
   .closing { gap: 2.4cqh; padding-top: 4cqh }
   .course { display: flex; align-items: center; gap: 5cqh }
   .course .qr svg { width: 20cqh; height: 20cqh }
-  .course .qr { padding: 1.6cqh 2.4cqh }
+  .course .qr { padding: 1.6cqh 2.4cqh; transform: rotate(-2deg) }
 
   /* Dots and a counter at the bottom, so the presenter knows where the class is */
-  .progress { position: absolute; left: 0; right: 0; bottom: 3cqh; display: flex; justify-content: center; gap: 1.6cqh }
+  .progress { position: absolute; z-index: 2; left: 0; right: 0; bottom: 3cqh; display: flex; justify-content: center; gap: 1.6cqh }
   .progress span { width: 2.4cqh; height: 2.4cqh; border: .5cqh solid var(--ink); border-radius: 50%; background: #fff }
-  .progress span.seen { background: var(--key) }
-  .progress span.now { box-shadow: 0 0 0 .8cqh var(--now) }
-  .hint { position: fixed; right: 12px; bottom: 8px; color: #8fa3c7; font-size: 13px; font-weight: 700 }
+  .progress span.seen { background: var(--yellow) }
+  .progress span.now { background: var(--pink); transform: scale(1.3) }
+  .hint { position: fixed; right: 12px; bottom: 8px; color: var(--soft); font-size: 13px; font-weight: 600 }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important }
+  }
 </style>
 </head>
 <body>
 
 <main class="deck" id="deck">
+  <div class="cloud c1"></div><div class="cloud c2"></div><div class="hills"></div>
 
   <section class="slide">
-    <svg class="wave" viewBox="0 0 100 100"><use href="#bot"/></svg>
-    <h1>Como se faz um programa de computador?</h1>
-    <div class="pill">💻 Engenharia de Software · UNIPAMPA</div>
+    <svg class="wave" viewBox="0 0 100 100" aria-hidden="true">
+      <line x1="50" y1="8" x2="50" y2="22" stroke="#1d2a44" stroke-width="4"/>
+      <circle cx="50" cy="8" r="6" fill="#ff4d4d"/>
+      <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+      <g class="g bot-eyes"><circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/><circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/></g>
+      <circle cx="27" cy="57" r="4" fill="#ff8fb0"/><circle cx="73" cy="57" r="4" fill="#ff8fb0"/>
+      <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+    </svg>
+    <h1>Como se faz um <span class="y">programa</span> de <span class="p">computador</span>?</h1>
+    <div class="pill">Engenharia de Software · UNIPAMPA</div>
   </section>
 
   <section class="slide">
-    <h2>Quem usou um app ou jogo hoje? 🙋</h2>
+    <h2>Quem usou um <span class="y">app</span> ou <span class="p">jogo</span> hoje?</h2>
     <div class="row">
-      <div class="tile"><span class="emoji">🎮</span>Jogos</div>
-      <div class="tile"><span class="emoji">📺</span>Vídeos</div>
-      <div class="tile"><span class="emoji">💬</span>Mensagens</div>
-      <div class="tile"><span class="emoji">🗺️</span>Mapas</div>
+      <div class="tile" style="--c: #e2dbff"><svg viewBox="0 0 64 64"><rect x="4" y="18" width="56" height="30" rx="15" fill="#8c73ff" stroke="#2f2a4a" stroke-width="4"/><path d="M18 26 V40 M11 33 H25" stroke="#fff" stroke-width="5" stroke-linecap="round"/><circle cx="42" cy="28" r="4.5" fill="#ffd23f" stroke="#2f2a4a" stroke-width="2.5"/><circle cx="50" cy="37" r="4.5" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="2.5"/></svg>Jogos</div>
+      <div class="tile" style="--c: #ffd6e3"><svg viewBox="0 0 64 64"><rect x="6" y="12" width="52" height="38" rx="8" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="4"/><path d="M27 22 L41 31 L27 40 Z" fill="#fff" stroke="#2f2a4a" stroke-width="3" stroke-linejoin="round"/><path d="M22 56 H42" stroke="#2f2a4a" stroke-width="4" stroke-linecap="round"/></svg>Vídeos</div>
+      <div class="tile" style="--c: #c9f5e3"><svg viewBox="0 0 64 64"><path d="M6 10 H58 V42 H30 L17 55 V42 H6 Z" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><circle cx="21" cy="26" r="4" fill="#2f2a4a"/><circle cx="32" cy="26" r="4" fill="#2f2a4a"/><circle cx="43" cy="26" r="4" fill="#2f2a4a"/></svg>Mensagens</div>
+      <div class="tile" style="--c: #ffdcc4"><svg viewBox="0 0 64 64"><path d="M4 16 L22 10 L42 16 L60 10 V50 L42 56 L22 50 L4 56 Z" fill="#fff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><path d="M32 44 C24 34 21 29 21 24 A11 11 0 0 1 43 24 C43 29 40 34 32 44 Z" fill="#ff8a3d" stroke="#2f2a4a" stroke-width="3.5" stroke-linejoin="round"/><circle cx="32" cy="24" r="4.5" fill="#fff" stroke="#2f2a4a" stroke-width="2.5"/></svg>Mapas</div>
     </div>
     <p>Cada um desses apps foi feito por pessoas, passo a passo!</p>
   </section>
 
   <section class="slide">
-    <h2>Um programa é uma lista de passos</h2>
+    <h2>Um programa é uma <span class="y">lista de passos</span></h2>
     <div class="row">
       <div class="board">
-        <div><svg viewBox="0 0 100 100"><use href="#bot"/></svg></div><div></div><div></div>
+        <div></div><div></div><div></div>
         <div><svg viewBox="0 0 100 100"><use href="#star"/></svg></div>
+        <div class="walker"><svg viewBox="0 0 100 100"><use href="#bot"/></svg></div>
       </div>
-      <ol class="code">
-        <li>→ robô.direita()</li>
-        <li>→ robô.direita()</li>
-        <li>→ robô.direita()</li>
-        <li class="done">⭐ chegou!</li>
+      <ol class="steps">
+        <li><i><svg viewBox="0 0 24 24"><path d="M4 12 H19 M13 6 L19 12 L13 18" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></i>robô.direita()</li>
+        <li><i><svg viewBox="0 0 24 24"><path d="M4 12 H19 M13 6 L19 12 L13 18" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></i>robô.direita()</li>
+        <li><i><svg viewBox="0 0 24 24"><path d="M4 12 H19 M13 6 L19 12 L13 18" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></i>robô.direita()</li>
+        <li><i style="background: var(--yellow)"><svg viewBox="0 0 100 100"><use href="#star"/></svg></i>chegou!</li>
       </ol>
     </div>
     <p>O computador faz <b>exatamente</b> o que a gente manda, nem mais nem menos.</p>
   </section>
 
   <section class="slide">
-    <h2>A ordem importa!</h2>
-    <div class="row compare">
-      <div class="tile good"><span class="mark">✅</span>1. Meia 🧦<br>2. Tênis 👟</div>
-      <div class="tile bad"><span class="mark">❌</span>1. Tênis 👟<br>2. Meia 🧦</div>
+    <h2>A <span class="p">ordem</span> importa!</h2>
+    <div class="row">
+      <div class="tile" style="--c: #c9f5e3; min-width: 40cqh">
+        <svg viewBox="0 0 48 48" style="width: 9cqh; height: 9cqh"><circle cx="24" cy="24" r="20" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="4"/><path d="M14 25 L21 32 L34 17" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="row" style="gap: 2cqh"><span>1. Meia</span><svg viewBox="0 0 64 64" style="width: 9cqh; height: 9cqh"><path d="M20 6 H38 V34 L50 42 A8 8 0 0 1 42 56 L22 46 A7 7 0 0 1 20 40 Z" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><path d="M20 15 H38" stroke="#fff" stroke-width="4"/></svg></span>
+        <span class="row" style="gap: 2cqh"><span>2. Tênis</span><svg viewBox="0 0 64 64" style="width: 9cqh; height: 9cqh"><path d="M4 46 V26 Q4 20 10 20 H22 Q28 30 40 32 L52 34 Q60 36 60 44 V48 H4 Z" fill="#4da3ff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><path d="M4 50 H60" stroke="#2f2a4a" stroke-width="4" stroke-linecap="round"/><path d="M22 26 L26 30 M28 24 L31 29" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg></span>
+      </div>
+      <div class="tile" style="--c: #ffd6e3; min-width: 40cqh">
+        <svg viewBox="0 0 48 48" style="width: 9cqh; height: 9cqh"><circle cx="24" cy="24" r="20" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="4"/><path d="M16 16 L32 32 M32 16 L16 32" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>
+        <span class="row" style="gap: 2cqh"><span>1. Tênis</span><svg viewBox="0 0 64 64" style="width: 9cqh; height: 9cqh"><path d="M4 46 V26 Q4 20 10 20 H22 Q28 30 40 32 L52 34 Q60 36 60 44 V48 H4 Z" fill="#4da3ff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><path d="M4 50 H60" stroke="#2f2a4a" stroke-width="4" stroke-linecap="round"/><path d="M22 26 L26 30 M28 24 L31 29" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg></span>
+        <span class="row" style="gap: 2cqh"><span>2. Meia</span><svg viewBox="0 0 64 64" style="width: 9cqh; height: 9cqh"><path d="M20 6 H38 V34 L50 42 A8 8 0 0 1 42 56 L22 46 A7 7 0 0 1 20 40 Z" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><path d="M20 15 H38" stroke="#fff" stroke-width="4"/></svg></span>
+      </div>
     </div>
     <p>Os passos na ordem certa para resolver um problema formam um <b>algoritmo</b>.</p>
   </section>
 
   <section class="slide">
-    <h2>O que é um bug? 🐛</h2>
+    <h2>O que é um <span class="p">bug</span>?</h2>
     <div class="row">
-      <svg viewBox="0 0 100 100" style="width: 30cqh; height: 30cqh"><use href="#bug"/></svg>
+      <svg viewBox="0 0 100 100" style="width: 28cqh; height: 28cqh; animation: wave 1.6s ease-in-out infinite"><use href="#bug"/></svg>
       <p style="max-width: 60cqw; text-align: left">Bug é um <b>erro no programa</b>. Ele faz o programa fazer uma coisa que a gente não queria.</p>
     </div>
-    <div class="note">🦋 Em 1947, a equipe da cientista Grace Hopper achou uma mariposa de verdade presa dentro de um computador. Ela foi colada no caderno com o aviso: “o primeiro bug de verdade encontrado”!</div>
+    <div class="note">Em 1947, a equipe da cientista Grace Hopper achou uma mariposa de verdade presa dentro de um computador. Ela foi colada no caderno com o aviso: “o primeiro bug de verdade encontrado”!</div>
   </section>
 
   <section class="slide">
-    <h2>Depurar é caçar e consertar bugs 🔍</h2>
+    <h2><span class="m">Depurar</span> é caçar e consertar bugs</h2>
     <div class="row">
-      <div class="tile"><span class="emoji">🔎</span>1. Achar o<br>passo errado</div>
-      <div class="tile"><span class="emoji">🔧</span>2. Consertar<br>só esse passo</div>
-      <div class="tile"><span class="emoji">▶️</span>3. Testar<br>de novo</div>
+      <div class="tile" style="--c: #cfe6ff"><svg viewBox="0 0 64 64"><circle cx="26" cy="26" r="17" fill="#fff" stroke="#2f2a4a" stroke-width="5"/><use href="#bug" x="15" y="15" width="22" height="22"/><path d="M39 39 L56 56" stroke="#2f2a4a" stroke-width="8" stroke-linecap="round"/></svg>1. Achar o<br>passo errado</div>
+      <div class="tile" style="--c: #fff1a8"><svg viewBox="0 0 64 64"><path d="M46 6 A13 13 0 0 0 33 24 L9 48 A5.5 5.5 0 0 0 17 56 L41 32 A13 13 0 0 0 58 19 L50 23 L43 16 Z" fill="#ffd23f" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/></svg>2. Consertar<br>só esse passo</div>
+      <div class="tile" style="--c: #c9f5e3"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="25" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="4"/><path d="M26 20 L45 32 L26 44 Z" fill="#fff" stroke="#2f2a4a" stroke-width="3.5" stroke-linejoin="round"/></svg>3. Testar<br>de novo</div>
     </div>
     <p>Todo mundo escreve bugs. Quem programa aprende a caçá-los com calma!</p>
   </section>
 
   <section class="slide">
-    <h2>Ninguém faz software sozinho 🤝</h2>
+    <h2>Ninguém faz software <span class="y">sozinho</span></h2>
     <div class="row">
-      <div class="tile"><svg viewBox="0 0 100 100"><use href="#bot"/></svg>🕹️ Piloto<small style="font-size: 2.8cqh; font-weight: 700">escreve o programa</small></div>
-      <div class="tile"><svg viewBox="0 0 100 100"><use href="#bot"/></svg>🧭 Navegador<small style="font-size: 2.8cqh; font-weight: 700">revisa e mostra o caminho</small></div>
+      <div class="tile" style="--c: #cfe6ff"><svg viewBox="0 0 100 100"><use href="#bot"/></svg><span class="tag">Piloto</span><small>escreve o programa</small></div>
+      <div class="tile" style="--c: #c9f5e3"><svg viewBox="0 0 100 100"><use href="#bot"/></svg><span class="tag">Navegador</span><small>revisa e mostra o caminho</small></div>
     </div>
     <p>Isso se chama <b>programação em dupla</b>. E depois eles trocam de lugar!</p>
   </section>
 
   <section class="slide">
-    <h2>Como a foto chega no seu celular? 📸</h2>
+    <h2>Como a <span class="y">foto</span> chega no seu <span class="p">celular</span>?</h2>
     <div class="flow">
-      <div class="tile"><svg viewBox="0 0 100 100"><use href="#cellphone"/></svg>📱 Celular<small style="font-size: 2.8cqh; font-weight: 700">pede a foto</small></div>
-      <span class="arrow">⇄</span>
-      <div class="tile"><svg viewBox="0 0 100 100"><use href="#server"/></svg>🖥️ Servidor<small style="font-size: 2.8cqh; font-weight: 700">busca e responde</small></div>
-      <span class="arrow">⇄</span>
-      <div class="tile"><svg viewBox="0 0 100 100"><use href="#database"/></svg>🗄️ Banco de dados<small style="font-size: 2.8cqh; font-weight: 700">guarda as fotos</small></div>
+      <div class="tile" style="--c: #cfe6ff"><svg viewBox="0 0 100 100"><use href="#cellphone"/></svg><span class="tag">Celular</span><small>pede a foto</small></div>
+      <svg class="cable" viewBox="0 0 60 30"><path d="M4 9 H50 M43 3 L50 9 L43 15" stroke="#2f2a4a" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M56 21 H10 M17 15 L10 21 L17 27" stroke="#2f2a4a" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path class="run" d="M4 9 H46" stroke="#fff" stroke-width="1.6"/></svg>
+      <div class="tile" style="--c: #ffdcc4"><svg viewBox="0 0 100 100"><use href="#server"/></svg><span class="tag">Servidor</span><small>busca e responde</small></div>
+      <svg class="cable" viewBox="0 0 60 30"><path d="M4 9 H50 M43 3 L50 9 L43 15" stroke="#2f2a4a" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M56 21 H10 M17 15 L10 21 L17 27" stroke="#2f2a4a" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path class="run" d="M4 9 H46" stroke="#fff" stroke-width="1.6"/></svg>
+      <div class="tile" style="--c: #fff1a8"><svg viewBox="0 0 100 100"><use href="#database"/></svg><span class="tag">Banco de dados</span><small>guarda as fotos</small></div>
     </div>
     <p>O celular nunca fala direto com o banco de dados: o servidor organiza e protege tudo.</p>
   </section>
 
   <section class="slide">
-    <h2>Bora jogar! 🎮</h2>
+    <h2>Bora <span class="y">jogar</span>!</h2>
     <div class="row">
       <div class="games">
-        <div class="tile"><svg viewBox="0 0 100 100"><use href="#bot" x="0" y="10" width="62" height="62"/><use href="#star" x="50" y="40" width="48" height="48"/></svg>Robô pega<br>a estrela</div>
-        <div class="tile"><svg viewBox="0 0 100 100"><use href="#bug" x="12" y="12" width="76" height="76"/></svg>Ninja dos<br>Bugs</div>
-        <div class="tile"><svg viewBox="0 0 100 100"><use href="#bot" x="0" y="20" width="56" height="56"/><use href="#bot" x="44" y="20" width="56" height="56"/></svg>Programação<br>em Dupla</div>
-        <div class="tile"><svg viewBox="0 0 100 100"><use href="#cellphone" x="0" y="22" width="40" height="56"/><use href="#server" x="30" y="14" width="44" height="72"/><use href="#database" x="62" y="26" width="38" height="48"/></svg>Conecta o<br>Sistema</div>
+        <div class="tile" style="--c: #cfe6ff"><svg viewBox="0 0 100 100"><use href="#bot" x="0" y="10" width="62" height="62"/><use href="#star" x="50" y="40" width="48" height="48"/></svg>Robô pega<br>a estrela</div>
+        <div class="tile" style="--c: #ffd6e3"><svg viewBox="0 0 100 100"><use href="#bug" x="12" y="12" width="76" height="76"/></svg>Ninja dos<br>Bugs</div>
+        <div class="tile" style="--c: #c9f5e3"><svg viewBox="0 0 100 100"><use href="#bot" x="0" y="20" width="56" height="56"/><use href="#bot" x="44" y="20" width="56" height="56"/></svg>Programação<br>em Dupla</div>
+        <div class="tile" style="--c: #ffdcc4"><svg viewBox="0 0 100 100"><use href="#cellphone" x="0" y="22" width="40" height="56"/><use href="#server" x="30" y="14" width="44" height="72"/><use href="#database" x="62" y="26" width="38" height="48"/></svg>Conecta o<br>Sistema</div>
       </div>
       <div class="qr">
         <svg viewBox="0 0 41 41" shape-rendering="crispEdges"><use href="#menu-qr"/></svg>
-        📱 Jogue no celular
+        Jogue no celular
         <small>medeiros08.github.io/Jogo-ES/escola</small>
       </div>
     </div>
   </section>
 
   <section class="slide closing">
-    <h2>Isso é Engenharia de Software! 🏅</h2>
+    <h2>Isso é <span class="y">Engenharia de Software</span>!</h2>
     <p>Na UNIPAMPA a gente aprende a fazer tudo isso.</p>
-    <div class="highlight">🆓 GRATUITO, com projetos e bolsas</div>
+    <div class="highlight">GRATUITO, com projetos e bolsas</div>
     <ul class="facts">
-      <li>⭐ Nota máxima no MEC</li>
-      <li>🛠️ Mão na massa desde o 1º semestre</li>
-      <li>🌙 Noturno</li>
-      <li>⏳ 9 semestres</li>
+      <li style="--c: var(--yellow)">Nota máxima no MEC</li>
+      <li style="--c: var(--mint)">Mão na massa desde o 1º semestre</li>
+      <li style="--c: #e2dbff">Noturno</li>
+      <li style="--c: #ffd6e3">9 semestres</li>
     </ul>
     <div class="course">
-      <svg viewBox="0 0 100 100" style="width: 18cqh; height: 18cqh"><use href="#bot"/></svg>
+      <svg class="wave" viewBox="0 0 100 100" style="width: 18cqh; height: 18cqh"><use href="#bot"/></svg>
       <div class="qr">
         <svg viewBox="0 0 41 41" shape-rendering="crispEdges"><rect width="41" height="41" fill="#fff"/><path stroke="#000" d="M4 4.5h7m3 0h1m6 0h1m3 0h1m4 0h7m-33 1h1m5 0h1m1 0h2m2 0h3m2 0h1m2 0h1m5 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m4 0h1m1 0h4m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m4 0h2m1 0h3m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m2 0h1m2 0h1m3 0h5m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m3 0h4m4 0h1m1 0h2m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h1m1 0h1m5 0h3m1 0h1m1 0h1m-25 1h1m5 0h1m1 0h2m3 0h1m1 0h1m1 0h1m1 0h1m3 0h4m2 0h3m-31 1h1m2 0h1m2 0h2m2 0h2m1 0h2m2 0h2m2 0h2m4 0h4m-32 1h2m2 0h5m2 0h1m3 0h1m4 0h1m4 0h1m2 0h1m1 0h2m-32 1h6m1 0h1m1 0h1m4 0h3m1 0h1m4 0h3m1 0h5m-32 1h1m3 0h1m1 0h1m1 0h1m4 0h2m1 0h1m2 0h2m2 0h2m1 0h2m4 0h1m-32 1h2m2 0h1m4 0h3m1 0h1m4 0h3m1 0h1m2 0h2m2 0h3m-27 1h3m1 0h3m2 0h2m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m2 0h1m-31 1h2m1 0h1m3 0h2m1 0h1m1 0h1m1 0h1m3 0h2m1 0h2m1 0h1m1 0h1m1 0h2m1 0h1m-33 1h1m3 0h1m1 0h1m5 0h3m2 0h2m3 0h2m1 0h1m1 0h3m2 0h1m-33 1h2m1 0h3m1 0h2m1 0h2m3 0h1m2 0h6m2 0h1m2 0h4m-33 1h1m4 0h3m1 0h5m1 0h1m3 0h6m2 0h1m1 0h2m1 0h1m-33 1h1m2 0h3m1 0h2m1 0h2m1 0h1m2 0h1m5 0h3m1 0h1m1 0h5m-33 1h1m1 0h2m2 0h3m3 0h1m2 0h1m1 0h1m2 0h1m1 0h1m1 0h2m1 0h3m-30 1h1m2 0h2m2 0h2m1 0h1m2 0h7m2 0h2m4 0h1m1 0h1m-31 1h1m3 0h1m1 0h2m2 0h1m1 0h2m1 0h3m2 0h3m5 0h2m1 0h1m-32 1h1m4 0h1m1 0h2m3 0h1m3 0h1m1 0h1m1 0h1m1 0h1m2 0h2m2 0h4m-33 1h3m1 0h5m2 0h2m2 0h1m3 0h1m3 0h7m1 0h1m-24 1h1m1 0h1m2 0h1m1 0h2m1 0h3m2 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h7m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m2 0h2m1 0h2m6 0h1m2 0h2m3 0h4m-32 1h1m1 0h3m1 0h1m2 0h2m1 0h4m1 0h1m1 0h1m2 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h6m2 0h3m1 0h3m1 0h3m1 0h2m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h2m2 0h3m1 0h2m3 0h1m2 0h2m2 0h2m-33 1h1m5 0h1m2 0h4m1 0h2m4 0h1m4 0h1m1 0h4m-31 1h7m1 0h1m3 0h1m2 0h1m1 0h1m4 0h6m1 0h1m1 0h1"/></svg>
-        🌐 Conheça o curso
+        Conheça o curso
         <small>cursos.unipampa.edu.br/cursos/engenhariadesoftware</small>
       </div>
     </div>

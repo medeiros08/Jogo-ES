@@ -5,21 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Folha de atividades</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='20' width='72' height='60' rx='16' fill='%234da3ff' stroke='%231d2a44' stroke-width='6'/><circle cx='36' cy='48' r='9' fill='%23fff'/><circle cx='64' cy='48' r='9' fill='%23fff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --sky: #e8f4ff;
-    --ink: #1d2a44;
-    --cell-line: #b9d3ee;
-    --key: #ffd84d;
-    --play: #3cc26b;
-    --bad: #ff4d4d;
-    --now: #4da3ff;
+    --sky1: #5fbcff; --sky2: #cdeeff; --line: #b9d3ee;
+    --ink: #2f2a4a; --soft: #5d5880;
+    --blue: #4da3ff; --pink: #ff5f8f; --mint: #4fd6a6; --orange: #ff8a3d; --purple: #8c73ff; --yellow: #ffd23f;
+    --font: "Fredoka", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
   }
   * { box-sizing: border-box }
-  body { margin: 0; padding: 24px 16px 40px; background: var(--sky); color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", sans-serif }
+  body { margin: 0; padding: 24px 16px 40px; background: linear-gradient(180deg, var(--sky1) 0, var(--sky2) 520px) no-repeat var(--sky2); color: var(--ink); font-family: var(--font) }
   .bar { max-width: 210mm; margin: 0 auto 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between }
-  .bar p { margin: 0; font-size: 17px; font-weight: 700 }
-  .bar button { border: none; border-radius: 16px; padding: 12px 28px; background: var(--play); color: #fff; font-size: 22px; font-weight: 900; box-shadow: 0 5px 0 #1f7a41; cursor: pointer }
+  .bar p { margin: 0; flex: 1 1 300px; padding: 10px 16px; background: #fff; border: 3px solid var(--ink); border-radius: 18px; font-size: 17px; font-weight: 500 }
+  .bar button { display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; background: var(--mint); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 5px 0 var(--ink); color: #fff; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; font: 700 22px var(--font); cursor: pointer }
+  .bar button:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink) }
+  .bar svg { width: 24px; height: 24px }
 
   /* Each sheet is an A4 page measured in its own width, so the screen and the paper look the same */
   .sheet {
@@ -29,46 +31,53 @@
     margin: 0 auto 24px;
     padding: 5.5cqw;
     background: #fff;
-    box-shadow: 0 8px 0 var(--cell-line);
+    border: 3px solid var(--ink);
+    border-radius: 2cqw;
+    box-shadow: 0 8px 0 rgba(47, 42, 74, .25);
     display: flex;
     flex-direction: column;
     gap: 2.4cqw;
   }
   header { display: flex; align-items: center; gap: 3cqw }
   header svg { width: 13cqw; height: 13cqw; flex: none }
-  header h1 { margin: 0; font-size: 6.4cqw; font-weight: 900; line-height: 1; white-space: nowrap }
-  header .sub { display: inline-block; margin-top: 1.2cqw; padding: .4cqw 2.4cqw; background: var(--key); border-radius: 999px; font-size: 2.6cqw; font-weight: 900 }
-  .name { display: flex; gap: 1.5cqw; align-items: flex-end; font-size: 3cqw; font-weight: 800 }
+  header h1 { margin: 0; font-size: 7.4cqw; font-weight: 700; line-height: 1; white-space: nowrap; color: #fff; -webkit-text-stroke: .7cqw var(--ink); paint-order: stroke fill; text-shadow: 0 .7cqw 0 var(--ink) }
+  header h1 .y { color: var(--yellow) } header h1 .p { color: var(--pink) }
+  header .sub { display: inline-block; margin-top: 1.6cqw; padding: .3cqw 2.4cqw; background: var(--yellow); border: .4cqw solid var(--ink); border-radius: 999px; font-size: 2.6cqw; font-weight: 600 }
+  .name { display: flex; gap: 1.5cqw; align-items: flex-end; font-size: 3cqw; font-weight: 600 }
   .name span { flex: 1; border-bottom: .4cqw solid var(--ink); height: 4cqw }
   .name span.short { flex: 0 0 22cqw }
-  .task { border: .7cqw solid var(--ink); border-radius: 4cqw; padding: 3cqw 3.6cqw }
-  .task h2 { margin: 0 0 1cqw; font-size: 3.6cqw; font-weight: 900 }
-  .task p { margin: 0 0 2.4cqw; font-size: 2.55cqw; font-weight: 600; line-height: 1.35 }
+  .task { border: .7cqw solid var(--ink); border-radius: 4cqw; padding: 3cqw 3.6cqw; background: linear-gradient(var(--c), var(--c)) top / 100% 1.4cqw no-repeat }
+  .task h2 { display: flex; align-items: center; gap: 1.8cqw; margin: .8cqw 0 1.2cqw; font-size: 3.8cqw; font-weight: 700 }
+  .task h2 i { display: grid; place-items: center; width: 6.4cqw; height: 6.4cqw; flex: none; background: var(--c); border: .5cqw solid var(--ink); border-radius: 50%; color: #fff; -webkit-text-stroke: .6cqw var(--ink); paint-order: stroke fill; font-style: normal; font-size: 3.8cqw }
+  .task p { margin: 0 0 2.4cqw; font-size: 2.6cqw; font-weight: 500; line-height: 1.35 }
+  .task p b { font-weight: 700 }
   .task .row { display: flex; gap: 4cqw; align-items: center }
   .boxes { display: flex; flex-wrap: wrap; gap: 1.2cqw }
-  .boxes span { width: 6.4cqw; height: 6.4cqw; border: .45cqw dashed var(--cell-line); border-radius: 1.4cqw; display: grid; place-items: center; font-size: 4.4cqw; font-weight: 900 }
+  .boxes span { width: 6.4cqw; height: 6.4cqw; border: .45cqw dashed var(--line); border-radius: 1.4cqw; display: grid; place-items: center; font: 700 4.4cqw system-ui, sans-serif }
   .boxes.given span { border-style: solid; border-color: var(--ink) }
+  .arrows { font-family: system-ui, sans-serif }
   .steps { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 1.6cqw 4cqw }
-  .steps li { display: flex; gap: 2cqw; align-items: center; font-size: 2.9cqw; font-weight: 700 }
+  .steps li { display: flex; gap: 2cqw; align-items: center; font-size: 2.9cqw; font-weight: 600 }
   .steps li span { width: 6.4cqw; height: 6.4cqw; flex: none; border: .45cqw solid var(--ink); border-radius: 1.4cqw }
   .grow { flex: 1 }
   table { border-collapse: separate; border-spacing: .5cqw; margin: 0 auto }
-  td { width: 6.6cqw; height: 6.6cqw; text-align: center; font-size: 4cqw; font-weight: 800; background: var(--sky); border-radius: 1cqw }
+  td { width: 6.6cqw; height: 6.6cqw; text-align: center; font-size: 4cqw; font-weight: 600; background: var(--sky2); border-radius: 1cqw }
   .words { display: flex; flex-wrap: wrap; gap: 1.4cqw; justify-content: center; margin-top: 2.4cqw; padding: 0; list-style: none }
-  .words li { padding: .5cqw 2.2cqw; border: .4cqw solid var(--ink); border-radius: 999px; font-size: 2.5cqw; font-weight: 800 }
+  .words li { padding: .4cqw 2.2cqw; background: var(--c); border: .4cqw solid var(--ink); border-radius: 999px; font-size: 2.5cqw; font-weight: 600 }
+  .words li:nth-child(4n+1) { --c: #cfe6ff } .words li:nth-child(4n+2) { --c: #ffd6e3 } .words li:nth-child(4n+3) { --c: #c9f5e3 } .words li:nth-child(4n+4) { --c: #fff1a8 }
   .app { display: flex; gap: 5cqw; align-items: center }
   .app svg { width: 30cqw; flex: none }
-  .lines { flex: 1; display: flex; flex-direction: column; gap: 3cqw; font-size: 2.8cqw; font-weight: 800 }
+  .lines { flex: 1; display: flex; flex-direction: column; gap: 3cqw; font-size: 2.8cqw; font-weight: 600 }
   .lines div { border-bottom: .35cqw solid var(--ink); padding-bottom: 1cqw; min-height: 6cqw; display: flex; align-items: flex-end }
   .lines div.blank { min-height: 5cqw }
-  footer { margin-top: auto; text-align: center; font-size: 2.1cqw; font-weight: 700; color: #4a5a78 }
+  footer { margin-top: auto; text-align: center; font-size: 2.1cqw; font-weight: 500; color: var(--soft) }
 
   /* Printing each sheet on its own A4 page, without the bar on top */
   @page { size: A4; margin: 0 }
   @media print {
-    body { padding: 0; background: #fff }
+    body { padding: 0; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact }
     .bar { display: none }
-    .sheet { width: 210mm; height: 297mm; margin: 0; box-shadow: none; break-after: page; page-break-after: always }
+    .sheet { width: 210mm; height: 297mm; margin: 0; border: none; border-radius: 0; box-shadow: none; break-after: page; page-break-after: always }
     .sheet:last-of-type { break-after: auto; page-break-after: auto }
   }
 </style>
@@ -77,33 +86,33 @@
 
 <div class="bar">
   <p>Três folhas A4 para cada criança levar para casa, que podem ser impressas frente e verso. As respostas estão no fim do roteiro da aula.</p>
-  <button type="button" onclick="print()">🖨️ Imprimir</button>
+  <button type="button" onclick="print()"><svg viewBox="0 0 24 24"><path d="M7 9 V3 H17 V9 M7 18 H4 V10 H20 V18 H17 M7 14 H17 V21 H7 Z" fill="#fff" stroke="#2f2a4a" stroke-width="2.4" stroke-linejoin="round"/></svg>Imprimir</button>
 </div>
 
 <section class="sheet">
   <header>
     <svg viewBox="0 0 100 100"><use href="#bot"/></svg>
     <div>
-      <h1>Folha de atividades</h1>
-      <div class="sub">🏅 Programador(a) Mirim</div>
+      <h1><span class="y">Folha</span> de <span class="p">atividades</span></h1>
+      <div class="sub">Programador(a) Mirim</div>
     </div>
   </header>
   <div class="name">Nome: <span></span> Turma: <span class="short"></span></div>
 
-  <div class="task">
-    <h2>🧩 1. Leve o robô até a estrela</h2>
+  <div class="task" style="--c: var(--blue)">
+    <h2><i>1</i>Leve o robô até a estrela</h2>
     <p>Desenhe o caminho do robô no tabuleiro, sem passar pelas pedras. Depois escreva as setas do caminho nos quadradinhos. Isso é um algoritmo!</p>
     <div class="row">
       <svg id="maze" style="width: 46cqw"></svg>
       <div>
-        <p><b>Setas:</b> → ← ↑ ↓</p>
+        <p><b>Setas:</b> <span class="arrows">→ ← ↑ ↓</span></p>
         <div class="boxes" id="maze-boxes" style="width: 32cqw"></div>
       </div>
     </div>
   </div>
 
-  <div class="task">
-    <h2>🐛 2. Ache o bug</h2>
+  <div class="task" style="--c: var(--pink)">
+    <h2><i>2</i>Ache o bug</h2>
     <p>O robô seguiu as setas de baixo e bateu na pedra! Circule a seta errada. Depois escreva as setas certas na linha de baixo.</p>
     <div class="row">
       <svg id="bug-board" style="width: 32cqw"></svg>
@@ -119,9 +128,9 @@
 </section>
 
 <section class="sheet">
-  <div class="task">
-    <h2>🔤 3. Caça-palavras</h2>
-    <p>Encontre as 8 palavras de quem faz programas. Elas estão na horizontal (→) ou na vertical (↓).</p>
+  <div class="task" style="--c: var(--mint)">
+    <h2><i>3</i>Caça-palavras</h2>
+    <p>Encontre as 8 palavras de quem faz programas. Elas estão na horizontal (<span class="arrows">→</span>) ou na vertical (<span class="arrows">↓</span>).</p>
     <table id="words-grid"></table>
     <ul class="words" id="words-list"></ul>
   </div>
@@ -130,8 +139,8 @@
 </section>
 
 <section class="sheet">
-  <div class="task">
-    <h2>🪥 4. Coloque os passos em ordem</h2>
+  <div class="task" style="--c: var(--orange)">
+    <h2><i>4</i>Coloque os passos em ordem</h2>
     <p>Os passos para escovar os dentes estão misturados. Numere de 1 a 4 na ordem certa. Uma receita também é um algoritmo!</p>
     <ul class="steps">
       <li><span></span>Escovar os dentes</li>
@@ -141,12 +150,12 @@
     </ul>
   </div>
 
-  <div class="task grow">
-    <h2>📱 5. Invente um app</h2>
+  <div class="task grow" style="--c: var(--purple)">
+    <h2><i>5</i>Invente um app</h2>
     <p>Desenhe na tela do celular um app que você gostaria de criar. Pode ser um jogo, um app para a escola ou para ajudar alguém!</p>
     <div class="app">
       <svg viewBox="0 0 100 180" style="width: 40cqw">
-        <rect x="4" y="4" width="92" height="172" rx="16" fill="#fff" stroke="#1d2a44" stroke-width="5"/>
+        <rect x="4" y="4" width="92" height="172" rx="16" fill="#e2dbff" stroke="#2f2a4a" stroke-width="5"/>
         <rect x="12" y="20" width="76" height="132" rx="6" fill="#fff" stroke="#b9d3ee" stroke-width="3"/>
         <circle cx="50" cy="164" r="5" fill="#1d2a44"/>
         <rect x="40" y="10" width="20" height="4" rx="2" fill="#b9d3ee"/>

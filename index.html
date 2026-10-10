@@ -3,560 +3,865 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Missão Dev</title>
+<title>Jogos e Materiais · Engenharia de Software na escola</title>
+<meta name="description" content="Os jogos para a turma, a Oficina de Prompts para professores e os materiais da aula, num lugar só, com QR codes, links curtos e uso sem internet.">
+<meta property="og:title" content="Jogos e Materiais">
+<meta property="og:description" content="Os jogos para a turma, a Oficina de Prompts para professores e os materiais da aula, num lugar só.">
+<meta property="og:image" content="https://medeiros08.github.io/Jogo-ES/icone-512.png">
+<meta name="theme-color" content="#5fbcff">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='20' width='72' height='60' rx='16' fill='%234da3ff' stroke='%231d2a44' stroke-width='6'/><circle cx='36' cy='48' r='9' fill='%23fff'/><circle cx='64' cy='48' r='9' fill='%23fff'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  /* layout: full-screen single-column "arcade console" — one screen visible at a time, header bar + stage + footer action */
-  :root{
-    color-scheme: dark;
-    --bg: #0a0e16;
-    --surface: #141b28;
-    --surface-2: #1c2536;
-    --fg: #e9eef7;
-    --muted: #7f8ba3;
-    --accent: #33e2a0;
-    --accent-dim: #1d8f66;
-    --warn: #ffb15e;
-    --bad: #ff6b6b;
-    --font-display: 'JetBrains Mono', ui-monospace, 'Courier New', monospace;
-    --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  :root {
+    --sky1: #5fbcff; --sky2: #cdeeff; --hill: #8ddf6a; --hill2: #6cc653;
+    --ink: #2f2a4a; --soft: #5d5880;
+    --blue: #4da3ff; --pink: #ff5f8f; --mint: #4fd6a6; --orange: #ff8a3d; --purple: #8c73ff; --yellow: #ffd23f;
+    --font: "Fredoka", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
   }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  body{
-    background:
-      radial-gradient(circle at 15% 0%, rgba(51,226,160,0.08), transparent 45%),
-      radial-gradient(circle at 85% 100%, rgba(255,177,94,0.06), transparent 45%),
-      var(--bg);
-    color:var(--fg);
-    font-family:var(--font-body);
-    min-height:100%;
-    display:flex;
-    flex-direction:column;
-  }
-  h1,h2,h3,.mono{font-family:var(--font-display);}
-  h1,h2{text-wrap:balance; margin:0;}
-  .wrap{
-    max-width:480px;
-    width:100%;
-    margin:0 auto;
-    padding-inline:20px;
-    padding-block:16px;
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    min-height:100%;
-  }
-  [hidden]{display:none!important;}
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent }
+  [hidden] { display: none !important }
+  html { scroll-behavior: smooth }
+  body { margin: 0; min-height: 100vh; background: var(--sky2); color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.4 }
+  button { font: inherit; color: inherit; cursor: pointer }
+  a { color: inherit }
+  .i { width: 1.15em; height: 1.15em; flex: none; overflow: visible }
+  .g { transform-box: fill-box; transform-origin: center }
 
-  /* top bar */
-  #topbar{
-    display:flex; align-items:center; justify-content:space-between;
-    gap:12px; margin-bottom:18px;
+  /* The scenery behind everything: sky, drifting clouds, floating bits of code and two hills */
+  .sky { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 78%) }
+  .cloud { position: absolute; background: #fff; border-radius: 999px; opacity: .92; animation: drift 46s linear infinite }
+  .cloud::before, .cloud::after { content: ""; position: absolute; background: #fff; border-radius: 50% }
+  .cloud::before { width: 55%; height: 160%; left: 15%; bottom: 20% }
+  .cloud::after { width: 40%; height: 130%; right: 12%; bottom: 25% }
+  .c1 { width: 130px; height: 36px; top: 9%; animation-delay: -8s }
+  .c2 { width: 92px; height: 26px; top: 34%; animation-duration: 60s; animation-delay: -30s }
+  .c3 { width: 160px; height: 42px; top: 4%; animation-duration: 75s; animation-delay: -50s; opacity: .7 }
+  .c4 { width: 110px; height: 30px; top: 58%; animation-duration: 66s; animation-delay: -14s; opacity: .8 }
+  @keyframes drift { from { transform: translateX(-30vw) } to { transform: translateX(130vw) } }
+  .bit { position: absolute; font-weight: 700; color: rgba(255, 255, 255, .6); font-size: 24px; animation: float 9s ease-in-out infinite }
+  .b1 { left: 5%; top: 20% } .b2 { right: 7%; top: 13%; animation-delay: -2s; font-size: 20px }
+  .b3 { left: 10%; top: 62%; animation-delay: -4s } .b4 { right: 12%; top: 48%; animation-delay: -1s }
+  .b5 { left: 46%; top: 27%; animation-delay: -6s; font-size: 18px } .b6 { right: 4%; top: 76%; animation-delay: -3s }
+  @keyframes float { 50% { transform: translateY(-16px) rotate(8deg) } }
+  .hills { position: absolute; left: 0; right: 0; bottom: 0; height: 17vh }
+  .hills::before, .hills::after { content: ""; position: absolute; bottom: -40%; border-radius: 50% }
+  .hills::before { left: -20%; width: 90%; height: 140%; background: var(--hill) }
+  .hills::after { right: -25%; width: 95%; height: 120%; background: var(--hill2) }
+
+  .page { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: max(18px, env(safe-area-inset-top)) 16px 30px }
+
+  /* Buttons: thick outline and a hard shadow, like the buttons of the games */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; padding: 8px 20px; background: var(--c, #fff); color: var(--ink); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 5px 0 var(--ink); font-weight: 700; font-size: 19px; text-decoration: none; white-space: nowrap; transition: transform .1s, box-shadow .1s }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--ink) }
+  .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink) }
+  .btn.white { background: #fff }
+  .btn.small { min-height: 42px; padding: 5px 14px; font-size: 16px; box-shadow: 0 4px 0 var(--ink) }
+  /* White letters with an ink outline read well on every color */
+  .loud { color: #fff; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; letter-spacing: .3px }
+  .loud .i { filter: drop-shadow(1.5px 0 0 var(--ink)) drop-shadow(-1.5px 0 0 var(--ink)) drop-shadow(0 1.5px 0 var(--ink)) drop-shadow(0 -1.5px 0 var(--ink)) }
+  .round { display: grid; place-items: center; width: 52px; height: 52px; flex: none; padding: 0; background: #fff; border: 3px solid var(--ink); border-radius: 50%; box-shadow: 0 5px 0 var(--ink); transition: transform .1s, box-shadow .1s }
+  .round:hover { transform: translateY(-2px) rotate(-6deg); box-shadow: 0 7px 0 var(--ink) }
+  .round:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink) }
+  .round .i { width: 26px; height: 26px }
+  .round.small { width: 44px; height: 44px; box-shadow: 0 4px 0 var(--ink) }
+  .round.small .i { width: 22px; height: 22px }
+
+  /* Top of the page: title, Bit the robot talking, and the shortcuts */
+  .hero { text-align: center }
+  .logo { margin: 6px 0 0; font-size: clamp(44px, 11.5vw, 82px); font-weight: 700; line-height: 1; color: #fff; -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; text-shadow: 0 6px 0 var(--ink) }
+  .logo span { display: inline-block; animation: hop 3.4s ease-in-out infinite }
+  .logo .w1 { color: var(--yellow) }
+  .logo .w2 { animation-delay: .2s }
+  .logo .w3 { color: var(--pink); animation-delay: .4s }
+  @keyframes hop { 0%, 78%, 100% { transform: translateY(0) } 86% { transform: translateY(-9px) rotate(-3deg) } 93% { transform: translateY(0) rotate(1deg) } }
+  .tagline { display: inline-block; margin: 14px 0 0; padding: 4px 16px; background: var(--ink); color: #fff; border-radius: 999px; font-weight: 600; font-size: clamp(14px, 3.8vw, 17px) }
+  .hello { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 16px auto 4px; max-width: 900px }
+  .bot { width: clamp(92px, 25vw, 132px); flex: none; overflow: visible; cursor: pointer }
+  .bot-body { animation: bob 2.6s ease-in-out infinite }
+  .bot.jump .bot-body { animation: jump .7s cubic-bezier(.3, 1.4, .6, 1) }
+  @keyframes bob { 50% { transform: translateY(-5px) } }
+  @keyframes jump { 40% { transform: translateY(-26px) rotate(-10deg) } 70% { transform: translateY(2px) rotate(4deg) } }
+  .bot-eyes { animation: blink 4.2s infinite }
+  @keyframes blink { 0%, 91%, 97%, 100% { transform: scaleY(1) } 94% { transform: scaleY(.1) } }
+  .bot-light { animation: glow 1.4s ease-in-out infinite }
+  @keyframes glow { 50% { fill: #ffd23f } }
+  .bubble { position: relative; max-width: 400px; padding: 12px 18px; background: #fff; border: 4px solid var(--ink); border-radius: 24px; box-shadow: 0 5px 0 rgba(47, 42, 74, .25); font-size: clamp(16px, 4.3vw, 21px); font-weight: 600; text-align: left; cursor: pointer }
+  .bubble::before { content: ""; position: absolute; left: -15px; top: 50%; margin-top: -11px; border: 11px solid transparent; border-right-color: var(--ink); border-left: 0 }
+  .bubble::after { content: ""; position: absolute; left: -8px; top: 50%; margin-top: -7px; border: 7px solid transparent; border-right-color: #fff; border-left: 0 }
+  .bubble.pop { animation: pop .35s cubic-bezier(.3, 1.6, .6, 1) }
+  @keyframes pop { from { transform: scale(.85); opacity: .3 } }
+  .site-qr { display: none }
+  @media (min-width: 900px) {
+    .site-qr { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-left: 18px; padding: 10px 12px 8px; background: #fff; border: 4px solid var(--ink); border-radius: 22px; box-shadow: 0 6px 0 rgba(47, 42, 74, .25); transform: rotate(3deg); transition: transform .2s; font-weight: 700 }
+    .site-qr:hover { transform: rotate(0) scale(1.05) }
+    .site-qr svg { width: 128px; height: 128px }
+    #site-qr-button { display: none }
   }
-  #dots{display:flex; gap:6px;}
-  .dot{width:9px;height:9px;border-radius:50%;background:var(--surface-2); border:1px solid rgba(255,255,255,0.08); transition:background .2s;}
-  .dot.done{background:var(--accent);}
-  .dot.active{background:var(--warn);}
-  #score{
-    font-family:var(--font-display); font-weight:700; font-size:.85rem;
-    color:var(--accent); background:var(--surface); border:1px solid rgba(51,226,160,0.25);
-    padding:6px 10px; border-radius:8px; letter-spacing:.02em;
+  .nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 18px 0 0 }
+  .nav a { padding: 6px 16px; background: var(--c); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 4px 0 var(--ink); font-weight: 700; text-decoration: none; transition: transform .1s }
+  .nav a:hover { transform: translateY(-3px) rotate(-2deg) }
+  .tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 18px }
+  .ready { display: inline-flex; align-items: center; gap: 6px; margin-top: 16px; padding: 4px 14px 4px 6px; background: #fff; border: 3px solid var(--ink); border-radius: 999px; font-weight: 600; font-size: 15px }
+  .ready b { display: grid; place-items: center; width: 24px; height: 24px; background: var(--mint); border-radius: 50% }
+
+  /* Section titles drawn like the title of the page */
+  .sec { margin-top: 52px; scroll-margin-top: 16px }
+  .sec-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px }
+  .sec-title { margin: 0; font-size: clamp(38px, 9vw, 56px); font-weight: 700; line-height: 1; color: var(--c); -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; text-shadow: 0 5px 0 var(--ink) }
+  .sec-sub { margin: 12px 0 22px; font-size: 19px; font-weight: 600 }
+
+  /* The class menu banner, with its QR code always on show for the projector */
+  .banner { display: grid; grid-template-columns: 1fr auto; gap: 18px 26px; align-items: center; margin-bottom: 28px; padding: 22px 24px; border: 4px solid var(--ink); border-radius: 30px; box-shadow: 0 8px 0 rgba(47, 42, 74, .28); background: repeating-linear-gradient(-45deg, #ffe066 0 22px, var(--yellow) 22px 44px); background-size: 62.2px 62.2px; animation: stripes 3s linear infinite }
+  @keyframes stripes { to { background-position: 62.2px 0 } }
+  .banner h3 { margin: 4px 0 6px; font-size: clamp(28px, 6.5vw, 40px); line-height: 1.05 }
+  .banner p { margin: 0 0 14px; max-width: 520px; font-size: 19px; font-weight: 500 }
+  .minis { display: flex; gap: 4px }
+  .minis svg { width: 44px; height: 44px; animation: hop 2.6s ease-in-out infinite }
+  .minis svg:nth-child(2) { animation-delay: .15s } .minis svg:nth-child(3) { animation-delay: .3s } .minis svg:nth-child(4) { animation-delay: .45s }
+  .qr-card { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 12px 8px; background: #fff; border: 4px solid var(--ink); border-radius: 22px; box-shadow: 0 6px 0 var(--ink); font-weight: 700; animation: wobble 5s ease-in-out infinite }
+  .qr-card svg { width: 170px; height: 170px }
+  @keyframes wobble { 0%, 100% { transform: rotate(3deg) } 50% { transform: rotate(-2deg) translateY(-4px) } }
+
+  /* Game cards: a colored stage with a little scene of the game, then the text and the buttons */
+  .games { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 310px), 1fr)); gap: 26px 24px }
+  .game { display: flex; flex-direction: column; overflow: hidden; background: #fff; border: 4px solid var(--ink); border-radius: 28px; box-shadow: 0 8px 0 rgba(47, 42, 74, .28); transition: transform .25s cubic-bezier(.3, 1.5, .6, 1) }
+  .game:hover { transform: translateY(-6px) rotate(-1deg) }
+  .game:nth-child(even):hover { transform: translateY(-6px) rotate(1deg) }
+  .stage { position: relative; height: 158px; overflow: hidden; background-color: var(--c); background-image: radial-gradient(rgba(255, 255, 255, .3) 2px, transparent 2.5px); background-size: 18px 18px; border-bottom: 4px solid var(--ink) }
+  .stage svg { position: absolute; inset: 0; width: 100%; height: 100% }
+  .game .body { display: flex; flex: 1; flex-direction: column; gap: 6px; padding: 14px 18px 18px }
+  .game h3, .note h3 { margin: 0; font-size: 26px; font-weight: 700; line-height: 1.1 }
+  .game p, .note p { margin: 0; font-weight: 500 }
+  .game p { color: var(--soft) }
+  .meta { display: flex; align-items: center; gap: 8px; font-weight: 600 !important; color: var(--ink) !important }
+  .dot { width: 14px; height: 14px; flex: none; background: var(--c); border: 3px solid var(--ink); border-radius: 50% }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: auto; padding-top: 10px }
+  .row .grow { flex: 1 }
+  .short { align-self: flex-start; max-width: 100%; margin-top: 6px; padding: 3px 10px; background: transparent; border: 2px dashed rgba(47, 42, 74, .3); border-radius: 10px; font-size: 14px; font-weight: 500; color: var(--soft); text-align: left; overflow-wrap: anywhere }
+  .short b { color: var(--ink); font-weight: 700 }
+  .short:hover { border-color: var(--ink) }
+
+  /* The scenes inside the game cards */
+  .r-walk { animation: r-walk 4.6s ease-in-out infinite }
+  @keyframes r-walk {
+    0%, 8% { transform: translate(14px, 8px); opacity: 1 }
+    28% { transform: translate(84px, 8px) }
+    48% { transform: translate(84px, 60px) }
+    70%, 88% { transform: translate(110px, 60px); opacity: 1 }
+    93% { transform: translate(110px, 60px); opacity: 0 }
+    94% { transform: translate(14px, 8px); opacity: 0 }
+    100% { transform: translate(14px, 8px); opacity: 1 }
+  }
+  .r-star { animation: r-star 4.6s ease-in-out infinite }
+  @keyframes r-star { 0%, 68%, 92%, 100% { transform: scale(1) rotate(0) } 76% { transform: scale(1.4) rotate(25deg) } 84% { transform: scale(.95) rotate(-8deg) } }
+  .n1 { animation: n-arc 2.6s infinite }
+  .n2 { animation: n-arc2 2.6s infinite; animation-delay: -1.3s }
+  @keyframes n-arc {
+    0% { transform: translate(30px, 130px) rotate(0); animation-timing-function: cubic-bezier(.2, .6, .4, 1) }
+    50% { transform: translate(64px, 18px) rotate(160deg); animation-timing-function: cubic-bezier(.6, 0, .8, .4) }
+    100% { transform: translate(98px, 130px) rotate(320deg) }
+  }
+  @keyframes n-arc2 {
+    0% { transform: translate(160px, 130px) rotate(0); animation-timing-function: cubic-bezier(.2, .6, .4, 1) }
+    50% { transform: translate(126px, 26px) rotate(-160deg); animation-timing-function: cubic-bezier(.6, 0, .8, .4) }
+    100% { transform: translate(92px, 130px) rotate(-320deg) }
+  }
+  .n-slash { stroke-dasharray: 140; animation: n-slash 2.6s infinite }
+  @keyframes n-slash { 0%, 44% { stroke-dashoffset: 140; opacity: 1 } 52% { stroke-dashoffset: 0; opacity: 1 } 70%, 100% { stroke-dashoffset: 0; opacity: 0 } }
+  .d-hop { animation: d-hop 1s ease-in-out infinite }
+  @keyframes d-hop { 0%, 60%, 100% { transform: translateY(0) } 30% { transform: translateY(-12px) } }
+  .d-arrow { animation: d-arrow 4s steps(1, end) infinite }
+  @keyframes d-arrow { 0% { transform: rotate(0) } 25% { transform: rotate(90deg) } 50% { transform: rotate(0) } 75% { transform: rotate(-90deg) } }
+  .c-flow { stroke-dasharray: 5 7; animation: c-flow .7s linear infinite }
+  @keyframes c-flow { to { stroke-dashoffset: -12 } }
+  .a-stick { transform-box: view-box; transform-origin: 86px 70px; animation: a-stick .9s ease-in-out infinite alternate }
+  @keyframes a-stick { from { transform: rotate(-20deg) } to { transform: rotate(20deg) } }
+  .a-bug { animation: a-bug 1.8s ease-in-out infinite alternate }
+  @keyframes a-bug { from { transform: translateX(-9px) } to { transform: translateX(9px) } }
+  .a-blink { animation: a-blink .9s steps(1, end) infinite }
+  @keyframes a-blink { 50% { fill: #fff } }
+  .twinkle { animation: twinkle 2s ease-in-out infinite }
+  .twinkle.late { animation-delay: -1s }
+  @keyframes twinkle { 50% { transform: scale(.6) rotate(30deg) } }
+  .k-crawl { animation: k-crawl 3.2s linear infinite }
+  @keyframes k-crawl { 0% { transform: translate(78px, 30px) rotate(90deg) } 40% { transform: translate(104px, 36px) rotate(110deg) } 70% { transform: translate(84px, 50px) rotate(250deg) } 100% { transform: translate(78px, 30px) rotate(450deg) } }
+  .k-pop { animation: k-pop 2.4s infinite }
+  @keyframes k-pop { 0%, 50% { transform: scale(1) } 58% { transform: scale(1.35) } 66%, 88% { transform: scale(0) } 100% { transform: scale(1) } }
+  .k-tap { animation: k-tap 2.4s infinite }
+  @keyframes k-tap { 0%, 44% { transform: scale(.3); opacity: 0 } 50% { opacity: 1 } 66%, 100% { transform: scale(1.5); opacity: 0 } }
+
+  /* Notes for the teacher: colored sheets of paper stuck on with tape */
+  .notes { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 34px 24px; padding-top: 12px }
+  .note { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 26px 18px 16px; background: var(--light); border: 4px solid var(--ink); border-radius: 10px 10px 26px 10px; box-shadow: 0 7px 0 rgba(47, 42, 74, .25); transform: rotate(var(--r)); transition: transform .25s cubic-bezier(.3, 1.5, .6, 1) }
+  .note:hover { transform: rotate(0) translateY(-4px) scale(1.02) }
+  .note.lined { background: linear-gradient(90deg, transparent 20px, #ff9fb8 20px 23px, transparent 23px), repeating-linear-gradient(#fff 0 29px, #d6e8ff 29px 31px); padding-left: 34px }
+  .tape { position: absolute; top: -16px; left: 50%; width: 92px; height: 28px; margin-left: -46px; background: var(--c); opacity: .75; border: 2px solid rgba(47, 42, 74, .35); transform: rotate(-4deg) }
+  .note-top { display: flex; align-items: center; gap: 12px }
+  .ico { width: 64px; height: 64px; flex: none; overflow: visible }
+  .note:hover .ico { animation: wiggle .5s ease-in-out }
+  @keyframes wiggle { 25% { transform: rotate(-10deg) } 75% { transform: rotate(8deg) } }
+  .o-cap { animation: cap 3s ease-in-out infinite }
+  @keyframes cap { 50% { transform: rotate(-8deg) translateY(-2px) } }
+  .blk { animation: 4.4s ease-out infinite }
+  .blk1 { animation-name: blk1 } .blk2 { animation-name: blk2 } .blk3 { animation-name: blk3 } .blk4 { animation-name: blk4 }
+  @keyframes blk1 { 0% { transform: translateY(-60px); opacity: 0 } 8%, 86% { transform: none; opacity: 1 } 94%, 100% { opacity: 0 } }
+  @keyframes blk2 { 0%, 12% { transform: translateY(-60px); opacity: 0 } 20%, 86% { transform: none; opacity: 1 } 94%, 100% { opacity: 0 } }
+  @keyframes blk3 { 0%, 24% { transform: translateY(-60px); opacity: 0 } 32%, 86% { transform: none; opacity: 1 } 94%, 100% { opacity: 0 } }
+  @keyframes blk4 { 0%, 36% { transform: translateY(-60px); opacity: 0 } 44%, 86% { transform: none; opacity: 1 } 94%, 100% { opacity: 0 } }
+  .spin { animation: spin 7s linear infinite }
+  @keyframes spin { to { transform: rotate(360deg) } }
+
+  /* Works without internet */
+  .panel { display: grid; grid-template-columns: auto 1fr; gap: 10px 26px; align-items: center; padding: 22px 26px; background: #fff; border: 4px solid var(--ink); border-radius: 30px; box-shadow: 0 8px 0 rgba(47, 42, 74, .28) }
+  .panel h2 { margin: 0 0 6px; font-size: clamp(28px, 6.5vw, 38px); line-height: 1.05 }
+  .panel p { margin: 0 0 12px; font-weight: 500 }
+  .phone-art { width: 120px }
+  .ok-badge { transform: scale(0); transition: transform .5s cubic-bezier(.3, 1.6, .6, 1) }
+  .panel.done .ok-badge { transform: scale(1) }
+  .status { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--sky2); border-radius: 14px; font-weight: 600 !important }
+
+  footer { position: relative; z-index: 1; padding: 34px 16px 26px; text-align: center; font-weight: 600 }
+
+  /* The share window */
+  dialog { width: min(600px, 94vw); max-height: 94vh; padding: 0; overflow: auto; background: #fff; color: var(--ink); border: 4px solid var(--ink); border-radius: 30px; box-shadow: 0 10px 0 rgba(47, 42, 74, .35) }
+  dialog[open] { animation: pop .35s cubic-bezier(.3, 1.5, .6, 1) }
+  dialog::backdrop { background: rgba(47, 42, 74, .55) }
+  .sheet-top { display: flex; align-items: center; gap: 12px; padding: 14px 14px 14px 22px; background: var(--c, var(--yellow)); border-bottom: 4px solid var(--ink) }
+  .sheet-top h2 { flex: 1; margin: 0; font-size: clamp(24px, 6vw, 32px); line-height: 1.1 }
+  .sheet-body { padding: 18px 18px 20px; text-align: center }
+  .big-qr svg { width: min(50vh, 72vw); height: min(50vh, 72vw); border: 4px solid var(--ink); border-radius: 18px }
+  .scan { margin: 6px 0 8px; font-weight: 600 }
+  .sheet-body .short { display: block; margin: 0 auto 16px; font-size: min(21px, 3.9vw); text-align: center }
+  .send { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px }
+  .send .btn { flex: 1 1 150px }
+  .btn.whatsapp { --c: #6be08f }
+  .walk { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 18px; font-weight: 600 }
+  .pick { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 12px }
+  .pick label { display: flex; align-items: center; gap: 8px; padding: 6px 14px; background: var(--sky2); border: 3px solid var(--ink); border-radius: 999px; font-weight: 600; cursor: pointer }
+  .pick input { width: 20px; height: 20px; accent-color: var(--ink) }
+  #list-text { width: 100%; height: 32vh; margin-bottom: 16px; padding: 12px 14px; background: #f3f8ff; color: var(--ink); border: 3px dashed rgba(47, 42, 74, .3); border-radius: 16px; font: 500 15px var(--font); resize: none }
+
+  #toast { position: fixed; left: 50%; bottom: 26px; z-index: 10; padding: 10px 22px; background: var(--ink); color: #fff; border-radius: 999px; font-weight: 600; opacity: 0; transform: translate(-50%, 20px); transition: .25s cubic-bezier(.3, 1.5, .6, 1); pointer-events: none }
+  #toast.show { opacity: 1; transform: translate(-50%, 0) }
+
+  /* Cards pop in as they scroll into view */
+  .js .reveal { opacity: 0 }
+  .js .reveal.shown { opacity: 1; animation: rise .6s cubic-bezier(.3, 1.4, .6, 1) backwards; animation-delay: var(--d, 0s) }
+  @keyframes rise { from { opacity: 0; transform: translateY(34px) scale(.94) rotate(var(--r, 0deg)) } }
+
+  @media (max-width: 600px) {
+    .banner { grid-template-columns: 1fr; padding: 18px }
+    .qr-card { justify-self: center }
+    .qr-card svg { width: 150px; height: 150px }
+    .panel { grid-template-columns: 1fr; text-align: center }
+    .phone-art { margin: 0 auto; width: 100px }
+    .game h3, .note h3 { font-size: 24px }
+    .stage { height: 140px }
+    .btn { font-size: 18px }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important }
   }
 
-  .screen{flex:1; display:flex; flex-direction:column;}
-  .eyebrow{
-    font-family:var(--font-display); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase;
-    color:var(--muted); margin-bottom:8px;
+  /* The printed poster: only the QR codes of one section, three per row on an A4 sheet */
+  #poster { display: none }
+  @media print {
+    @page { size: A4; margin: 12mm }
+    body { background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact }
+    body > :not(#poster):not(.sprites) { display: none !important }
+    #poster { display: block }
+    #poster h1 { margin: 0 0 2mm; font-size: 32pt; font-weight: 700; text-align: center; color: #fff; -webkit-text-stroke: 2.4mm var(--ink); paint-order: stroke fill }
+    #poster .sub { margin: 0 0 5mm; font-size: 15pt; font-weight: 600; text-align: center }
+    #poster .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm }
+    #poster .card { overflow: hidden; border: 1mm solid var(--ink); border-radius: 5mm; text-align: center; break-inside: avoid }
+    #poster .name { display: flex; align-items: center; justify-content: center; min-height: 13mm; padding: 1mm 2mm; background: var(--c); border-bottom: 1mm solid var(--ink); font-size: 13pt; font-weight: 700; line-height: 1.1 }
+    #poster .qr { width: 44mm; height: 44mm; margin-top: 2mm }
+    #poster .url { padding: 0 2mm 2mm; font-size: 8.5pt; font-weight: 500; line-height: 1.2; overflow-wrap: anywhere }
+    #poster .url b { font-size: 14pt; font-weight: 700 }
+    #poster .foot { margin: 5mm 0 0; font-size: 13pt; font-weight: 600; text-align: center }
   }
-  .title{font-size:1.5rem; font-weight:800; line-height:1.25; margin-bottom:10px;}
-  .lede{color:var(--muted); font-size:.98rem; line-height:1.55; margin-bottom:20px;}
-
-  .card{
-    background:var(--surface);
-    border:1px solid rgba(255,255,255,0.06);
-    border-radius:16px;
-    padding:18px;
-  }
-
-  button{
-    font-family:var(--font-body); font-weight:600; font-size:1rem;
-    cursor:pointer; border:none; border-radius:12px;
-    -webkit-user-select:none; user-select:none;
-  }
-  .btn-primary{
-    background:var(--accent); color:#06231a;
-    padding:14px 22px; width:100%;
-    box-shadow:0 8px 24px -8px rgba(51,226,160,0.5);
-  }
-  .btn-primary:active{transform:scale(0.98);}
-  .btn-primary:disabled{opacity:.35; box-shadow:none;}
-  .btn-ghost{
-    background:transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.12);
-    padding:10px 16px;
-  }
-
-  #start-stage{flex:1; display:flex; flex-direction:column; justify-content:center; text-align:center; gap:18px;}
-  .badge-emoji{font-size:3.2rem; line-height:1;}
-  .pill-row{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:4px;}
-  .pill{
-    font-family:var(--font-display); font-size:.68rem; letter-spacing:.04em;
-    color:var(--muted); background:var(--surface); border:1px solid rgba(255,255,255,0.08);
-    padding:5px 10px; border-radius:999px;
-  }
-
-  /* game 1: sequence builder */
-  #seq-slots{display:flex; flex-direction:column; gap:8px; margin-bottom:16px; min-height:180px;}
-  .slot{
-    border:1.5px dashed rgba(255,255,255,0.14); border-radius:10px;
-    padding:11px 12px; font-size:.88rem; color:var(--muted);
-    display:flex; align-items:center; gap:8px; min-height:44px;
-  }
-  .slot.filled{border-style:solid; border-color:rgba(51,226,160,0.3); background:var(--surface); color:var(--fg);}
-  .slot-num{font-family:var(--font-display); color:var(--accent); font-weight:700; font-size:.8rem;}
-  #seq-pool{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px;}
-  .chip{
-    background:var(--surface-2); border:1px solid rgba(255,255,255,0.08);
-    border-radius:10px; padding:10px 12px; font-size:.86rem;
-    transition:opacity .15s, transform .15s;
-  }
-  .chip:active{transform:scale(0.96);}
-  .chip.used{opacity:0; pointer-events:none;}
-  .feedback{
-    font-family:var(--font-display); font-size:.82rem; font-weight:700;
-    padding:10px 12px; border-radius:10px; margin-bottom:14px; display:none;
-  }
-  .feedback.show{display:block;}
-  .feedback.ok{background:rgba(51,226,160,0.12); color:var(--accent);}
-  .feedback.bad{background:rgba(255,107,107,0.12); color:var(--bad);}
-
-  /* game 2: bug hunt */
-  .code-block{
-    background:#05070d; border-radius:12px; padding:14px; margin-bottom:16px;
-    border:1px solid rgba(255,255,255,0.06);
-  }
-  .code-line{
-    font-family:var(--font-display); font-size:.82rem; line-height:1.9;
-    padding:6px 10px; border-radius:8px; display:flex; gap:10px;
-    border:1px solid transparent;
-  }
-  .code-line:active{background:rgba(255,255,255,0.05);}
-  .code-line .ln{color:#3d4a63; min-width:14px;}
-  .code-line.wrong-pick{border-color:rgba(255,107,107,0.4); background:rgba(255,107,107,0.08);}
-  .code-line.right-pick{border-color:rgba(51,226,160,0.4); background:rgba(51,226,160,0.08);}
-
-  /* game 3: loop reflex */
-  #loop-stage{text-align:center;}
-  #loop-target{font-family:var(--font-display); font-size:3.4rem; font-weight:800; color:var(--accent); margin:6px 0 2px;}
-  #loop-count{font-family:var(--font-display); font-size:1rem; color:var(--muted); margin-bottom:18px;}
-  .timerbar{height:8px; border-radius:999px; background:var(--surface-2); overflow:hidden; margin-bottom:22px;}
-  .timerbar > div{height:100%; background:var(--warn); width:100%; transform-origin:left;}
-  #loop-tap{
-    width:150px; height:150px; border-radius:50%; margin:0 auto 22px;
-    background:var(--surface); border:2px solid var(--accent);
-    font-family:var(--font-display); font-size:1rem; font-weight:700; color:var(--accent);
-    display:flex; align-items:center; justify-content:center;
-  }
-  #loop-tap:active{background:var(--accent); color:#06231a; transform:scale(0.96);}
-
-  /* result */
-  #result-stage{flex:1; display:flex; flex-direction:column; justify-content:center; text-align:center;}
-  #result-badge-emoji{font-size:4rem; margin-bottom:6px;}
-  #result-score{font-family:var(--font-display); font-size:2.6rem; font-weight:800; color:var(--accent); margin:6px 0;}
-  .recap{text-align:left; margin-top:22px; display:flex; flex-direction:column; gap:10px;}
-  .recap-item{
-    background:var(--surface); border-radius:12px; padding:12px 14px;
-    display:flex; gap:10px; align-items:flex-start; font-size:.85rem; line-height:1.5;
-  }
-  .recap-item b{color:var(--accent); font-family:var(--font-display); font-size:.78rem; display:block; margin-bottom:2px;}
-
-  footer{
-    text-align:center; padding-top:14px; color:var(--muted); font-size:.68rem;
-    font-family:var(--font-display); letter-spacing:.06em;
-  }
-
-  @media (prefers-reduced-motion: reduce){ *{transition:none!important; animation:none!important;} }
 </style>
+</head>
+<body>
 
-<div class="wrap">
-  <div id="topbar">
-    <div id="dots">
-      <div class="dot" data-d="0"></div>
-      <div class="dot" data-d="1"></div>
-      <div class="dot" data-d="2"></div>
-      <div class="dot" data-d="3"></div>
-      <div class="dot" data-d="4"></div>
-    </div>
-    <div id="score">0 PTS</div>
-  </div>
-
-  <!-- START -->
-  <section class="screen" id="screen-start">
-    <div id="start-stage">
-      <div class="badge-emoji">🧑‍💻</div>
-      <div>
-        <div class="eyebrow">Feira de ciências · Missão</div>
-        <h1 class="title">Vire Engenheiro(a) de Software</h1>
-        <p class="lede">5 desafios rápidos pra você sentir como é pensar como quem cria software de verdade.</p>
-      </div>
-      <div class="pill-row">
-        <span class="pill">ALGORITMO</span>
-        <span class="pill">DEBUG</span>
-        <span class="pill">LOOP</span>
-      </div>
-      <button class="btn-primary" id="btn-start">Começar missão →</button>
-    </div>
-  </section>
-
-  <!-- GAME 1: SEQUENCE -->
-  <section class="screen" id="screen-seq" hidden>
-    <div class="eyebrow">Desafio 1 · Algoritmo</div>
-    <h2 class="title">Monte os passos do robô</h2>
-    <p class="lede">O robô quer fazer um sanduíche de manteiga de amendoim. Toque os passos na ordem certa.</p>
-    <div class="feedback" id="seq-feedback"></div>
-    <div id="seq-slots"></div>
-    <div id="seq-pool"></div>
-    <button class="btn-primary" id="seq-confirm" disabled>Confirmar ordem</button>
-  </section>
-
-  <!-- GAME 2: BUG HUNT -->
-  <section class="screen" id="screen-bug" hidden>
-    <div class="eyebrow">Desafio <span id="bug-round-label">2</span> · Debug</div>
-    <h2 class="title" id="bug-title">Ache o bug no código</h2>
-    <p class="lede" id="bug-lede">Toque na linha que está com o erro.</p>
-    <div class="feedback" id="bug-feedback"></div>
-    <div class="code-block" id="bug-code"></div>
-  </section>
-
-  <!-- GAME 3: LOOP REFLEX -->
-  <section class="screen" id="screen-loop" hidden>
-    <div class="eyebrow">Desafio <span id="loop-round-label">4</span> · Laço de repetição</div>
-    <h2 class="title">Execute o laço certinho</h2>
-    <p class="lede">Toque no botão exatamente o número de vezes pedido, antes que o tempo acabe.</p>
-    <div id="loop-stage">
-      <div class="eyebrow">repita</div>
-      <div id="loop-target">6×</div>
-      <div id="loop-count">0 toques</div>
-      <div class="timerbar"><div id="loop-timerfill"></div></div>
-      <div id="loop-tap">TOCAR</div>
-      <button class="btn-primary" id="loop-confirm" disabled>Concluir laço</button>
-    </div>
-  </section>
-
-  <!-- RESULT -->
-  <section class="screen" id="screen-result" hidden>
-    <div id="result-stage">
-      <div id="result-badge-emoji">🏆</div>
-      <div class="eyebrow">Missão concluída</div>
-      <div id="result-score">100 PTS</div>
-      <h2 class="title" id="result-title">Arquiteto(a) de Software</h2>
-      <div class="recap">
-        <div class="recap-item">🧩<div><b>ALGORITMO</b>A ordem dos passos importa — é isso que faz um programa funcionar.</div></div>
-        <div class="recap-item">🐛<div><b>DEBUG</b>Todo mundo escreve bugs. O trabalho é saber caçá-los com calma.</div></div>
-        <div class="recap-item">🔁<div><b>LOOP</b>Laços de repetição fazem o computador repetir ações do jeito certo, sem errar a conta.</div></div>
-      </div>
-      <button class="btn-primary" id="btn-restart" style="margin-top:22px;">Jogar de novo</button>
-    </div>
-  </section>
-
-  <footer>FEIRA DE CIÊNCIAS · ENGENHARIA DE SOFTWARE</footer>
+<div class="sky" aria-hidden="true">
+  <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div><div class="cloud c4"></div>
+  <span class="bit b1">&lt;/&gt;</span><span class="bit b2">{ }</span><span class="bit b3">01</span><span class="bit b4">if</span><span class="bit b5">[ ]</span><span class="bit b6">;</span>
+  <div class="hills"></div>
 </div>
 
-<script>
-(function(){
-  "use strict";
+<div class="page">
+  <header class="hero">
+    <h1 class="logo"><span class="w1">Jogos</span> <span class="w2">e</span> <span class="w3">Materiais</span></h1>
+    <p class="tagline">Engenharia de Software na escola</p>
+    <div class="hello">
+      <svg class="bot" id="bot" viewBox="0 0 100 100" role="button" tabindex="0" aria-label="Bit, o robô. Toque nele!">
+        <g class="bot-body">
+          <line x1="50" y1="8" x2="50" y2="22" stroke="#1d2a44" stroke-width="4"/>
+          <circle class="bot-light" cx="50" cy="8" r="6" fill="#ff4d4d"/>
+          <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+          <g class="g bot-eyes"><circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/><circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/></g>
+          <circle cx="27" cy="57" r="4" fill="#ff8fb0"/><circle cx="73" cy="57" r="4" fill="#ff8fb0"/>
+          <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+        </g>
+      </svg>
+      <button class="bubble" type="button" id="bubble">Oi! Eu sou o Bit. Aqui estão os jogos para a turma e os materiais para o professor.</button>
+      <button class="site-qr" type="button" id="site-qr"></button>
+    </div>
+    <nav class="nav">
+      <a href="#jogos" style="--c: var(--yellow)">Jogos</a>
+      <a href="#oficina" style="--c: var(--pink)">Oficina de Prompts</a>
+      <a href="#aula" style="--c: var(--mint)">Materiais da aula</a>
+      <a href="#offline" style="--c: #fff">Sem internet</a>
+    </nav>
+    <div class="tools">
+      <button class="btn loud" type="button" id="list-button" style="--c: var(--orange)"><svg class="i"><use href="#i-send"/></svg>Enviar os links</button>
+      <button class="btn white" type="button" id="site-qr-button"><svg class="i"><use href="#i-qr"/></svg>QR do site</button>
+    </div>
+    <div><span class="ready" id="ready" hidden><b><svg class="i" style="width:16px;height:16px;color:#fff"><use href="#i-check"/></svg></b>Pronto para usar sem internet</span></div>
+  </header>
 
-  var state = {
-    step: 0, // 0 seq, 1 bug-a, 2 bug-b, 3 loop-a, 4 loop-b
-    score: 0
-  };
+  <main>
+    <section class="sec" id="jogos">
+      <div class="sec-head"><h2 class="sec-title" style="--c: var(--yellow)">Jogos</h2><button class="btn white small" type="button" data-poster="jogos"><svg class="i"><use href="#i-print"/></svg>Cartaz de QR codes</button></div>
+      <p class="sec-sub">Para crianças de 6 a 14 anos, no celular, no tablet ou no projetor.</p>
+      <div id="banner"></div>
+      <div class="games" data-group="jogos"></div>
+    </section>
 
-  var screens = {
-    start: document.getElementById('screen-start'),
-    seq: document.getElementById('screen-seq'),
-    bug: document.getElementById('screen-bug'),
-    loop: document.getElementById('screen-loop'),
-    result: document.getElementById('screen-result')
-  };
-  var dots = Array.prototype.slice.call(document.querySelectorAll('#dots .dot'));
-  var scoreEl = document.getElementById('score');
+    <section class="sec" id="oficina">
+      <div class="sec-head"><h2 class="sec-title" style="--c: var(--pink)">Oficina de Prompts</h2><button class="btn white small" type="button" data-poster="oficina"><svg class="i"><use href="#i-print"/></svg>Cartaz de QR codes</button></div>
+      <p class="sec-sub">Para professores criarem atividades, histórias e jogos com o Gemini.</p>
+      <div class="notes" data-group="oficina"></div>
+    </section>
 
-  function addScore(n){
-    state.score += n;
-    scoreEl.textContent = state.score + ' PTS';
-  }
+    <section class="sec" id="aula">
+      <div class="sec-head"><h2 class="sec-title" style="--c: var(--mint)">Materiais da aula</h2><button class="btn white small" type="button" data-poster="aula"><svg class="i"><use href="#i-print"/></svg>Cartaz de QR codes</button></div>
+      <p class="sec-sub">Para apresentar os jogos numa turma: projetar, imprimir e entregar.</p>
+      <div class="notes" data-group="aula"></div>
+    </section>
 
-  function updateDots(){
-    dots.forEach(function(d, i){
-      d.classList.toggle('done', i < state.step);
-      d.classList.toggle('active', i === state.step);
-    });
-  }
+    <section class="sec" id="offline">
+      <div class="panel" id="offline-panel">
+        <svg class="phone-art" viewBox="0 0 100 120" aria-hidden="true">
+          <rect x="20" y="8" width="58" height="106" rx="12" fill="#fff" stroke="#2f2a4a" stroke-width="4"/>
+          <rect x="28" y="20" width="42" height="72" rx="4" fill="#cdeeff"/>
+          <g class="g d-hop"><use href="#bot" x="31" y="38" width="36" height="36"/></g>
+          <circle cx="49" cy="102" r="4" fill="#2f2a4a"/>
+          <g class="g ok-badge"><circle cx="80" cy="22" r="17" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="4"/><path d="M72 22 l6 6 l10 -12" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
+        </svg>
+        <div>
+          <h2>Funciona sem internet</h2>
+          <p>Abra este site uma vez com internet. Os jogos e as páginas ficam guardados neste aparelho e depois abrem mesmo sem internet, no celular ou no notebook da sala. Os PDFs ficam guardados depois que você abre cada um.</p>
+          <p class="status" id="offline-status">Guardando os jogos neste aparelho…</p>
+          <p><button class="btn loud" type="button" id="install" style="--c: var(--blue)" hidden><svg class="i"><use href="#i-install"/></svg>Instalar como app</button></p>
+          <p id="ios-hint" hidden>No iPhone e no iPad: toque em <b>Compartilhar</b> e depois em <b>Adicionar à Tela de Início</b>.</p>
+          <p id="android-hint" hidden>Para ter um ícone na tela do celular: no menu <b>⋮</b> do navegador, toque em <b>Adicionar à tela inicial</b>.</p>
+          <p>Os links curtos também podem ser ditados ou escritos no quadro, por exemplo <b>medeiros08.github.io/Jogo-ES/ninja</b>.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
 
-  function showScreen(name){
-    Object.keys(screens).forEach(function(k){ screens[k].hidden = (k !== name); });
-  }
+<footer>Feito pelo curso de Engenharia de Software da UNIPAMPA, no Campus Alegrete.</footer>
 
-  function vibrate(ms){ try{ navigator.vibrate && navigator.vibrate(ms); }catch(e){} }
+<dialog id="share">
+  <div class="sheet-top" id="share-top">
+    <h2 id="share-title"></h2>
+    <button class="round small close" type="button" aria-label="Fechar"><svg class="i"><use href="#i-close"/></svg></button>
+  </div>
+  <div class="sheet-body">
+    <div class="big-qr" id="share-qr"></div>
+    <p class="scan">Aponte a câmera do celular para o QR code</p>
+    <button class="short" type="button" id="share-short" title="Copiar o link"></button>
+    <div class="send">
+      <button class="btn white" type="button" id="share-copy"><svg class="i"><use href="#i-copy"/></svg>Copiar link</button>
+      <a class="btn whatsapp" id="share-whatsapp" target="_blank" rel="noopener"><svg class="i"><use href="#i-chat"/></svg>WhatsApp</a>
+      <a class="btn" id="share-classroom" target="_blank" rel="noopener" style="--c: var(--yellow)"><svg class="i"><use href="#i-board"/></svg>Classroom</a>
+      <button class="btn white" type="button" id="share-more" hidden><svg class="i"><use href="#i-share"/></svg>Outros apps</button>
+    </div>
+    <div class="walk" id="share-walk">
+      <button class="round" type="button" id="share-prev" aria-label="Anterior"><svg class="i"><use href="#i-left"/></svg></button>
+      <span id="share-count"></span>
+      <button class="round" type="button" id="share-next" aria-label="Próximo"><svg class="i"><use href="#i-right"/></svg></button>
+    </div>
+  </div>
+</dialog>
 
-  // ---------- GAME 1: SEQUENCE ----------
-  var seqSteps = [
-    "Pegar duas fatias de pão",
-    "Passar manteiga de amendoim em uma fatia",
-    "Colocar a outra fatia por cima",
-    "Servir o sanduíche"
-  ];
-  var seqOrder = [];        // correct order kept as indices 0..3
-  var seqChosen = [];       // indices chosen so far
-  var seqAttemptedWrong = false;
+<dialog id="list">
+  <div class="sheet-top" style="--c: var(--orange)">
+    <h2>Enviar os links</h2>
+    <button class="round small close" type="button" aria-label="Fechar"><svg class="i"><use href="#i-close"/></svg></button>
+  </div>
+  <div class="sheet-body">
+    <div class="pick" id="list-pick"></div>
+    <textarea id="list-text" readonly aria-label="Mensagem com os links"></textarea>
+    <div class="send">
+      <button class="btn white" type="button" id="list-copy"><svg class="i"><use href="#i-copy"/></svg>Copiar mensagem</button>
+      <a class="btn whatsapp" id="list-whatsapp" target="_blank" rel="noopener"><svg class="i"><use href="#i-chat"/></svg>WhatsApp</a>
+      <button class="btn white" type="button" id="list-more" hidden><svg class="i"><use href="#i-share"/></svg>Outros apps</button>
+    </div>
+  </div>
+</dialog>
 
-  function shuffle(arr){
-    var a = arr.slice();
-    for(var i=a.length-1;i>0;i--){
-      var j = Math.floor(Math.random()*(i+1));
-      var t=a[i]; a[i]=a[j]; a[j]=t;
-    }
-    return a;
-  }
+<div id="toast" role="status"></div>
+<div id="poster"></div>
 
-  function initSeq(){
-    seqChosen = [];
-    seqAttemptedWrong = false;
-    var slotsEl = document.getElementById('seq-slots');
-    var poolEl = document.getElementById('seq-pool');
-    slotsEl.innerHTML = '';
-    seqSteps.forEach(function(_, i){
-      var s = document.createElement('div');
-      s.className = 'slot';
-      s.id = 'slot-' + i;
-      s.innerHTML = '<span class="slot-num">' + (i+1) + '</span><span class="slot-text">passo ' + (i+1) + '</span>';
-      slotsEl.appendChild(s);
-    });
-    var order = shuffle(seqSteps.map(function(_, i){ return i; }));
-    poolEl.innerHTML = '';
-    order.forEach(function(origIndex){
-      var chip = document.createElement('button');
-      chip.className = 'chip';
-      chip.type = 'button';
-      chip.textContent = seqSteps[origIndex];
-      chip.dataset.idx = origIndex;
-      chip.addEventListener('click', function(){ pickSeqChip(origIndex, chip); });
-      poolEl.appendChild(chip);
-    });
-    document.getElementById('seq-feedback').className = 'feedback';
-    document.getElementById('seq-confirm').disabled = true;
-    document.getElementById('seq-confirm').textContent = 'Confirmar ordem';
-  }
-
-  function pickSeqChip(origIndex, chipEl){
-    if(seqChosen.length >= seqSteps.length) return;
-    chipEl.classList.add('used');
-    seqChosen.push(origIndex);
-    var slot = document.getElementById('slot-' + (seqChosen.length - 1));
-    slot.classList.add('filled');
-    slot.querySelector('.slot-text').textContent = seqSteps[origIndex];
-    if(seqChosen.length === seqSteps.length){
-      document.getElementById('seq-confirm').disabled = false;
-    }
-  }
-
-  document.getElementById('seq-confirm').addEventListener('click', function(){
-    var correct = seqChosen.every(function(v, i){ return v === i; });
-    var fb = document.getElementById('seq-feedback');
-    if(correct){
-      fb.textContent = seqAttemptedWrong ? '✓ Certo agora! +10 pts' : '✓ Perfeito na primeira! +20 pts';
-      fb.className = 'feedback show ok';
-      addScore(seqAttemptedWrong ? 10 : 20);
-      vibrate(30);
-      setTimeout(nextStep, 900);
-    } else {
-      seqAttemptedWrong = true;
-      fb.textContent = '✗ Ainda não é essa ordem. Reveja e confirme de novo.';
-      fb.className = 'feedback show bad';
-      vibrate([20,40,20]);
-      // let them fix: reset chosen but keep pool used chips available again
-      document.querySelectorAll('#seq-pool .chip').forEach(function(c){ c.classList.remove('used'); });
-      seqChosen = [];
-      document.querySelectorAll('.slot').forEach(function(s, i){
-        s.classList.remove('filled');
-        s.querySelector('.slot-text').textContent = 'passo ' + (i+1);
-      });
-      document.getElementById('seq-confirm').disabled = true;
-    }
-  });
-
-  // ---------- GAME 2: BUG HUNT (2 rounds) ----------
-  var bugRounds = [
-    {
-      title: 'Ache o bug no código',
-      lede: 'Este robô controla um semáforo. Toque na linha errada.',
-      lines: [
-        'SE sinal = vermelho ENTÃO andar()',
-        'SE sinal = verde ENTÃO parar()',
-        'SE sinal = amarelo ENTÃO atenção()'
-      ],
-      bugIndex: 0,
-      explain: 'No vermelho o robô deveria parar, não andar — as duas primeiras linhas estão trocadas.'
-    },
-    {
-      title: 'Ache o bug no código',
-      lede: 'Este robô devia pular 3 vezes. Toque na linha que impede isso.',
-      lines: [
-        'contador = 0',
-        'ENQUANTO contador < 2:',
-        '    pular()',
-        '    contador = contador + 1'
-      ],
-      bugIndex: 1,
-      explain: 'A condição devia ser "< 3" — com "< 2" o laço para cedo demais e o robô só pula 2 vezes.'
-    }
-  ];
-
-  function initBug(roundIdx){
-    var r = bugRounds[roundIdx];
-    document.getElementById('bug-round-label').textContent = roundIdx === 0 ? '2' : '3';
-    document.getElementById('bug-title').textContent = r.title;
-    document.getElementById('bug-lede').textContent = r.lede;
-    var codeEl = document.getElementById('bug-code');
-    codeEl.innerHTML = '';
-    var fb = document.getElementById('bug-feedback');
-    fb.className = 'feedback';
-    var wrongTried = false;
-    r.lines.forEach(function(text, i){
-      var line = document.createElement('div');
-      line.className = 'code-line';
-      line.innerHTML = '<span class="ln">' + (i+1) + '</span><span>' + text + '</span>';
-      line.addEventListener('click', function(){
-        if(line.classList.contains('right-pick')) return;
-        if(i === r.bugIndex){
-          line.classList.add('right-pick');
-          fb.textContent = (wrongTried ? '✓ Encontrou! +10 pts — ' : '✓ Na mosca! +20 pts — ') + r.explain;
-          fb.className = 'feedback show ok';
-          addScore(wrongTried ? 10 : 20);
-          vibrate(30);
-          setTimeout(nextStep, 1400);
-        } else {
-          wrongTried = true;
-          line.classList.add('wrong-pick');
-          fb.textContent = '✗ Essa linha está ok. Tenta outra.';
-          fb.className = 'feedback show bad';
-          vibrate([20,40,20]);
-          setTimeout(function(){ line.classList.remove('wrong-pick'); }, 500);
-        }
-      });
-      codeEl.appendChild(line);
-    });
-  }
-
-  // ---------- GAME 3: LOOP REFLEX (2 rounds) ----------
-  var loopRounds = [
-    { target: 6, seconds: 5 },
-    { target: 9, seconds: 6 }
-  ];
-  var loopState = { taps: 0, target: 0, timer: null, timeLeft: 0, active: false };
-
-  function initLoop(roundIdx){
-    var r = loopRounds[roundIdx];
-    document.getElementById('loop-round-label').textContent = roundIdx === 0 ? '4' : '5';
-    document.getElementById('loop-target').textContent = r.target + '×';
-    document.getElementById('loop-count').textContent = '0 toques';
-    document.getElementById('loop-confirm').disabled = true;
-    document.getElementById('loop-confirm').textContent = 'Concluir laço';
-    loopState.taps = 0;
-    loopState.target = r.target;
-    loopState.active = true;
-
-    var fill = document.getElementById('loop-timerfill');
-    fill.style.transition = 'none';
-    fill.style.transform = 'scaleX(1)';
-    // force reflow then animate
-    void fill.offsetWidth;
-    fill.style.transition = 'transform ' + r.seconds + 's linear';
-    fill.style.transform = 'scaleX(0)';
-
-    clearTimeout(loopState.timer);
-    loopState.timer = setTimeout(function(){
-      if(loopState.active) finishLoop(roundIdx, true);
-    }, r.seconds * 1000);
-  }
-
-  document.getElementById('loop-tap').addEventListener('click', function(){
-    if(!loopState.active) return;
-    loopState.taps++;
-    document.getElementById('loop-count').textContent = loopState.taps + ' toque' + (loopState.taps===1?'':'s');
-    if(loopState.taps === loopState.target){
-      document.getElementById('loop-confirm').disabled = false;
-    }
-    vibrate(10);
-  });
-
-  document.getElementById('loop-confirm').addEventListener('click', function(){
-    finishLoop(state.step === 3 ? 0 : 1, false);
-  });
-
-  function finishLoop(roundIdx, timedOut){
-    if(!loopState.active) return;
-    loopState.active = false;
-    clearTimeout(loopState.timer);
-    var exact = loopState.taps === loopState.target;
-    var pts = timedOut ? 0 : (exact ? 20 : 8);
-    addScore(pts);
-    vibrate(exact ? 30 : [20,40,20]);
-    setTimeout(nextStep, 500);
-  }
-
-  // ---------- FLOW ----------
-  function nextStep(){
-    state.step++;
-    updateDots();
-    render();
-  }
-
-  function render(){
-    switch(state.step){
-      case 0:
-        showScreen('seq'); initSeq(); break;
-      case 1:
-        showScreen('bug'); initBug(0); break;
-      case 2:
-        showScreen('bug'); initBug(1); break;
-      case 3:
-        showScreen('loop'); initLoop(0); break;
-      case 4:
-        showScreen('loop'); initLoop(1); break;
-      default:
-        showResult();
-    }
-  }
-
-  function showResult(){
-    showScreen('result');
-    document.getElementById('result-score').textContent = state.score + ' PTS';
-    var emoji, title;
-    if(state.score >= 90){ emoji='🏆'; title='Arquiteto(a) de Software'; }
-    else if(state.score >= 60){ emoji='💻'; title='Engenheiro(a) Pleno(a)'; }
-    else if(state.score >= 30){ emoji='🌱'; title='Engenheiro(a) Júnior'; }
-    else { emoji='🔍'; title='Estagiário(a) Curioso(a)'; }
-    document.getElementById('result-badge-emoji').textContent = emoji;
-    document.getElementById('result-title').textContent = title;
-  }
-
-  function restart(){
-    state.step = 0;
-    state.score = 0;
-    scoreEl.textContent = '0 PTS';
-    updateDots();
-    showScreen('start');
-  }
-
-  document.getElementById('btn-start').addEventListener('click', function(){
-    updateDots();
-    render();
-  });
-  document.getElementById('btn-restart').addEventListener('click', restart);
-
-  updateDots();
-})();
+<script type="application/json" id="links">
+{
+  "title": "Jogos e materiais de Engenharia de Software (UNIPAMPA)",
+  "site": "https://medeiros08.github.io/Jogo-ES/",
+  "groups": {
+    "jogos": { "title": "Jogos", "poster": "Escaneie e jogue!" },
+    "oficina": { "title": "Oficina de Prompts", "poster": "Oficina de Prompts" },
+    "aula": { "title": "Materiais da aula", "poster": "Materiais da aula" }
+  },
+  "items": [
+    { "group": "jogos", "id": "escola", "go": "escola/", "color": "yellow", "banner": true, "name": "A turma toda no celular", "text": "Os quatro jogos num menu só. Projete o QR code e cada criança escolhe o seu jogo.", "meta": "Menu da turma" },
+    { "group": "jogos", "id": "robo", "go": "escola/robo/", "color": "blue", "name": "Robô pega a estrela", "text": "Monte as setas e leve o robô até a estrela.", "meta": "6+ anos · Algoritmo" },
+    { "group": "jogos", "id": "ninja", "go": "escola/ninja/", "color": "pink", "name": "Ninja dos Bugs", "text": "Deslize o dedo para cortar os bugs, sem cortar o robô.", "meta": "6+ anos · Depuração" },
+    { "group": "jogos", "id": "dupla", "go": "escola/dupla/", "color": "mint", "name": "Programação em Dupla", "text": "Um pilota o robô e o outro, que vê os bugs escondidos, mostra o caminho.", "meta": "7+ anos · Trabalho em equipe" },
+    { "group": "jogos", "id": "conecta", "go": "escola/conecta/", "color": "orange", "name": "Conecta o Sistema", "text": "Ligue os cabos e faça a foto chegar do banco de dados até o celular.", "meta": "8+ anos · Sistemas" },
+    { "group": "jogos", "id": "arcade", "go": "arcade/", "color": "purple", "name": "Arcade do Código", "text": "Três jogos rápidos com o robô Bit e um placar para a turma.", "meta": "3 jogos · Placar" },
+    { "group": "jogos", "id": "caca-bugs", "go": "caca-bugs/", "color": "yellow", "name": "Caça aos Bugs!", "text": "Toque nos insetos para consertar o app da escola em 30 segundos.", "meta": "30 segundos · Depuração" },
+    { "group": "oficina", "id": "oficina", "go": "oficina/", "color": "pink", "label": "Abrir", "name": "Oficina de Prompts", "text": "A formação em quatro encontros: como pedir ao Gemini atividades, histórias e jogos.", "meta": "Para professores · 4 encontros" },
+    { "group": "oficina", "id": "prompt", "go": "oficina/construtor.html", "color": "blue", "label": "Abrir", "name": "Construtor de prompts", "text": "Responda algumas perguntas e receba um prompt pronto para colar no Gemini.", "meta": "Papel · Tarefa · Contexto · Formato" },
+    { "group": "oficina", "id": "gemini", "url": "https://gemini.google.com/app", "color": "purple", "label": "Abrir", "name": "Gemini", "text": "Onde os prompts são usados. Entre com a conta da escola, se tiver.", "meta": "Site do Google" },
+    { "group": "aula", "id": "slides", "go": "escola/slides.html", "color": "blue", "label": "Abrir", "name": "Slides da aula", "text": "Dez telas para o projetor. Passe com as setas e aperte F para tela cheia.", "meta": "Para o projetor" },
+    { "group": "aula", "id": "roteiro", "go": "escola/roteiro.pdf", "also": ["Ver na tela", "escola/roteiro.html"], "color": "yellow", "label": "PDF", "name": "Roteiro da aula", "text": "Passo a passo de 50 minutos, por idade, com cartões de seta e respostas.", "meta": "5 páginas" },
+    { "group": "aula", "id": "atividades", "go": "escola/atividades.pdf", "also": ["Ver na tela", "escola/atividades.html"], "color": "mint", "label": "PDF", "name": "Folha de atividades", "text": "Labirinto, ache o bug, caça-palavras e invente um app. Três folhas por criança.", "meta": "Para imprimir" },
+    { "group": "aula", "id": "mapas", "go": "escola/mapas-dupla.pdf", "also": ["Ver na tela", "escola/mapas-dupla.html"], "color": "orange", "label": "PDF", "name": "Mapas do navegador", "text": "As 15 fases da Programação em Dupla, para jogar sem celular.", "meta": "Para imprimir" },
+    { "group": "aula", "id": "certificado", "go": "escola/certificado.html", "also": ["Em branco", "escola/certificado.pdf"], "color": "pink", "label": "Preencher", "name": "Certificado", "text": "Escreva os nomes da turma e imprima um por criança, ou baixe em PDF.", "meta": "Programador(a) Mirim" }
+  ]
+}
 </script>
+<script type="application/json" id="qr-codes">{"inicio":[37,"M4 4.5h7m2 0h11m2 0h7m-29 1h1m5 0h1m1 0h1m1 0h3m1 0h4m1 0h1m2 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m3 0h1m1 0h1m2 0h2m1 0h1m3 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m3 0h2m1 0h1m1 0h2m1 0h3m1 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h1m4 0h2m4 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m2 0h4m1 0h7m1 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-19 1h1m1 0h1m2 0h5m-20 1h1m1 0h1m1 0h1m1 0h1m3 0h1m1 0h1m3 0h2m1 0h2m3 0h1m2 0h1m-28 1h2m1 0h2m3 0h2m1 0h3m1 0h3m2 0h3m2 0h1m2 0h1m-28 1h4m1 0h1m3 0h1m1 0h1m1 0h1m2 0h2m4 0h2m1 0h3m-29 1h2m3 0h1m1 0h4m2 0h5m2 0h1m6 0h1m-28 1h1m1 0h2m1 0h5m1 0h2m1 0h5m1 0h3m2 0h1m1 0h2m-27 1h1m1 0h1m2 0h1m1 0h1m2 0h1m1 0h1m5 0h1m1 0h1m2 0h1m2 0h1m-29 1h2m1 0h4m1 0h1m2 0h3m3 0h1m2 0h1m1 0h1m1 0h2m1 0h2m-28 1h2m2 0h1m1 0h3m2 0h1m3 0h2m2 0h3m2 0h1m1 0h1m-28 1h3m2 0h3m1 0h2m4 0h3m1 0h4m2 0h1m1 0h2m-27 1h4m1 0h2m1 0h4m2 0h1m4 0h2m2 0h2m1 0h1m-29 1h1m1 0h1m1 0h1m1 0h2m4 0h1m1 0h1m3 0h1m1 0h2m1 0h2m2 0h2m-28 1h2m1 0h1m3 0h1m3 0h3m1 0h4m2 0h1m2 0h1m1 0h1m-28 1h1m1 0h1m1 0h3m3 0h1m1 0h1m1 0h1m1 0h2m1 0h6m-17 1h1m1 0h1m1 0h1m1 0h1m1 0h1m3 0h1m3 0h1m1 0h3m-29 1h7m3 0h2m1 0h1m3 0h1m1 0h2m1 0h1m1 0h2m1 0h2m-29 1h1m5 0h1m3 0h3m3 0h5m3 0h2m-26 1h1m1 0h3m1 0h1m1 0h1m2 0h1m3 0h4m1 0h5m2 0h2m-29 1h1m1 0h3m1 0h1m2 0h1m2 0h2m2 0h1m2 0h1m3 0h2m1 0h3m-29 1h1m1 0h3m1 0h1m1 0h3m2 0h1m2 0h2m2 0h2m1 0h3m2 0h1m-29 1h1m5 0h1m3 0h1m1 0h1m4 0h2m1 0h2m5 0h1m-28 1h7m1 0h1m3 0h2m1 0h2m3 0h2m1 0h1m3 0h2"],"escola":[41,"M4 4.5h7m2 0h1m2 0h1m1 0h2m10 0h7m-33 1h1m5 0h1m1 0h3m2 0h2m1 0h2m2 0h3m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h1m2 0h3m5 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h3m2 0h1m3 0h1m3 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m5 0h2m1 0h1m2 0h1m2 0h1m2 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m3 0h1m2 0h1m2 0h1m3 0h2m4 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h3m5 0h1m4 0h1m-24 1h1m5 0h1m1 0h3m2 0h3m1 0h1m4 0h5m2 0h3m-32 1h1m1 0h1m1 0h1m2 0h1m1 0h4m1 0h3m1 0h2m2 0h2m4 0h3m-31 1h1m2 0h1m1 0h2m5 0h1m2 0h2m1 0h1m1 0h2m6 0h1m1 0h1m-31 1h2m5 0h4m3 0h3m2 0h2m1 0h1m2 0h8m-27 1h2m3 0h4m1 0h9m1 0h1m-27 1h1m4 0h1m5 0h2m1 0h1m1 0h2m2 0h5m1 0h2m1 0h1m1 0h2m-33 1h1m2 0h4m1 0h4m1 0h1m4 0h2m2 0h1m2 0h2m2 0h3m-31 1h3m1 0h1m2 0h1m2 0h3m1 0h1m2 0h2m4 0h2m1 0h4m1 0h1m-33 1h2m1 0h1m2 0h1m2 0h2m6 0h1m1 0h1m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m-33 1h4m1 0h1m1 0h2m1 0h1m1 0h1m1 0h4m1 0h5m2 0h1m2 0h2m1 0h1m-33 1h2m2 0h3m2 0h1m2 0h1m1 0h2m3 0h2m2 0h5m1 0h2m1 0h1m-25 1h1m1 0h4m3 0h5m3 0h2m1 0h5m-33 1h1m1 0h2m1 0h2m1 0h1m1 0h5m1 0h1m2 0h4m1 0h2m1 0h3m1 0h1m-32 1h2m2 0h1m3 0h4m4 0h1m1 0h1m1 0h1m1 0h2m3 0h4m-31 1h1m1 0h1m1 0h1m1 0h4m3 0h1m1 0h2m3 0h1m3 0h3m1 0h4m-32 1h1m2 0h2m2 0h1m1 0h2m1 0h1m1 0h1m7 0h1m2 0h1m1 0h4m-31 1h3m3 0h1m1 0h1m1 0h1m3 0h3m2 0h2m1 0h1m1 0h5m1 0h1m-23 1h1m1 0h1m1 0h2m1 0h2m1 0h2m2 0h1m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m3 0h6m2 0h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m3 0h2m1 0h3m4 0h1m2 0h2m3 0h4m-32 1h1m1 0h3m1 0h1m2 0h1m3 0h2m3 0h2m1 0h1m2 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m2 0h1m6 0h1m3 0h1m1 0h4m1 0h2m1 0h1m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h2m1 0h2m2 0h2m-33 1h1m5 0h1m5 0h5m1 0h3m4 0h4m1 0h1m-31 1h7m1 0h2m3 0h1m3 0h4m2 0h5m3 0h1"],"robo":[37,"M4 4.5h7m1 0h1m1 0h3m1 0h2m1 0h2m3 0h7m-29 1h1m5 0h1m2 0h4m3 0h1m1 0h3m1 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m3 0h3m1 0h1m1 0h2m2 0h1m1 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h1m1 0h6m2 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h1m1 0h1m2 0h1m2 0h1m5 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m1 0h5m1 0h1m1 0h1m2 0h1m2 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-21 1h1m2 0h2m2 0h1m1 0h2m-19 1h1m3 0h1m1 0h5m6 0h1m2 0h6m2 0h1m-28 1h2m4 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m3 0h7m-28 1h8m1 0h6m4 0h2m6 0h1m-28 1h2m1 0h1m4 0h2m3 0h2m1 0h1m1 0h2m1 0h1m2 0h1m1 0h2m-28 1h2m3 0h2m7 0h1m1 0h5m5 0h1m-25 1h1m3 0h1m3 0h1m1 0h3m1 0h2m2 0h8m-29 1h2m2 0h1m1 0h1m2 0h1m2 0h2m1 0h1m2 0h1m2 0h3m1 0h2m1 0h1m-25 1h2m3 0h2m6 0h1m1 0h3m5 0h2m-28 1h1m1 0h8m1 0h1m2 0h1m1 0h1m2 0h2m5 0h1m-28 1h4m4 0h4m2 0h5m1 0h1m1 0h4m1 0h2m-27 1h1m1 0h1m1 0h1m2 0h1m2 0h4m1 0h1m8 0h1m1 0h1m-26 1h1m1 0h1m1 0h1m4 0h1m1 0h1m2 0h2m8 0h2m-29 1h2m3 0h4m1 0h1m3 0h1m2 0h1m2 0h6m2 0h1m-21 1h3m1 0h1m1 0h5m1 0h1m3 0h1m3 0h1m-29 1h7m1 0h3m2 0h3m2 0h3m1 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m3 0h1m3 0h1m2 0h2m1 0h1m3 0h1m2 0h1m-28 1h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h3m1 0h9m2 0h1m-29 1h1m1 0h3m1 0h1m7 0h8m6 0h1m-29 1h1m1 0h3m1 0h1m3 0h1m3 0h3m1 0h1m6 0h4m-29 1h1m5 0h1m3 0h2m1 0h2m1 0h7m2 0h1m1 0h2m-29 1h7m1 0h2m1 0h3m1 0h1m3 0h5m1 0h1m1 0h1"],"ninja":[41,"M4 4.5h7m4 0h2m2 0h2m2 0h5m2 0h7m-33 1h1m5 0h1m2 0h3m3 0h2m1 0h1m1 0h2m4 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h4m2 0h1m1 0h1m4 0h2m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h4m6 0h2m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h5m3 0h3m3 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h4m1 0h1m5 0h1m3 0h2m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h1m1 0h1m3 0h1m1 0h4m1 0h1m-24 1h1m1 0h5m2 0h2m1 0h3m2 0h1m1 0h1m2 0h3m1 0h5m-31 1h4m1 0h1m1 0h2m3 0h2m3 0h4m2 0h1m2 0h2m1 0h2m1 0h1m-33 1h1m1 0h6m2 0h8m2 0h1m1 0h1m3 0h1m1 0h1m1 0h1m-31 1h3m2 0h1m2 0h6m2 0h5m4 0h1m2 0h5m-33 1h2m3 0h2m1 0h2m1 0h1m2 0h1m1 0h1m3 0h3m1 0h2m1 0h3m1 0h2m-31 1h1m2 0h1m1 0h4m1 0h2m1 0h1m1 0h2m5 0h1m1 0h1m2 0h1m1 0h2m-31 1h1m1 0h5m2 0h3m1 0h2m1 0h1m1 0h1m1 0h1m2 0h7m-32 1h1m2 0h1m4 0h2m2 0h4m2 0h1m2 0h3m1 0h2m1 0h3m-30 1h2m1 0h1m1 0h1m1 0h2m1 0h1m3 0h1m1 0h1m4 0h4m1 0h2m1 0h1m1 0h1m-32 1h2m2 0h1m2 0h4m4 0h1m2 0h5m2 0h2m1 0h2m1 0h1m-33 1h2m2 0h3m4 0h2m2 0h2m1 0h1m2 0h1m2 0h5m1 0h2m-32 1h2m2 0h1m2 0h1m1 0h1m2 0h1m2 0h1m3 0h4m3 0h7m-33 1h2m1 0h2m1 0h1m2 0h1m8 0h2m1 0h1m2 0h2m1 0h3m1 0h1m-32 1h3m2 0h1m2 0h4m3 0h2m3 0h5m1 0h1m2 0h2m1 0h1m-33 1h1m1 0h1m1 0h7m8 0h1m5 0h2m1 0h4m-32 1h1m1 0h2m9 0h1m2 0h1m2 0h4m1 0h2m2 0h5m-33 1h1m2 0h1m1 0h4m1 0h2m2 0h1m2 0h1m1 0h1m4 0h7m1 0h1m-25 1h1m1 0h1m3 0h1m1 0h4m2 0h1m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m3 0h2m3 0h1m1 0h1m4 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h1m3 0h2m2 0h3m4 0h2m3 0h5m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h2m3 0h1m2 0h4m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h2m2 0h1m2 0h1m2 0h1m1 0h3m2 0h1m1 0h1m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h4m1 0h4m1 0h2m1 0h2m1 0h2m1 0h1m-30 1h1m5 0h1m2 0h3m3 0h1m2 0h1m2 0h1m4 0h1m1 0h1m1 0h1m-31 1h7m1 0h4m1 0h1m1 0h1m1 0h2m1 0h1m2 0h2m1 0h2m3 0h1"],"dupla":[41,"M4 4.5h7m4 0h2m2 0h2m2 0h5m2 0h7m-33 1h1m5 0h1m4 0h1m3 0h2m1 0h1m1 0h2m4 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1m1 0h1m4 0h2m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h1m6 0h2m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m2 0h4m3 0h3m3 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h4m1 0h1m5 0h1m3 0h2m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h2m4 0h1m1 0h4m1 0h1m-24 1h1m1 0h5m2 0h2m1 0h3m2 0h1m1 0h1m2 0h3m1 0h5m-30 1h3m1 0h1m1 0h3m2 0h2m3 0h4m2 0h1m2 0h2m1 0h2m1 0h1m-32 1h3m2 0h2m3 0h7m2 0h1m1 0h1m2 0h1m2 0h1m1 0h1m-29 1h1m1 0h2m2 0h2m1 0h3m2 0h5m4 0h1m2 0h5m-32 1h1m3 0h2m1 0h5m1 0h1m1 0h1m3 0h3m1 0h2m2 0h2m1 0h2m-32 1h1m1 0h1m1 0h1m1 0h4m1 0h2m1 0h1m1 0h2m5 0h3m2 0h1m1 0h2m-30 1h4m4 0h1m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m2 0h3m1 0h3m-32 1h1m2 0h1m5 0h1m3 0h3m2 0h1m2 0h3m1 0h2m2 0h2m-30 1h2m1 0h1m1 0h4m1 0h1m3 0h1m1 0h1m4 0h4m1 0h2m1 0h1m1 0h1m-33 1h3m2 0h1m2 0h4m4 0h1m2 0h5m2 0h2m1 0h2m1 0h1m-33 1h1m3 0h1m1 0h1m4 0h2m2 0h2m1 0h1m2 0h1m2 0h1m2 0h2m1 0h2m-32 1h2m5 0h1m2 0h1m1 0h1m2 0h1m3 0h4m4 0h6m-28 1h2m1 0h1m3 0h3m3 0h2m1 0h1m2 0h2m1 0h3m1 0h1m-32 1h4m5 0h1m1 0h2m1 0h3m3 0h5m1 0h1m2 0h2m1 0h1m-33 1h1m1 0h1m1 0h3m1 0h3m8 0h1m5 0h2m1 0h4m-32 1h1m2 0h1m3 0h1m5 0h1m2 0h1m2 0h4m1 0h2m2 0h5m-33 1h1m2 0h1m1 0h2m1 0h1m1 0h2m2 0h1m2 0h1m1 0h1m4 0h7m1 0h1m-25 1h1m1 0h1m2 0h2m1 0h4m2 0h1m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h3m1 0h1m1 0h1m1 0h1m4 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h1m3 0h3m1 0h3m4 0h2m3 0h5m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h1m4 0h1m2 0h4m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h3m1 0h1m1 0h2m2 0h1m2 0h1m1 0h3m2 0h1m1 0h1m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h1m1 0h4m1 0h2m1 0h2m1 0h2m1 0h1m-30 1h1m5 0h1m2 0h2m4 0h1m2 0h1m2 0h1m3 0h2m1 0h1m1 0h1m-31 1h7m1 0h3m2 0h1m1 0h1m1 0h2m1 0h1m2 0h2m2 0h1m3 0h1"],"conecta":[41,"M4 4.5h7m5 0h1m2 0h2m2 0h2m1 0h2m2 0h7m-33 1h1m5 0h1m3 0h1m4 0h2m1 0h1m1 0h1m1 0h1m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1m1 0h1m4 0h2m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h1m6 0h2m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h4m3 0h2m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m2 0h1m1 0h1m5 0h1m6 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h3m5 0h1m1 0h4m2 0h1m-25 1h1m1 0h5m4 0h1m1 0h2m2 0h1m1 0h1m2 0h1m1 0h1m1 0h5m-29 1h2m1 0h1m1 0h1m1 0h1m2 0h2m3 0h4m2 0h1m2 0h2m1 0h2m1 0h1m-33 1h18m2 0h1m1 0h1m2 0h2m1 0h1m1 0h1m-31 1h2m2 0h2m1 0h1m1 0h1m2 0h2m2 0h5m4 0h2m1 0h5m-31 1h1m3 0h4m2 0h1m1 0h1m1 0h1m3 0h3m1 0h2m1 0h3m1 0h2m-33 1h1m1 0h1m1 0h2m4 0h2m1 0h1m1 0h1m1 0h2m4 0h1m2 0h1m2 0h1m1 0h2m-31 1h1m2 0h2m1 0h2m1 0h2m1 0h3m1 0h1m1 0h1m1 0h1m1 0h3m1 0h4m-32 1h1m1 0h2m5 0h7m2 0h1m2 0h2m2 0h3m1 0h2m-27 1h4m2 0h2m2 0h2m1 0h1m4 0h1m1 0h2m1 0h2m1 0h1m1 0h1m-33 1h4m4 0h1m1 0h3m3 0h1m2 0h5m2 0h2m1 0h2m1 0h1m-33 1h2m1 0h2m1 0h1m2 0h1m3 0h4m1 0h1m2 0h1m2 0h5m1 0h2m-32 1h3m1 0h2m1 0h1m2 0h1m1 0h1m1 0h2m3 0h4m3 0h7m-33 1h2m2 0h1m1 0h1m2 0h1m1 0h3m4 0h2m1 0h1m3 0h1m1 0h3m1 0h1m-32 1h2m2 0h1m2 0h1m3 0h1m2 0h3m3 0h4m2 0h1m2 0h2m1 0h1m-33 1h1m3 0h3m2 0h5m5 0h1m5 0h2m1 0h4m-32 1h1m1 0h2m6 0h1m1 0h3m1 0h1m2 0h7m2 0h4m-32 1h1m2 0h1m1 0h5m1 0h3m3 0h1m1 0h1m4 0h9m-25 1h1m4 0h2m1 0h4m2 0h1m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h2m2 0h1m1 0h1m1 0h1m4 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h2m1 0h1m4 0h3m4 0h2m3 0h5m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1m1 0h1m2 0h4m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h5m2 0h1m2 0h1m1 0h3m2 0h1m1 0h1m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h11m1 0h2m1 0h2m1 0h2m1 0h1m-30 1h1m5 0h1m3 0h4m1 0h1m2 0h1m2 0h1m3 0h1m2 0h1m1 0h1m-31 1h7m1 0h2m4 0h2m1 0h2m1 0h1m2 0h3m1 0h1m3 0h1"],"arcade":[41,"M4 4.5h7m2 0h5m1 0h3m1 0h2m1 0h2m2 0h7m-33 1h1m5 0h1m2 0h2m2 0h5m2 0h1m1 0h1m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h1m2 0h3m5 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h3m1 0h1m1 0h1m2 0h6m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h2m1 0h1m2 0h1m2 0h1m2 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h3m1 0h2m1 0h2m3 0h1m5 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h3m1 0h1m2 0h1m2 0h1m2 0h1m1 0h1m-24 1h1m1 0h5m2 0h3m1 0h3m1 0h1m4 0h3m1 0h5m-31 1h1m2 0h1m3 0h3m1 0h2m5 0h4m1 0h1m2 0h2m1 0h2m1 0h1m-30 1h4m5 0h1m2 0h2m1 0h1m1 0h2m6 0h1m1 0h1m-31 1h1m2 0h1m1 0h1m1 0h2m5 0h1m1 0h1m2 0h4m3 0h1m1 0h5m-33 1h3m1 0h3m1 0h3m7 0h1m2 0h1m2 0h2m2 0h2m1 0h2m-33 1h1m6 0h1m1 0h1m1 0h2m1 0h4m2 0h1m1 0h3m1 0h1m2 0h1m1 0h2m-33 1h1m1 0h1m1 0h4m1 0h2m2 0h1m4 0h2m2 0h1m2 0h2m2 0h3m-31 1h2m1 0h2m1 0h1m1 0h2m1 0h3m1 0h1m1 0h5m2 0h3m1 0h2m-31 1h2m1 0h1m2 0h1m2 0h2m6 0h1m1 0h1m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m-32 1h2m2 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h2m1 0h2m1 0h2m2 0h2m1 0h2m1 0h1m-33 1h1m1 0h1m1 0h1m1 0h3m1 0h3m1 0h4m4 0h1m1 0h1m2 0h2m1 0h2m-32 1h1m2 0h3m2 0h5m2 0h1m1 0h4m4 0h8m-31 1h1m1 0h3m1 0h2m1 0h1m4 0h1m2 0h4m1 0h2m1 0h3m1 0h1m-32 1h4m1 0h1m1 0h2m3 0h1m1 0h2m2 0h1m2 0h1m1 0h1m2 0h1m2 0h2m1 0h1m-33 1h1m3 0h1m1 0h4m2 0h2m1 0h2m3 0h1m3 0h3m1 0h4m-32 1h1m2 0h2m3 0h1m1 0h1m3 0h2m5 0h2m2 0h1m2 0h3m-31 1h1m3 0h4m3 0h1m1 0h1m1 0h1m1 0h1m6 0h9m-25 1h3m1 0h1m3 0h1m1 0h2m1 0h2m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h1m1 0h3m1 0h1m2 0h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h1m1 0h2m4 0h1m4 0h4m3 0h5m-33 1h1m1 0h3m1 0h1m1 0h2m3 0h2m3 0h2m1 0h1m2 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m4 0h2m3 0h6m2 0h1m1 0h1m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h1m1 0h1m3 0h3m1 0h1m1 0h2m1 0h2m1 0h1m-30 1h1m5 0h1m2 0h1m1 0h1m1 0h2m1 0h1m1 0h4m6 0h1m1 0h1m-31 1h7m1 0h2m1 0h1m1 0h1m3 0h4m2 0h3m1 0h1m3 0h1"],"caca-bugs":[41,"M4 4.5h7m3 0h2m2 0h1m4 0h1m3 0h1m2 0h7m-33 1h1m5 0h1m3 0h3m2 0h1m1 0h1m2 0h1m2 0h2m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m3 0h2m1 0h1m5 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m2 0h1m3 0h1m4 0h1m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m2 0h1m3 0h1m2 0h1m2 0h2m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m1 0h2m2 0h1m3 0h1m1 0h1m3 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-24 1h2m1 0h1m4 0h1m1 0h6m-25 1h1m2 0h1m1 0h2m1 0h3m2 0h4m2 0h1m1 0h1m1 0h3m1 0h1m-27 1h2m1 0h2m1 0h2m1 0h3m7 0h2m2 0h4m3 0h2m-33 1h1m2 0h2m1 0h1m3 0h2m4 0h2m1 0h1m1 0h1m3 0h4m1 0h3m-32 1h2m1 0h2m1 0h2m5 0h1m1 0h2m3 0h2m1 0h1m1 0h1m1 0h2m-30 1h1m1 0h1m3 0h1m1 0h2m1 0h2m2 0h1m5 0h2m2 0h2m2 0h1m1 0h1m-30 1h1m4 0h3m1 0h1m3 0h2m5 0h1m1 0h1m1 0h1m1 0h1m1 0h3m-33 1h2m3 0h2m1 0h1m1 0h1m1 0h1m4 0h2m1 0h2m1 0h5m2 0h2m-32 1h1m1 0h2m1 0h1m6 0h1m2 0h1m1 0h1m1 0h1m1 0h2m3 0h2m3 0h1m-30 1h1m2 0h2m1 0h4m2 0h1m2 0h1m1 0h4m1 0h1m1 0h1m1 0h1m1 0h2m-32 1h1m1 0h1m2 0h1m1 0h3m1 0h3m2 0h1m1 0h1m3 0h4m1 0h1m1 0h1m1 0h1m-31 1h2m2 0h2m3 0h1m1 0h3m3 0h1m1 0h2m2 0h1m1 0h1m3 0h3m-32 1h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h1m2 0h7m1 0h5m3 0h2m-33 1h1m1 0h1m1 0h1m1 0h3m1 0h1m3 0h6m2 0h4m5 0h1m-30 1h1m2 0h1m3 0h3m1 0h1m1 0h7m2 0h3m4 0h2m-33 1h3m1 0h5m1 0h1m1 0h1m1 0h2m4 0h2m5 0h4m1 0h1m-32 1h1m2 0h1m5 0h3m1 0h1m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m1 0h2m-30 1h1m2 0h1m1 0h5m4 0h4m1 0h13m-24 1h3m3 0h1m4 0h1m3 0h2m3 0h2m2 0h1m-33 1h7m2 0h1m1 0h1m4 0h1m4 0h1m2 0h1m1 0h1m1 0h4m-32 1h1m5 0h1m1 0h1m1 0h3m1 0h1m1 0h1m2 0h1m4 0h1m3 0h1m3 0h1m-33 1h1m1 0h3m1 0h1m3 0h2m2 0h3m5 0h1m1 0h6m-30 1h1m1 0h3m1 0h1m1 0h1m1 0h1m2 0h3m3 0h3m1 0h1m2 0h1m1 0h1m2 0h1m-32 1h1m1 0h3m1 0h1m2 0h2m1 0h1m4 0h2m3 0h3m3 0h2m2 0h1m-33 1h1m5 0h1m2 0h1m1 0h1m1 0h5m3 0h4m4 0h1m-30 1h7m1 0h2m1 0h2m1 0h1m1 0h1m1 0h1m1 0h6m2 0h2m1 0h1"],"oficina":[41,"M4 4.5h7m2 0h1m2 0h1m2 0h2m2 0h2m1 0h2m2 0h7m-33 1h1m5 0h1m8 0h2m1 0h1m1 0h1m1 0h1m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1m1 0h1m4 0h2m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h4m6 0h2m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m3 0h4m3 0h2m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m2 0h3m5 0h1m6 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h3m5 0h1m1 0h4m2 0h1m-25 1h1m1 0h5m6 0h2m2 0h1m1 0h1m2 0h1m1 0h1m1 0h5m-29 1h2m1 0h1m1 0h1m1 0h1m2 0h2m3 0h4m2 0h1m2 0h2m1 0h2m1 0h1m-33 1h5m1 0h3m2 0h7m2 0h1m1 0h1m2 0h1m2 0h1m1 0h1m-30 1h1m2 0h1m2 0h1m1 0h1m2 0h2m2 0h5m5 0h1m1 0h5m-32 1h3m1 0h3m2 0h1m3 0h1m1 0h1m3 0h3m1 0h2m1 0h3m1 0h2m-33 1h6m1 0h2m2 0h1m1 0h1m1 0h1m1 0h2m4 0h1m2 0h1m2 0h1m1 0h2m-31 1h2m1 0h5m1 0h2m1 0h3m1 0h1m1 0h1m1 0h1m1 0h3m1 0h4m-32 1h1m6 0h1m1 0h2m2 0h3m2 0h1m2 0h3m1 0h2m1 0h3m-29 1h1m1 0h3m3 0h1m3 0h2m1 0h1m4 0h4m1 0h2m1 0h1m1 0h1m-32 1h4m3 0h5m3 0h1m2 0h5m2 0h2m1 0h2m1 0h1m-32 1h1m1 0h2m1 0h1m7 0h3m1 0h1m2 0h1m2 0h1m1 0h3m1 0h2m-30 1h1m4 0h1m2 0h1m1 0h1m1 0h2m3 0h4m2 0h1m1 0h6m-29 1h1m1 0h1m4 0h3m4 0h2m1 0h1m2 0h2m1 0h3m1 0h1m-32 1h1m2 0h2m3 0h1m2 0h1m3 0h2m3 0h4m2 0h1m2 0h2m1 0h1m-33 1h1m1 0h1m1 0h10m5 0h1m5 0h2m1 0h4m-32 1h1m1 0h1m4 0h1m2 0h5m1 0h1m2 0h4m1 0h2m2 0h4m-32 1h1m2 0h1m1 0h5m2 0h2m3 0h1m1 0h1m3 0h10m-25 1h1m4 0h2m1 0h4m2 0h1m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h1m3 0h3m1 0h1m4 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h4m2 0h1m1 0h3m4 0h2m3 0h5m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h3m2 0h1m2 0h4m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m3 0h1m1 0h1m2 0h1m2 0h1m1 0h3m2 0h1m1 0h1m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h11m1 0h2m1 0h2m1 0h2m1 0h1m-30 1h1m5 0h1m3 0h1m2 0h1m1 0h1m2 0h1m2 0h1m6 0h1m1 0h1m-31 1h7m1 0h2m1 0h1m2 0h2m1 0h2m1 0h1m2 0h5m3 0h1"],"prompt":[41,"M4 4.5h7m2 0h1m1 0h4m2 0h1m1 0h1m1 0h1m1 0h1m2 0h7m-33 1h1m5 0h1m2 0h1m1 0h5m2 0h1m1 0h1m2 0h2m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m2 0h2m2 0h1m1 0h1m2 0h1m2 0h4m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m1 0h3m1 0h3m1 0h3m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h4m1 0h1m3 0h3m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h5m1 0h3m1 0h2m4 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-24 1h1m1 0h1m3 0h3m3 0h2m1 0h1m-25 1h1m2 0h1m1 0h2m1 0h1m2 0h1m1 0h2m1 0h1m4 0h1m2 0h2m1 0h1m-28 1h2m1 0h3m2 0h1m4 0h1m3 0h1m2 0h2m2 0h4m3 0h2m-33 1h1m1 0h1m3 0h3m1 0h1m1 0h3m1 0h1m1 0h2m5 0h4m1 0h3m-33 1h5m4 0h1m2 0h2m2 0h1m1 0h1m2 0h2m1 0h2m2 0h2m-30 1h2m1 0h4m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h4m1 0h1m1 0h1m-31 1h1m2 0h1m2 0h3m4 0h2m2 0h1m1 0h1m5 0h1m1 0h1m1 0h3m-33 1h1m5 0h1m1 0h1m4 0h1m1 0h5m1 0h1m1 0h4m1 0h1m1 0h2m-32 1h1m1 0h1m1 0h1m2 0h1m1 0h2m3 0h1m1 0h2m2 0h5m1 0h2m3 0h1m-32 1h1m5 0h3m1 0h1m2 0h3m1 0h1m2 0h3m1 0h1m1 0h1m1 0h1m1 0h2m-32 1h1m3 0h2m4 0h1m5 0h3m3 0h4m1 0h1m1 0h1m1 0h1m-31 1h1m1 0h5m2 0h4m3 0h1m2 0h2m2 0h2m4 0h3m-33 1h2m1 0h1m1 0h1m2 0h1m4 0h4m2 0h2m1 0h6m3 0h2m-33 1h5m1 0h1m2 0h1m3 0h3m1 0h1m1 0h2m2 0h1m1 0h1m1 0h1m3 0h1m-29 1h1m1 0h1m6 0h4m1 0h1m1 0h1m1 0h1m2 0h3m4 0h2m-33 1h2m2 0h1m1 0h2m6 0h1m1 0h1m2 0h1m1 0h1m2 0h1m2 0h4m1 0h1m-32 1h1m2 0h1m5 0h1m2 0h1m1 0h1m2 0h5m3 0h1m1 0h2m1 0h2m-33 1h1m2 0h1m1 0h2m1 0h4m1 0h2m1 0h2m2 0h3m1 0h8m-24 1h2m1 0h1m5 0h1m1 0h1m1 0h1m1 0h2m3 0h2m2 0h1m-33 1h7m2 0h2m1 0h3m1 0h3m3 0h1m1 0h1m1 0h1m1 0h4m-32 1h1m5 0h1m1 0h3m1 0h1m3 0h4m1 0h2m1 0h1m3 0h1m3 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m2 0h4m2 0h1m1 0h1m3 0h6m-30 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m1 0h2m1 0h2m1 0h3m2 0h1m1 0h1m2 0h1m-32 1h1m1 0h3m1 0h1m2 0h2m1 0h9m1 0h3m3 0h2m2 0h1m-33 1h1m5 0h1m2 0h2m1 0h3m2 0h1m1 0h4m1 0h3m2 0h1m-30 1h7m1 0h1m1 0h1m2 0h1m1 0h2m1 0h5m1 0h2m2 0h2m1 0h1"],"gemini":[37,"M4 4.5h7m1 0h3m2 0h3m1 0h2m3 0h7m-29 1h1m5 0h1m2 0h2m4 0h1m1 0h1m4 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m1 0h3m2 0h1m3 0h1m4 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m2 0h1m2 0h1m2 0h5m2 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m2 0h1m5 0h2m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m1 0h2m2 0h3m1 0h3m1 0h1m1 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-20 1h2m2 0h1m4 0h1m1 0h1m-21 1h1m1 0h1m3 0h2m3 0h3m1 0h2m2 0h2m2 0h1m2 0h1m1 0h1m-28 1h5m2 0h1m2 0h1m4 0h2m1 0h2m1 0h2m3 0h2m-29 1h1m1 0h3m1 0h1m3 0h2m1 0h2m1 0h2m1 0h2m3 0h3m1 0h1m-28 1h1m3 0h1m1 0h1m1 0h2m3 0h3m1 0h1m1 0h1m1 0h1m1 0h2m-25 1h6m1 0h1m1 0h5m3 0h1m1 0h1m1 0h2m4 0h1m-29 1h3m4 0h2m1 0h5m2 0h1m1 0h2m1 0h2m3 0h2m-25 1h3m1 0h1m2 0h2m2 0h1m3 0h1m1 0h1m2 0h1m3 0h1m-26 1h1m1 0h1m3 0h1m1 0h1m1 0h1m4 0h4m1 0h2m-25 1h2m2 0h1m1 0h1m1 0h2m1 0h1m1 0h1m1 0h2m2 0h5m4 0h1m-26 1h1m1 0h1m3 0h1m2 0h1m3 0h1m2 0h2m1 0h2m2 0h3m-29 1h7m2 0h2m1 0h3m1 0h4m4 0h2m2 0h1m-24 1h1m1 0h1m1 0h1m1 0h2m1 0h3m1 0h3m1 0h2m-24 1h3m1 0h1m1 0h1m2 0h2m2 0h2m5 0h6m1 0h1m-20 1h1m1 0h2m1 0h2m3 0h1m1 0h1m3 0h3m1 0h1m-29 1h7m1 0h1m1 0h1m4 0h1m1 0h2m1 0h1m1 0h1m1 0h1m3 0h1m-29 1h1m5 0h1m2 0h3m1 0h1m5 0h2m3 0h1m2 0h1m-28 1h1m1 0h3m1 0h1m3 0h2m1 0h1m1 0h2m2 0h7m-26 1h1m1 0h3m1 0h1m2 0h2m1 0h2m2 0h1m1 0h4m2 0h4m-28 1h1m1 0h3m1 0h1m1 0h2m1 0h4m1 0h3m2 0h1m2 0h1m2 0h2m-29 1h1m5 0h1m3 0h1m1 0h1m1 0h3m3 0h2m1 0h3m-26 1h7m1 0h2m1 0h1m1 0h2m1 0h3m1 0h1m3 0h2m2 0h1"],"slides":[41,"M4 4.5h7m1 0h6m1 0h3m1 0h2m1 0h2m2 0h7m-33 1h1m5 0h1m1 0h2m1 0h3m2 0h1m1 0h1m2 0h4m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h2m2 0h1m1 0h1m1 0h1m1 0h2m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h2m1 0h1m1 0h1m2 0h6m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m3 0h2m2 0h1m2 0h1m2 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m4 0h1m6 0h5m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h1m1 0h1m1 0h1m2 0h1m2 0h1m3 0h1m-25 1h1m1 0h2m1 0h3m3 0h2m1 0h1m1 0h4m1 0h1m1 0h1m2 0h1m2 0h1m1 0h2m-30 1h2m2 0h2m2 0h2m5 0h4m1 0h1m2 0h2m1 0h2m1 0h1m-31 1h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h2m5 0h3m1 0h3m2 0h1m-33 1h1m4 0h1m2 0h3m1 0h4m2 0h1m1 0h1m3 0h2m1 0h1m1 0h1m2 0h1m-33 1h1m1 0h1m2 0h2m3 0h1m1 0h1m5 0h1m2 0h1m2 0h2m1 0h3m1 0h2m-32 1h1m3 0h1m1 0h2m1 0h1m5 0h1m1 0h1m2 0h2m4 0h1m2 0h2m-31 1h1m3 0h3m3 0h2m2 0h2m4 0h1m2 0h1m1 0h2m1 0h1m-29 1h5m3 0h2m2 0h2m1 0h1m1 0h10m1 0h2m-30 1h1m3 0h4m1 0h1m1 0h1m1 0h2m2 0h6m1 0h2m1 0h2m-30 1h1m1 0h4m2 0h1m5 0h2m1 0h2m1 0h2m1 0h4m1 0h2m1 0h2m-32 1h2m1 0h1m1 0h7m1 0h4m4 0h1m1 0h1m1 0h3m1 0h2m-30 1h1m1 0h2m13 0h1m1 0h1m1 0h4m1 0h1m2 0h1m-30 1h1m2 0h3m3 0h2m1 0h2m2 0h1m1 0h1m3 0h1m2 0h1m1 0h2m-31 1h1m1 0h1m2 0h1m2 0h1m1 0h2m2 0h2m2 0h1m2 0h1m1 0h1m2 0h1m2 0h2m1 0h1m-31 1h5m1 0h1m2 0h1m1 0h2m1 0h3m2 0h1m1 0h3m1 0h2m2 0h2m-32 1h1m1 0h1m3 0h1m1 0h1m1 0h4m1 0h1m1 0h2m4 0h1m2 0h1m1 0h1m1 0h1m-32 1h1m1 0h1m1 0h4m5 0h1m1 0h1m1 0h1m6 0h9m-25 1h1m1 0h2m2 0h4m1 0h2m1 0h3m3 0h2m-30 1h7m1 0h1m1 0h2m4 0h1m2 0h1m2 0h3m1 0h1m1 0h1m-29 1h1m5 0h1m1 0h4m2 0h1m1 0h1m4 0h4m3 0h5m-33 1h1m1 0h3m1 0h1m2 0h3m3 0h1m1 0h1m1 0h2m2 0h6m1 0h2m-32 1h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h1m4 0h3m2 0h1m3 0h1m3 0h2m-33 1h1m1 0h3m1 0h1m1 0h1m4 0h1m3 0h3m1 0h1m1 0h2m1 0h2m1 0h1m-30 1h1m5 0h1m5 0h2m1 0h3m1 0h1m3 0h7m2 0h1m-33 1h7m1 0h1m1 0h3m2 0h3m2 0h4m1 0h1m2 0h1m1 0h1"],"roteiro":[41,"M4 4.5h7m2 0h1m2 0h1m2 0h2m2 0h2m1 0h2m2 0h7m-33 1h1m5 0h1m2 0h1m5 0h2m1 0h1m1 0h1m1 0h1m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1m1 0h1m4 0h2m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h1m6 0h2m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h5m3 0h2m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m4 0h1m5 0h1m6 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h3m1 0h1m3 0h1m1 0h4m1 0h1m-24 1h1m1 0h5m6 0h2m2 0h1m1 0h1m2 0h3m1 0h5m-29 1h2m1 0h1m1 0h1m1 0h1m2 0h2m3 0h4m2 0h1m2 0h2m1 0h2m1 0h1m-31 1h2m1 0h13m2 0h1m1 0h1m2 0h2m1 0h1m1 0h1m-30 1h1m2 0h1m2 0h1m1 0h1m2 0h2m2 0h5m4 0h2m1 0h5m-33 1h1m1 0h1m3 0h5m3 0h1m1 0h1m3 0h3m1 0h2m1 0h3m1 0h2m-33 1h2m1 0h3m2 0h1m4 0h1m1 0h1m1 0h2m4 0h1m1 0h2m2 0h1m1 0h2m-28 1h3m1 0h1m1 0h1m2 0h3m1 0h1m1 0h1m1 0h1m1 0h8m-32 1h1m1 0h2m4 0h8m2 0h1m2 0h7m1 0h2m-29 1h1m1 0h3m3 0h1m3 0h2m1 0h1m4 0h1m1 0h2m1 0h2m1 0h1m1 0h1m-33 1h4m4 0h6m2 0h1m2 0h5m2 0h2m1 0h2m1 0h1m-33 1h2m1 0h1m2 0h1m3 0h1m3 0h3m1 0h1m2 0h1m2 0h2m1 0h2m1 0h2m-30 1h1m2 0h1m1 0h1m2 0h1m1 0h1m1 0h2m3 0h4m4 0h6m-33 1h1m2 0h1m2 0h1m2 0h3m1 0h1m4 0h2m1 0h1m3 0h1m2 0h2m1 0h1m-32 1h1m3 0h1m6 0h2m1 0h3m3 0h4m2 0h1m2 0h2m1 0h1m-33 1h1m1 0h1m1 0h4m1 0h2m2 0h1m5 0h1m5 0h2m1 0h4m-32 1h1m6 0h2m1 0h2m1 0h2m1 0h1m2 0h4m1 0h2m2 0h4m-32 1h1m1 0h2m1 0h5m1 0h3m3 0h1m1 0h1m3 0h10m-25 1h2m4 0h1m1 0h4m2 0h1m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m6 0h1m1 0h1m1 0h1m4 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h2m1 0h1m1 0h2m1 0h3m4 0h2m3 0h5m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h2m1 0h1m2 0h4m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h3m2 0h1m1 0h1m2 0h1m2 0h1m1 0h3m2 0h1m1 0h1m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h4m1 0h6m1 0h2m1 0h2m1 0h2m1 0h1m-30 1h1m5 0h1m3 0h2m1 0h1m1 0h1m2 0h1m2 0h1m3 0h1m2 0h1m1 0h1m-31 1h7m1 0h2m1 0h1m2 0h2m1 0h2m1 0h1m2 0h3m1 0h1m3 0h1"],"atividades":[41,"M4 4.5h7m3 0h4m1 0h3m1 0h5m2 0h7m-33 1h1m5 0h1m4 0h1m1 0h5m2 0h3m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m1 0h2m2 0h3m2 0h1m2 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m3 0h1m1 0h1m2 0h2m1 0h3m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m2 0h1m2 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h3m2 0h1m1 0h2m3 0h1m5 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h5m2 0h1m2 0h1m2 0h1m2 0h1m-25 1h1m1 0h5m2 0h2m2 0h3m1 0h1m4 0h1m1 0h1m1 0h5m-28 1h1m1 0h1m1 0h1m4 0h1m5 0h4m1 0h1m2 0h2m1 0h2m1 0h1m-33 1h3m3 0h3m1 0h3m2 0h2m1 0h1m1 0h3m2 0h1m2 0h1m1 0h1m-31 1h1m1 0h1m1 0h1m5 0h2m2 0h1m1 0h1m2 0h4m5 0h5m-33 1h1m1 0h1m2 0h3m2 0h3m5 0h1m3 0h1m1 0h2m2 0h2m1 0h2m-32 1h1m3 0h1m6 0h6m2 0h1m1 0h2m2 0h1m2 0h1m1 0h2m-31 1h3m1 0h3m9 0h2m2 0h1m1 0h3m2 0h3m-28 1h2m8 0h1m1 0h1m1 0h5m2 0h3m1 0h2m-31 1h1m1 0h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m-33 1h2m2 0h1m4 0h4m3 0h2m1 0h5m2 0h2m1 0h2m1 0h1m-32 1h3m1 0h3m1 0h1m1 0h1m1 0h5m6 0h1m1 0h3m1 0h2m-32 1h2m3 0h1m1 0h1m1 0h1m3 0h1m1 0h1m1 0h6m2 0h1m1 0h6m-32 1h6m4 0h4m1 0h1m2 0h2m3 0h2m1 0h3m1 0h1m-32 1h1m1 0h1m1 0h2m1 0h1m1 0h1m1 0h2m2 0h1m2 0h1m2 0h1m1 0h1m1 0h2m2 0h2m1 0h1m-33 1h1m3 0h4m1 0h4m2 0h2m3 0h1m4 0h2m1 0h4m-32 1h1m1 0h4m4 0h2m2 0h2m5 0h2m1 0h2m2 0h3m-31 1h1m1 0h1m1 0h1m1 0h1m3 0h1m4 0h1m1 0h1m5 0h8m-23 1h1m2 0h4m1 0h1m1 0h2m2 0h1m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m3 0h3m2 0h1m2 0h1m3 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h2m2 0h1m1 0h1m1 0h1m4 0h4m3 0h5m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h1m4 0h2m1 0h1m2 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h4m3 0h2m3 0h2m1 0h3m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h2m3 0h3m1 0h1m1 0h2m1 0h2m1 0h1m-30 1h1m5 0h1m2 0h1m1 0h4m1 0h1m1 0h4m3 0h1m2 0h1m1 0h1m-31 1h7m1 0h1m4 0h1m3 0h4m2 0h2m1 0h2m3 0h1"],"mapas":[41,"M4 4.5h7m1 0h3m1 0h4m1 0h1m3 0h1m4 0h7m-33 1h1m5 0h1m3 0h3m3 0h1m3 0h1m3 0h1m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m3 0h1m3 0h1m1 0h3m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h2m3 0h1m3 0h1m3 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h2m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m1 0h2m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m2 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-24 1h2m1 0h1m2 0h2m2 0h2m2 0h2m-25 1h1m1 0h1m3 0h2m1 0h1m1 0h2m3 0h1m3 0h1m3 0h1m2 0h1m2 0h1m1 0h1m-32 1h2m1 0h2m1 0h2m4 0h1m1 0h1m1 0h1m1 0h3m1 0h2m1 0h1m2 0h1m2 0h1m-30 1h4m1 0h2m2 0h1m2 0h1m3 0h1m3 0h1m1 0h2m2 0h4m-33 1h4m4 0h1m1 0h2m1 0h1m1 0h3m1 0h3m2 0h2m1 0h3m1 0h2m-32 1h4m1 0h5m2 0h1m3 0h1m1 0h1m1 0h1m1 0h2m1 0h2m-28 1h2m5 0h1m2 0h1m1 0h2m3 0h1m3 0h1m3 0h3m1 0h4m-32 1h1m4 0h1m3 0h3m1 0h2m1 0h3m3 0h1m4 0h1m1 0h1m1 0h1m-30 1h1m3 0h1m4 0h3m7 0h8m-28 1h1m2 0h3m1 0h2m2 0h4m2 0h2m3 0h1m1 0h2m1 0h3m-32 1h6m2 0h1m1 0h3m2 0h2m1 0h3m1 0h3m1 0h1m2 0h1m2 0h1m-33 1h3m3 0h5m1 0h1m1 0h2m1 0h11m1 0h2m1 0h1m-33 1h2m1 0h2m2 0h1m5 0h2m3 0h3m1 0h1m1 0h1m3 0h2m1 0h2m-33 1h1m1 0h1m3 0h2m1 0h1m1 0h3m2 0h3m1 0h5m1 0h2m4 0h1m-32 1h1m1 0h1m3 0h2m1 0h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h2m2 0h2m1 0h1m2 0h1m-33 1h3m3 0h2m1 0h1m1 0h1m1 0h2m1 0h2m2 0h1m1 0h2m6 0h1m1 0h1m-24 1h1m2 0h2m1 0h2m1 0h3m1 0h2m1 0h1m1 0h3m1 0h2m-33 1h5m1 0h2m5 0h1m2 0h1m3 0h1m1 0h7m1 0h2m-24 1h1m1 0h1m1 0h6m1 0h1m1 0h2m1 0h1m3 0h1m3 0h1m-33 1h7m1 0h3m4 0h2m2 0h2m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m2 0h1m3 0h1m1 0h3m3 0h1m1 0h2m3 0h2m1 0h2m-33 1h1m1 0h3m1 0h1m2 0h1m2 0h1m4 0h1m3 0h1m1 0h6m-29 1h1m1 0h3m1 0h1m16 0h1m1 0h1m1 0h2m3 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m5 0h2m2 0h2m1 0h2m1 0h2m1 0h2m2 0h2m-33 1h1m5 0h1m3 0h1m1 0h1m10 0h2m2 0h2m-29 1h7m1 0h2m1 0h1m2 0h3m1 0h2m2 0h1m1 0h1m1 0h4m2 0h1"],"certificado":[41,"M4 4.5h7m5 0h1m2 0h2m2 0h5m2 0h7m-33 1h1m5 0h1m4 0h1m3 0h2m1 0h1m1 0h1m5 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m4 0h2m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h1m5 0h2m2 0h3m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h6m3 0h2m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m2 0h1m1 0h1m5 0h1m6 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h5m3 0h1m1 0h4m2 0h1m-25 1h1m1 0h5m6 0h2m2 0h1m1 0h1m2 0h3m1 0h5m-29 1h3m2 0h2m2 0h3m3 0h5m1 0h1m2 0h2m1 0h2m1 0h1m-32 1h1m3 0h2m3 0h1m1 0h6m2 0h2m3 0h1m2 0h1m1 0h1m-31 1h1m1 0h2m1 0h1m2 0h2m1 0h3m2 0h7m2 0h1m2 0h5m-32 1h6m1 0h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h1m1 0h2m1 0h3m1 0h2m-32 1h1m1 0h3m2 0h3m1 0h1m2 0h1m1 0h2m4 0h1m1 0h2m2 0h1m1 0h2m-33 1h1m1 0h2m2 0h2m2 0h2m1 0h4m1 0h1m1 0h1m1 0h1m1 0h3m1 0h4m-32 1h2m1 0h1m3 0h2m2 0h2m1 0h2m2 0h1m2 0h3m1 0h3m1 0h2m-30 1h2m1 0h7m1 0h1m2 0h1m1 0h1m4 0h1m1 0h2m1 0h2m1 0h1m1 0h1m-33 1h2m1 0h3m1 0h1m2 0h1m1 0h3m1 0h1m2 0h5m2 0h2m1 0h2m1 0h1m-29 1h3m1 0h1m3 0h1m1 0h3m1 0h1m2 0h2m1 0h1m2 0h2m1 0h2m-31 1h5m2 0h2m1 0h1m3 0h1m3 0h3m4 0h7m-32 1h1m3 0h2m1 0h5m5 0h2m2 0h1m1 0h2m1 0h3m1 0h1m-32 1h3m2 0h1m3 0h1m2 0h1m1 0h3m3 0h2m1 0h1m1 0h2m2 0h2m1 0h1m-33 1h1m1 0h3m1 0h4m1 0h1m7 0h1m5 0h2m1 0h4m-32 1h1m4 0h1m1 0h1m2 0h1m1 0h3m1 0h1m2 0h4m1 0h2m2 0h4m-32 1h1m2 0h1m2 0h7m4 0h1m1 0h1m3 0h8m-23 1h4m1 0h1m2 0h4m2 0h1m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h1m5 0h1m1 0h1m4 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h3m1 0h3m1 0h3m2 0h4m3 0h5m-33 1h1m1 0h3m1 0h1m1 0h3m3 0h1m1 0h1m2 0h1m4 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h5m2 0h1m2 0h1m1 0h3m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m2 0h6m1 0h2m1 0h2m1 0h2m1 0h1m-30 1h1m5 0h1m3 0h1m1 0h2m1 0h1m2 0h4m3 0h1m2 0h1m1 0h1m-31 1h7m1 0h1m2 0h1m2 0h2m1 0h4m2 0h2m2 0h1m3 0h1"]}</script>
 
+<svg class="sprites" width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="spark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4da3ff"/><stop offset="1" stop-color="#8c73ff"/></linearGradient>
+  </defs>
+  <symbol id="bot" viewBox="0 0 100 100">
+    <line x1="50" y1="8" x2="50" y2="22" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="50" cy="8" r="6" fill="#ff4d4d"/>
+    <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/>
+    <circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/>
+    <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+  </symbol>
+  <symbol id="star" viewBox="0 0 100 100">
+    <polygon points="50,6 62,38 96,38 68,58 79,92 50,72 21,92 32,58 4,38 38,38" fill="#ffd84d" stroke="#e0a800" stroke-width="5" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="bug" viewBox="0 0 100 100">
+    <path d="M26 54 10 46M24 67 8 70M29 81 17 93M74 54 90 46M76 67 92 70M71 81 83 93M43 18 35 6M57 18 65 6" stroke="#1d2a44" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <circle cx="35" cy="6" r="5" fill="#ff4d4d" stroke="#1d2a44" stroke-width="3"/><circle cx="65" cy="6" r="5" fill="#ff4d4d" stroke="#1d2a44" stroke-width="3"/>
+    <ellipse cx="50" cy="64" rx="30" ry="29" fill="#ff4d4d" stroke="#1d2a44" stroke-width="5"/>
+    <path d="M50 40V91" stroke="#b52a2a" stroke-width="4"/>
+    <circle cx="38" cy="58" r="6" fill="#b52a2a"/><circle cx="63" cy="56" r="5" fill="#b52a2a"/><circle cx="62" cy="78" r="6" fill="#b52a2a"/><circle cx="38" cy="79" r="4" fill="#b52a2a"/>
+    <circle cx="50" cy="30" r="17" fill="#1d2a44"/>
+    <circle cx="43" cy="29" r="6.5" fill="#fff"/><circle cx="57" cy="29" r="6.5" fill="#fff"/>
+    <circle cx="44" cy="30" r="3" fill="#1d2a44"/><circle cx="58" cy="30" r="3" fill="#1d2a44"/>
+    <path d="M45 39q5 4 10 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="cellphone" viewBox="0 0 100 100">
+    <rect x="26" y="6" width="48" height="88" rx="10" fill="#fff" stroke="#1d2a44" stroke-width="5"/>
+    <rect x="33" y="16" width="34" height="58" rx="4" fill="#8cc4ff"/>
+    <circle cx="57" cy="30" r="7" fill="#ffd84d"/>
+    <path d="M33 74 V58 Q42 46 50 56 Q58 48 67 58 V74 Z" fill="#3cc26b"/>
+    <circle cx="50" cy="84" r="4" fill="#1d2a44"/>
+  </symbol>
+  <symbol id="server" viewBox="0 0 100 100">
+    <rect x="18" y="8" width="64" height="84" rx="10" fill="#ff9a3c" stroke="#1d2a44" stroke-width="5"/>
+    <rect x="28" y="20" width="44" height="15" rx="4" fill="#fff" stroke="#1d2a44" stroke-width="4"/>
+    <rect x="28" y="43" width="44" height="15" rx="4" fill="#fff" stroke="#1d2a44" stroke-width="4"/>
+    <rect x="28" y="66" width="44" height="15" rx="4" fill="#fff" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="62" cy="27.5" r="4" fill="#3cc26b"/><circle cx="62" cy="50.5" r="4" fill="#3cc26b"/><circle cx="62" cy="73.5" r="4" fill="#3cc26b"/>
+  </symbol>
+  <symbol id="database" viewBox="0 0 100 100">
+    <path d="M20 22 V78 A30 12 0 0 0 80 78 V22" fill="#ffd84d" stroke="#1d2a44" stroke-width="5"/>
+    <path d="M20 41 A30 12 0 0 0 80 41 M20 60 A30 12 0 0 0 80 60" fill="none" stroke="#1d2a44" stroke-width="4"/>
+    <ellipse cx="50" cy="22" rx="30" ry="12" fill="#ffe88a" stroke="#1d2a44" stroke-width="5"/>
+  </symbol>
+  <!-- Small icons for the buttons, drawn with the same thick lines -->
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5 L19.5 12 L7 19.5 Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-qr" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.4"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></g><g fill="currentColor"><rect x="14" y="14" width="3.2" height="3.2"/><rect x="17.8" y="17.8" width="3.2" height="3.2"/></g></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3 L3 10.5 L10 13.5 L13.5 21 Z M10 13.5 L21 3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 9 V3 H17 V9 M7 18 H4 V10 H20 V18 H17 M7 14 H17 V21 H7 Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><path d="M9 8 H19 A1.5 1.5 0 0 1 20.5 9.5 V19.5 A1.5 1.5 0 0 1 19 21 H9 A1.5 1.5 0 0 1 7.5 19.5 V9.5 A1.5 1.5 0 0 1 9 8 Z M16 8 V4.5 A1.5 1.5 0 0 0 14.5 3 H5 A1.5 1.5 0 0 0 3.5 4.5 V14.5 A1.5 1.5 0 0 0 5 16 H7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 20.5 L5.6 15.8 A8.5 8.5 0 1 1 8.6 18.9 Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-board" viewBox="0 0 24 24"><path d="M3.5 4 H20.5 V16 H3.5 Z M8 20.5 L12 16 L16 20.5 M7 8.5 H14 M7 12 H11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3 V14 M7.5 7.5 L12 3 L16.5 7.5 M5 11 V20.5 H19 V11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-pdf" viewBox="0 0 24 24"><path d="M6 3 H14 L19 8 V21 H6 Z M14 3 V8 H19 M9 13 H16 M9 17 H14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-screen" viewBox="0 0 24 24"><path d="M3 4.5 H21 V16 H3 Z M8.5 20.5 H15.5 M12 16 V20.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20 L5 15.5 L15.5 5 A2.1 2.1 0 0 1 19 8.5 L8.5 19 Z M13.5 7 L17 10.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 4.5 L7.5 12 L15 19.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 4.5 L16.5 12 L9 19.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6 L18 18 M18 6 L6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 L10 17.5 L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-install" viewBox="0 0 24 24"><path d="M12 3 V15 M7 10.5 L12 15.5 L17 10.5 M5 20.5 H19" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<script>
+  document.documentElement.classList.add("js")
+  const DATA = JSON.parse(document.getElementById("links").textContent)
+  const QR = JSON.parse(document.getElementById("qr-codes").textContent)
+  const ITEMS = DATA.items
+  const HOME = { id: "inicio", name: "Jogos e Materiais", color: "yellow" }
+  const $ = selector => document.querySelector(selector)
+
+  const COLORS = {
+    blue: ["#4da3ff", "#cfe6ff"], pink: ["#ff5f8f", "#ffd6e3"], mint: ["#4fd6a6", "#c9f5e3"],
+    orange: ["#ff8a3d", "#ffdcc4"], purple: ["#8c73ff", "#e2dbff"], yellow: ["#ffd23f", "#fff1a8"],
+  }
+  const paint = item => `--c:${COLORS[item.color][0]};--light:${COLORS[item.color][1]}`
+  const icon = (name, extra = "") => `<svg class="i"${extra}><use href="#i-${name}"/></svg>`
+
+  // A little animated scene of each game, drawn with the same pictures the games use
+  const SCENES = {
+    robo: `<svg viewBox="0 0 200 120">
+      <path d="M37 31 H107 V83 H133" stroke="#fff" stroke-width="5" stroke-dasharray="1 10" stroke-linecap="round" fill="none" opacity=".85"/>
+      <g class="g r-star"><use href="#star" x="134" y="58" width="48" height="48"/></g>
+      <g class="r-walk"><use href="#bot" width="46" height="46"/></g></svg>`,
+    ninja: `<svg viewBox="0 0 200 120">
+      <g class="g n1"><use href="#bug" width="42" height="42"/></g>
+      <g class="g n2"><use href="#bug" width="34" height="34"/></g>
+      <path class="n-slash" d="M34 78 L140 -7" stroke="#fff" stroke-width="7" stroke-linecap="round"/></svg>`,
+    dupla: `<svg viewBox="0 0 200 120">
+      <g class="g d-hop"><use href="#bot" x="20" y="58" width="58" height="58"/></g>
+      <use href="#bot" x="120" y="58" width="58" height="58"/>
+      <rect x="92" y="4" width="76" height="44" rx="12" fill="#fff" stroke="#1d2a44" stroke-width="4"/>
+      <path d="M138 46 L150 62 L154 46" fill="#fff" stroke="#1d2a44" stroke-width="4" stroke-linejoin="round"/>
+      <rect x="137" y="40" width="19" height="6" fill="#fff"/>
+      <g class="g d-arrow"><path d="M119 26 H141 M133 18 L141 26 L133 34" stroke="#1d2a44" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`,
+    conecta: `<svg viewBox="0 0 200 120">
+      <path d="M36 70 H86 M114 70 H162" stroke="#1d2a44" stroke-width="10" stroke-linecap="round"/>
+      <path class="c-flow" d="M162 70 H114 M86 70 H36" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+      <rect x="-8" y="-7" width="16" height="13" rx="3" fill="#8cc4ff" stroke="#1d2a44" stroke-width="3"><animateMotion dur="2.6s" repeatCount="indefinite" path="M172 70 H24"/></rect>
+      <use href="#cellphone" x="2" y="34" width="46" height="70"/>
+      <use href="#server" x="72" y="20" width="56" height="88"/>
+      <use href="#database" x="146" y="40" width="50" height="58"/></svg>`,
+    arcade: `<svg viewBox="0 0 200 120">
+      <g class="g twinkle"><use href="#star" x="24" y="20" width="30" height="30"/></g>
+      <g class="g twinkle late"><use href="#star" x="150" y="62" width="26" height="26"/></g>
+      <path d="M68 124 V32 Q68 12 88 12 H112 Q132 12 132 32 V124 Z" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="4"/>
+      <rect x="77" y="24" width="46" height="34" rx="6" fill="#cdeeff" stroke="#2f2a4a" stroke-width="4"/>
+      <g class="g a-bug"><use href="#bug" x="89" y="29" width="23" height="23"/></g>
+      <rect x="62" y="68" width="76" height="18" rx="6" fill="#ffd23f" stroke="#2f2a4a" stroke-width="4"/>
+      <g class="a-stick"><line x1="86" y1="70" x2="86" y2="56" stroke="#2f2a4a" stroke-width="4"/><circle cx="86" cy="54" r="7" fill="#ff4d4d" stroke="#2f2a4a" stroke-width="3"/></g>
+      <circle class="a-blink" cx="112" cy="77" r="5" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="3"/>
+      <circle cx="125" cy="77" r="5" fill="#4da3ff" stroke="#2f2a4a" stroke-width="3"/></svg>`,
+    "caca-bugs": `<svg viewBox="0 0 200 120">
+      <rect x="66" y="6" width="68" height="124" rx="12" fill="#fff" stroke="#2f2a4a" stroke-width="4"/>
+      <rect x="75" y="18" width="50" height="10" rx="3" fill="#8c73ff"/>
+      <rect x="75" y="34" width="50" height="18" rx="4" fill="#cdeeff"/>
+      <rect x="75" y="58" width="50" height="18" rx="4" fill="#ffd6e3"/>
+      <rect x="75" y="82" width="50" height="18" rx="4" fill="#c9f5e3"/>
+      <g class="g k-crawl"><use href="#bug" width="22" height="22"/></g>
+      <g class="g k-pop"><use href="#bug" x="98" y="74" width="26" height="26"/></g>
+      <circle class="g k-tap" cx="111" cy="87" r="16" fill="none" stroke="#2f2a4a" stroke-width="3"/>
+      <g class="g twinkle"><use href="#bug" x="20" y="60" width="30" height="30"/></g>
+      <g class="g twinkle late"><use href="#bug" x="152" y="20" width="28" height="28"/></g></svg>`,
+  }
+
+  // The pictures on the teacher's sheets
+  const ICONS = {
+    oficina: `<use href="#bot" x="6" y="14" width="52" height="52"/>
+      <g class="g o-cap"><path d="M8 19 L32 9 L56 19 L32 29 Z" fill="#2f2a4a"/><path d="M19 23 V31 Q32 37 45 31 V23" fill="#2f2a4a"/><path d="M50 21 V34" stroke="#ffd23f" stroke-width="3" stroke-linecap="round"/><circle cx="50" cy="35" r="3.5" fill="#ffd23f"/></g>`,
+    prompt: [["#ff8a3d", "F", 48], ["#ffd23f", "C", 35], ["#4fd6a6", "T", 22], ["#4da3ff", "P", 9]].map(([color, letter, y], n) =>
+      `<g class="blk blk${n + 1}"><rect x="8" y="${y}" width="48" height="12" rx="4" fill="${color}" stroke="#2f2a4a" stroke-width="3"/><text x="32" y="${y + 9.5}" text-anchor="middle" font-size="10" font-weight="700" fill="#2f2a4a">${letter}</text></g>`).join(""),
+    gemini: `<g class="g spin"><path d="M32 4 C34 22 42 30 60 32 C42 34 34 42 32 60 C30 42 22 34 4 32 C22 30 30 22 32 4 Z" fill="url(#spark)" stroke="#2f2a4a" stroke-width="3" stroke-linejoin="round"/></g>
+      <g class="g twinkle"><path d="M53 4 C54 9 56 11 61 12 C56 13 54 15 53 20 C52 15 50 13 45 12 C50 11 52 9 53 4 Z" fill="#ffd23f" stroke="#2f2a4a" stroke-width="2"/></g>`,
+    slides: `<rect x="6" y="8" width="52" height="36" rx="5" fill="#fff" stroke="#2f2a4a" stroke-width="4"/>
+      <rect x="14" y="16" width="22" height="6" rx="3" fill="#ff5f8f"/><rect x="14" y="26" width="34" height="5" rx="2.5" fill="#4da3ff"/><rect x="14" y="34" width="26" height="5" rx="2.5" fill="#4fd6a6"/>
+      <path d="M32 44 V54 M21 59 L32 52 L43 59" stroke="#2f2a4a" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+    roteiro: `<path d="M6 14 L22 8 L42 14 L58 8 V50 L42 56 L22 50 L6 56 Z" fill="#fff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M22 8 V50 M42 14 V56" stroke="#2f2a4a" stroke-width="3" opacity=".35"/>
+      <path d="M12 46 Q20 30 29 37 T47 22" stroke="#ff5f8f" stroke-width="4" stroke-dasharray="1 7" stroke-linecap="round" fill="none"/>
+      <path d="M45 15 l8 8 m0 -8 l-8 8" stroke="#ff5f8f" stroke-width="4" stroke-linecap="round"/>`,
+    atividades: `<rect x="8" y="6" width="38" height="52" rx="5" fill="#fff" stroke="#2f2a4a" stroke-width="4"/>
+      <path d="M16 19 H38 M16 28 H38 M16 37 H30" stroke="#8cc4ff" stroke-width="4" stroke-linecap="round"/>
+      <g transform="rotate(32 48 36)"><rect x="43" y="14" width="11" height="34" rx="2" fill="#ffd23f" stroke="#2f2a4a" stroke-width="3"/><path d="M43 48 L48.5 59 L54 48 Z" fill="#ffe1b0" stroke="#2f2a4a" stroke-width="3" stroke-linejoin="round"/><rect x="43" y="9" width="11" height="7" rx="2" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="3"/></g>`,
+    mapas: `<rect x="6" y="6" width="52" height="52" rx="7" fill="#fff" stroke="#2f2a4a" stroke-width="4"/>
+      <path d="M23.3 6 V58 M40.6 6 V58 M6 23.3 H58 M6 40.6 H58" stroke="#b9d3ee" stroke-width="3"/>
+      <path d="M15 49 V32 H32 V15 H46" stroke="#4da3ff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M41 9 L48 15 L41 21" stroke="#4da3ff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <use href="#bug" x="38" y="38" width="16" height="16"/>`,
+    certificado: `<path d="M22 4 L30 26 M42 4 L34 26" stroke="#4da3ff" stroke-width="9"/>
+      <circle cx="32" cy="40" r="18" fill="#ffd23f" stroke="#2f2a4a" stroke-width="4"/>
+      <use href="#star" x="22" y="30" width="20" height="20"/>`,
+  }
+
+  // Every page of the site has a short link, the same one the QR code opens
+  const linkOf = item => item.url || (item === HOME ? DATA.site : `${DATA.site}${item.id}/`)
+  const shortOf = item => linkOf(item).replace(/^https?:\/\//, "").replace(/\/$/, "")
+  function shortHtml(item) {
+    const text = shortOf(item)
+    if (item.url || item === HOME) return text
+    const cut = text.lastIndexOf("/") + 1
+    return `${text.slice(0, cut)}<b>${text.slice(cut)}</b>`
+  }
+  function qrOf(item) {
+    const [size, path] = QR[item.id] || [1, ""]
+    return `<svg class="qr" viewBox="0 0 ${size} ${size}" shape-rendering="crispEdges"><rect width="${size}" height="${size}" fill="#fff"/><path stroke="#000" d="${path}"/></svg>`
+  }
+  const whatsapp = text => `https://wa.me/?text=${encodeURIComponent(text)}`
+
+  let toastTimer
+  function toast(text) {
+    const box = $("#toast")
+    box.textContent = text
+    box.classList.add("show")
+    clearTimeout(toastTimer)
+    toastTimer = setTimeout(() => box.classList.remove("show"), 1800)
+  }
+
+  async function copy(text, done = "Link copiado!") {
+    try {
+      await navigator.clipboard.writeText(text)
+    } catch {
+      const area = Object.assign(document.createElement("textarea"), { value: text })
+      document.body.append(area)
+      area.select()
+      document.execCommand("copy")
+      area.remove()
+    }
+    toast(done)
+  }
+
+  const shareButton = item => `<button class="round" type="button" data-share="${item.id}" aria-label="QR code e compartilhar: ${item.name}" title="QR code e compartilhar">${icon("qr")}</button>`
+  const shortButton = item => `<button class="short" type="button" data-copy="${item.id}" title="Copiar o link">${shortHtml(item)}</button>`
+
+  function bannerCard(item) {
+    const minis = ["bot", "bug", "server", "star"].map(name => `<svg viewBox="0 0 100 100"><use href="#${name}"/></svg>`).join("")
+    return `<article class="banner reveal" style="${paint(item)}">
+      <div>
+        <div class="minis">${minis}</div>
+        <h3>${item.name}</h3>
+        <p>${item.text}</p>
+        <div class="row">
+          <a class="btn loud" href="${item.go}" style="--c: var(--blue)">${icon("play")}Abrir o menu</a>
+          <button class="btn white" type="button" data-share="${item.id}">${icon("qr")}QR grande</button>
+        </div>
+        ${shortButton(item)}
+      </div>
+      <button class="qr-card" type="button" data-share="${item.id}" aria-label="Mostrar o QR code grande">${qrOf(item)}Escaneie para jogar</button>
+    </article>`
+  }
+
+  function gameCard(item, n) {
+    return `<article class="game reveal" style="${paint(item)};--d:${(n % 3) * .1}s">
+      <div class="stage" aria-hidden="true">${SCENES[item.id] || ""}</div>
+      <div class="body">
+        <h3>${item.name}</h3>
+        <p>${item.text}</p>
+        <p class="meta"><span class="dot"></span>${item.meta}</p>
+        <div class="row">
+          <a class="btn loud grow" href="${item.go}">${icon("play")}Jogar</a>
+          ${shareButton(item)}
+        </div>
+        ${shortButton(item)}
+      </div>
+    </article>`
+  }
+
+  const TILT = [-1.6, 1.2, -.8, 1.8, -1.2]
+  function noteCard(item, n) {
+    const outside = item.url ? ' target="_blank" rel="noopener"' : ""
+    const first = item.go?.endsWith(".pdf") ? "pdf" : item.id === "certificado" ? "pen" : "play"
+    const also = item.also ? `<a class="btn white small" href="${item.also[1]}">${icon(item.also[1].endsWith(".pdf") ? "pdf" : "screen")}${item.also[0]}</a>` : ""
+    return `<article class="note reveal${item.group === "oficina" ? " lined" : ""}" style="${paint(item)};--r:${TILT[n % TILT.length]}deg;--d:${(n % 3) * .1}s">
+      <span class="tape"></span>
+      <div class="note-top"><svg class="ico" viewBox="0 0 64 64" aria-hidden="true">${ICONS[item.id] || ""}</svg><h3>${item.name}</h3></div>
+      <p>${item.text}</p>
+      <p class="meta"><span class="dot"></span>${item.meta}</p>
+      <div class="row">
+        <a class="btn small" href="${item.url || item.go}"${outside}>${icon(first)}${item.label}</a>
+        ${also}
+        ${shareButton(item).replace('class="round"', 'class="round small"')}
+      </div>
+      ${shortButton(item)}
+    </article>`
+  }
+
+  const jogos = ITEMS.filter(item => item.group === "jogos")
+  $("#banner").innerHTML = jogos.filter(item => item.banner).map(bannerCard).join("")
+  $('[data-group="jogos"]').innerHTML = jogos.filter(item => !item.banner).map(gameCard).join("")
+  for (const group of ["oficina", "aula"]) {
+    $(`[data-group="${group}"]`).innerHTML = ITEMS.filter(item => item.group === group).map(noteCard).join("")
+  }
+  const byId = id => id === HOME.id ? HOME : ITEMS.find(item => item.id === id)
+  document.addEventListener("click", event => {
+    const share = event.target.closest("[data-share]")
+    if (share) openShare(byId(share.dataset.share))
+    const short = event.target.closest("[data-copy]")
+    if (short) copy(linkOf(byId(short.dataset.copy)))
+  })
+
+  // Cards pop in when they scroll into view
+  const reveal = "IntersectionObserver" in window && new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue
+      entry.target.classList.add("shown")
+      reveal.unobserve(entry.target)
+    }
+  }, { rootMargin: "0px 0px -40px 0px" })
+  for (const card of document.querySelectorAll(".reveal")) reveal ? reveal.observe(card) : card.classList.add("shown")
+
+  // Bit says something new every time someone taps him
+  const LINES = [
+    "Oi! Eu sou o Bit. Aqui estão os jogos para a turma e os materiais para o professor.",
+    "Toque em Jogar para abrir um jogo. Funciona no celular, no tablet e no projetor.",
+    "O botão do QR code mostra um código grande para a turma escanear com o celular.",
+    "Abriu este site uma vez com internet? Depois os jogos funcionam até sem internet.",
+    "Quer mandar tudo para os colegas? Use o botão Enviar os links.",
+  ]
+  let line = 0
+  function talk() {
+    line = (line + 1) % LINES.length
+    const bubble = $("#bubble"), bot = $("#bot")
+    bubble.textContent = LINES[line]
+    bubble.classList.remove("pop")
+    bot.classList.remove("jump")
+    void bubble.offsetWidth
+    bubble.classList.add("pop")
+    bot.classList.add("jump")
+  }
+  $("#bot").onclick = $("#bubble").onclick = talk
+  $("#bot").onkeydown = event => (event.key === "Enter" || event.key === " ") && talk()
+
+  // Sharing one page: QR code, short link, WhatsApp, Google Classroom and the phone's own share menu
+  const canShare = typeof navigator.share === "function"
+  const shareDialog = $("#share")
+  let shown = HOME
+
+  function fillShare(item) {
+    shown = item
+    const link = linkOf(item)
+    $("#share-top").style.cssText = paint(item)
+    $("#share-title").textContent = item.name
+    $("#share-qr").innerHTML = qrOf(item)
+    $("#share-short").innerHTML = shortHtml(item)
+    $("#share-whatsapp").href = whatsapp(`${item.name}: ${link}`)
+    $("#share-classroom").href = `https://classroom.google.com/share?url=${encodeURIComponent(link)}&title=${encodeURIComponent(item.name)}`
+    $("#share-walk").hidden = item === HOME
+    $("#share-count").textContent = `${ITEMS.indexOf(item) + 1} de ${ITEMS.length}`
+  }
+
+  function openShare(item) {
+    fillShare(item)
+    if (!shareDialog.open) shareDialog.showModal()
+  }
+
+  function walk(step) {
+    if (shown === HOME) return
+    fillShare(ITEMS[(ITEMS.indexOf(shown) + step + ITEMS.length) % ITEMS.length])
+  }
+
+  $("#share-copy").onclick = $("#share-short").onclick = () => copy(linkOf(shown))
+  $("#share-more").hidden = !canShare
+  $("#share-more").onclick = () => navigator.share({ title: shown.name, url: linkOf(shown) }).catch(() => {})
+  $("#share-prev").onclick = () => walk(-1)
+  $("#share-next").onclick = () => walk(1)
+  shareDialog.addEventListener("keydown", event => {
+    if (event.key === "ArrowLeft") walk(-1)
+    if (event.key === "ArrowRight") walk(1)
+  })
+
+  // Sending every link at once, for the teachers' WhatsApp group or the school's e-mail
+  const listDialog = $("#list")
+  $("#list-pick").innerHTML = Object.entries(DATA.groups)
+    .map(([group, { title }]) => `<label><input type="checkbox" value="${group}" checked> ${title}</label>`).join("")
+
+  function listText() {
+    const groups = [...listDialog.querySelectorAll("input:checked")].map(box => box.value)
+    return [
+      `${DATA.title}\nTudo num lugar só: ${DATA.site}`,
+      ...groups.map(group => [DATA.groups[group].title, ...ITEMS.filter(item => item.group === group).map(item => `• ${item.banner ? "Menu da turma" : item.name}: ${linkOf(item)}`)].join("\n")),
+    ].join("\n\n")
+  }
+
+  function fillList() {
+    const text = listText()
+    $("#list-text").value = text
+    $("#list-whatsapp").href = whatsapp(text)
+  }
+
+  listDialog.addEventListener("change", fillList)
+  $("#list-button").onclick = () => {
+    fillList()
+    listDialog.showModal()
+  }
+  $("#list-copy").onclick = () => copy(listText(), "Mensagem copiada!")
+  $("#list-more").hidden = !canShare
+  $("#list-more").onclick = () => navigator.share({ title: DATA.title, text: listText() }).catch(() => {})
+
+  for (const dialog of [shareDialog, listDialog]) {
+    dialog.querySelector(".close").onclick = () => dialog.close()
+    dialog.addEventListener("click", event => event.target === dialog && dialog.close())
+  }
+
+  $("#site-qr").innerHTML = `${qrOf(HOME)}Abra no celular`
+  $("#site-qr").onclick = $("#site-qr-button").onclick = () => openShare(HOME)
+
+  // Printing a poster with the QR codes of one section, to put on the classroom wall
+  for (const button of document.querySelectorAll("[data-poster]")) {
+    button.onclick = () => {
+      const group = button.dataset.poster
+      $("#poster").innerHTML = `
+        <h1>${DATA.groups[group].poster}</h1>
+        <p class="sub">Aponte a câmera do celular para o QR code.</p>
+        <div class="grid">${ITEMS.filter(item => item.group === group).map(item => `
+          <div class="card" style="${paint(item)}"><div class="name">${item.banner ? "Menu da turma" : item.name}</div>${qrOf(item)}<div class="url">${shortHtml(item).replace("<b>", "<br><b>")}</div></div>`).join("")}
+        </div>
+        <p class="foot">Todos os jogos e materiais: ${shortOf(HOME)}</p>`
+      window.print()
+    }
+  }
+
+  // Keeping the games on this device, so they open even without internet
+  const offlineStatus = $("#offline-status")
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+    navigator.serviceWorker.register("sw.js").catch(() => {
+      offlineStatus.textContent = "Este navegador não deixou guardar os jogos. Com internet, tudo continua funcionando."
+    })
+    navigator.serviceWorker.ready.then(() => {
+      offlineStatus.innerHTML = `${icon("check", ' style="color:#2fae80"')}Pronto! Neste aparelho, os jogos já funcionam sem internet.`
+      $("#offline-panel").classList.add("done")
+      $("#ready").hidden = false
+    })
+  } else {
+    offlineStatus.textContent = `Para guardar os jogos, abra pelo endereço ${shortOf(HOME)}.`
+  }
+
+  let installPrompt
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone
+  const apple = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+  $("#ios-hint").hidden = standalone || !apple
+  $("#android-hint").hidden = standalone || apple || !/Android/.test(navigator.userAgent)
+  addEventListener("beforeinstallprompt", event => {
+    event.preventDefault()
+    installPrompt = event
+    $("#install").hidden = false
+    $("#android-hint").hidden = true
+  })
+  $("#install").onclick = async () => {
+    installPrompt?.prompt()
+    await installPrompt?.userChoice.catch(() => {})
+    installPrompt = null
+    $("#install").hidden = true
+  }
+  addEventListener("appinstalled", () => toast("App instalado!"))
+
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    for (const svg of document.querySelectorAll("svg")) svg.pauseAnimations?.()
+  }
+</script>
+</body>
+</html>
