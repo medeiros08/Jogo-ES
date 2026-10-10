@@ -9,61 +9,94 @@
 <meta property="og:description" content="Ligue celulares, servidor e banco de dados com cabos e veja os dados correrem pelo sistema. Um jogo do curso de Engenharia de Software da UNIPAMPA.">
 <meta property="og:url" content="https://medeiros08.github.io/Jogo-ES/escola/conecta/">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='18' y='10' width='64' height='80' rx='10' fill='%23ff9a3c' stroke='%231d2a44' stroke-width='6'/><rect x='28' y='24' width='44' height='14' rx='4' fill='%23fff'/><rect x='28' y='46' width='44' height='14' rx='4' fill='%23fff'/><rect x='28' y='68' width='44' height='10' rx='4' fill='%23fff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --sky: #e8f4ff;
-    --ink: #1d2a44;
-    --cell-bg: #ffffff;
-    --cell-line: #b9d3ee;
-    --key: #ffd84d;
-    --play: #3cc26b;
-    --erase: #ff9a3c;
-    --bad: #ff4d4d;
-    --now: #4da3ff;
+    --sky1: #5fbcff; --sky2: #cdeeff; --hill: #8ddf6a; --hill2: #6cc653;
+    --ink: #2f2a4a; --soft: #5d5880; --line: #cfcbe6;
+    --blue: #4da3ff; --pink: #ff5f8f; --mint: #4fd6a6; --orange: #ff8a3d; --purple: #8c73ff; --yellow: #ffd23f;
+    --font: "Fredoka", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
     --cell: 100px;
+
+    /* The names the game already used, now pointing to the colors of the Arcade */
+    --sky: var(--sky2);
+    --cell-bg: #ffffff;
+    --cell-line: var(--line);
+    --key: var(--yellow);
+    --play: var(--mint);
+    --erase: var(--orange);
+    --bad: var(--pink);
+    --now: var(--blue);
   }
   * { box-sizing: border-box }
   html, body { margin: 0; height: 100%; overflow: hidden; touch-action: manipulation }
   body {
-    background: var(--sky);
     color: var(--ink);
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-family: var(--font);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-evenly;
     padding: 12px 16px;
   }
+
+  /* The scenery behind the game: sky, drifting clouds and two hills */
+  html { background: var(--sky2) }
+  .sky { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 80%) }
+  .cloud { position: absolute; background: #fff; border-radius: 999px; opacity: .9; animation: drift 50s linear infinite }
+  .cloud::before, .cloud::after { content: ""; position: absolute; background: #fff; border-radius: 50% }
+  .cloud::before { width: 55%; height: 160%; left: 15%; bottom: 20% }
+  .cloud::after { width: 40%; height: 130%; right: 12%; bottom: 25% }
+  .c1 { width: 130px; height: 36px; top: 7%; animation-delay: -10s }
+  .c2 { width: 92px; height: 26px; top: 36%; animation-duration: 64s; animation-delay: -40s; opacity: .75 }
+  .c3 { width: 150px; height: 40px; top: 60%; animation-duration: 80s; animation-delay: -25s; opacity: .6 }
+  @keyframes drift { from { transform: translateX(-30vw) } to { transform: translateX(130vw) } }
+  .hills { position: absolute; left: 0; right: 0; bottom: 0; height: 13vh }
+  .hills::before, .hills::after { content: ""; position: absolute; bottom: -40%; border-radius: 50% }
+  .hills::before { left: -20%; width: 90%; height: 140%; background: var(--hill) }
+  .hills::after { right: -25%; width: 95%; height: 120%; background: var(--hill2) }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important } }
+
   header, #dots { display: flex; gap: 14px; align-items: center }
-  .dot { width: 26px; height: 26px; border-radius: 50%; border: 4px solid var(--ink); background: #fff }
-  .dot.done { background: var(--key) }
-  .dot.now { box-shadow: 0 0 0 5px var(--now) }
-  #mute { margin-left: 24px; font-size: 26px; background: none; border: none; cursor: pointer; width: 48px }
+  .dot { width: 26px; height: 26px; border-radius: 50%; border: 4px solid var(--ink); background: #fff; transition: transform .2s }
+  .dot.done { background: var(--yellow) }
+  .dot.now { background: var(--pink); transform: scale(1.25) }
+  #mute { display: grid; place-items: center; width: 52px; height: 52px; flex: none; margin-left: 24px; padding: 0; background: #fff; border: 3px solid var(--ink); border-radius: 50%; box-shadow: 0 4px 0 var(--ink); cursor: pointer }
+  #mute svg { width: 28px; height: 28px; pointer-events: none }
   #budget {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     margin-left: 24px;
-    padding: 2px 14px;
+    padding: 2px 14px 2px 8px;
     border: 4px solid var(--ink);
     border-radius: 999px;
-    background: #fff;
+    background: var(--yellow);
+    box-shadow: 0 4px 0 var(--ink);
     font-size: 22px;
-    font-weight: 900;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
   }
-  #budget.over { border-color: var(--bad); color: var(--bad); animation: blink .25s 3 }
+  #budget[hidden] { display: none }
+  #budget .plug { width: 26px; height: 26px }
+  #budget.over { background: var(--pink); color: #fff; animation: blink .25s 3 }
   #board {
     position: relative;
     display: grid;
     gap: 6px;
     padding: 6px;
-    background: var(--cell-line);
-    border-radius: 18px;
+    background: var(--ink);
+    border-radius: 20px;
+    box-shadow: 0 8px 0 rgba(47, 42, 74, .28);
     touch-action: none;
     cursor: pointer;
   }
-  .cell { width: var(--cell); height: var(--cell); background: var(--cell-bg); border-radius: 12px; display: grid; place-items: center }
+  .cell { width: var(--cell); height: var(--cell); background: #fff; border-radius: 12px; display: grid; place-items: center }
   .cell svg { width: 78%; height: 78% }
   #wires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible }
-  #wires .missing { fill: none; stroke: var(--bad); stroke-width: 6; animation: blink .5s 3 }
+  #wires .missing { fill: none; stroke: var(--pink); stroke-width: 6; animation: blink .5s 3 }
   @keyframes blink { 50% { opacity: .2 } }
   #board.shake { animation: shake .12s 4 }
   @keyframes shake { 25% { transform: translateX(-6px) } 75% { transform: translateX(6px) } }
@@ -72,36 +105,40 @@
     width: min(360px, 34vw);
     margin: 0;
     padding: 12px 12px 12px 48px;
-    background: var(--ink);
-    color: #e8f4ff;
-    border-radius: 18px;
-    font: 600 min(18px, 2.1vw)/1.6 ui-monospace, Menlo, monospace;
+    background: #fff;
+    color: var(--ink);
+    border: 4px solid var(--ink);
+    border-radius: 20px;
+    box-shadow: 0 8px 0 rgba(47, 42, 74, .28);
+    font: 600 min(18px, 2.1vw)/1.6 var(--font);
     overflow: auto;
   }
-  #code li { white-space: nowrap }
-  #code li::marker { color: #6f86ad }
-  #code li.now { background: var(--now); border-radius: 6px }
-  #code li.bad { background: var(--bad); border-radius: 6px; white-space: normal }
+  #code li { padding: 0 8px; border-radius: 8px; white-space: nowrap }
+  #code li::marker { color: var(--soft) }
+  #code li.now { background: var(--yellow) }
+  #code li.bad { background: var(--pink); color: #fff; white-space: normal }
   nav { display: flex; gap: 12px }
   nav button {
     width: 88px;
     height: 88px;
-    border: none;
-    border-radius: 18px;
-    background: var(--key);
-    box-shadow: 0 6px 0 #b8941a;
-    font-size: 46px;
-    font-weight: 900;
-    color: var(--ink);
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 4px solid var(--ink);
+    border-radius: 24px;
+    background: var(--yellow);
+    box-shadow: 0 6px 0 var(--ink);
     cursor: pointer;
+    transition: transform .08s;
   }
-  nav button:active { transform: translateY(4px); box-shadow: 0 2px 0 #b8941a }
-  nav .erase { background: var(--erase); box-shadow: 0 6px 0 #b25f14; margin-right: 18px }
-  nav .play { background: var(--play); box-shadow: 0 6px 0 #1f7a41; margin-left: 18px; color: #fff }
+  nav button svg { width: 54%; height: 54%; overflow: visible; pointer-events: none }
+  nav button:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--ink) }
+  nav .erase { background: var(--orange); margin-right: 18px }
+  nav .play { background: var(--mint); margin-left: 18px }
   .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(232, 244, 255, .94);
+    background: rgba(205, 238, 255, .94);
     display: none;
     flex-direction: column;
     align-items: center;
@@ -112,38 +149,46 @@
   }
   .overlay.show { display: flex }
   .overlay .big { width: min(40vh, 60vw); animation: pop .6s ease-out }
-  h1 { font-size: min(64px, 10vw); font-weight: 900; margin: 0 }
-  .chain { display: flex; align-items: center; gap: 2vw; font-size: min(48px, 8vw); font-weight: 900 }
-  .chain svg { width: min(16vh, 20vw); height: min(16vh, 20vw); background: #fff; border: 5px solid var(--ink); border-radius: 24px; padding: 10px }
-  .chain.no { font-size: min(36px, 6vw) }
-  .chain.no svg { width: min(10vh, 13vw); height: min(10vh, 13vw); border-width: 4px; border-radius: 16px; padding: 6px }
-  .chain.no b { color: var(--bad) }
+  h1 { margin: 0; font-size: min(68px, 10.5vw); font-weight: 700; line-height: 1.05; color: var(--orange); -webkit-text-stroke: min(5px, 1vw) var(--ink); paint-order: stroke fill; text-shadow: 0 6px 0 var(--ink); animation: hop 3s ease-in-out infinite }
+  @keyframes hop { 0%, 80%, 100% { transform: translateY(0) } 88% { transform: translateY(-8px) rotate(-2deg) } }
+  .chain { display: flex; align-items: center; gap: 2vw }
+  .chain > svg:not(.link) { width: min(16vh, 20vw); height: min(16vh, 20vw); background: #fff; border: 5px solid var(--ink); border-radius: 26px; box-shadow: 0 6px 0 rgba(47, 42, 74, .28); padding: 10px }
+  .chain .link { width: min(7vh, 9vw); height: min(7vh, 9vw); animation: nudge 1.2s ease-in-out infinite }
+  @keyframes nudge { 50% { transform: translateX(6px) } }
+  .chain.no > svg:not(.link) { width: min(10vh, 13vw); height: min(10vh, 13vw); border-width: 4px; border-radius: 18px; padding: 6px }
+  .no-link { display: grid; place-items: center; width: min(7vh, 10vw); height: min(7vh, 10vw); background: var(--pink); border: 4px solid var(--ink); border-radius: 50% }
+  .no-link svg { width: 60%; height: 60% }
+  .play-badge { display: inline-grid; place-items: center; width: 1.4em; height: 1.4em; vertical-align: -.3em; background: var(--mint); border: 3px solid var(--ink); border-radius: 10px }
+  .play-badge svg { width: 70%; height: 70% }
   #start { padding: 16px }
-  #start small { font-size: min(18px, 3.8vw); font-weight: 700 }
+  #start small { display: block; max-width: 640px; font-size: min(18px, 3.8vw); font-weight: 600; line-height: 1.6 }
+  #start small .plug { width: 1.5em; height: 1.5em; vertical-align: -.45em }
   #difficulties { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px }
   #difficulties button {
     width: min(150px, 27vw);
     padding: 10px 0 8px;
-    border: none;
-    border-radius: 18px;
-    background: var(--key);
-    box-shadow: 0 6px 0 #b8941a;
+    border: 4px solid var(--ink);
+    border-radius: 24px;
+    background: var(--yellow);
+    box-shadow: 0 6px 0 var(--ink);
     color: var(--ink);
-    font-size: min(44px, 9vw);
-    font-weight: 900;
+    font: 700 min(22px, 4.6vw) var(--font);
     line-height: 1.1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     cursor: pointer;
+    transition: transform .15s;
   }
-  #difficulties button span { font-size: min(20px, 4.4vw) }
-  #difficulties button:nth-child(1) { background: var(--play); box-shadow: 0 6px 0 #1f7a41; color: #fff }
-  #difficulties button:nth-child(3) { background: var(--erase); box-shadow: 0 6px 0 #b25f14; color: #fff }
-  #difficulties button:active { transform: translateY(4px) }
-  #difficulties button.chosen { outline: 5px solid var(--now); outline-offset: 4px }
-  #start p { font-size: min(30px, 4.6vw); font-weight: 800; margin: 0; max-width: 900px; line-height: 1.3 }
+  #difficulties button svg { width: min(54px, 11vw); height: min(54px, 11vw); pointer-events: none }
+  #difficulties button span { pointer-events: none }
+  #difficulties button:nth-child(1) { background: var(--mint) }
+  #difficulties button:nth-child(3) { background: var(--orange) }
+  #difficulties button:hover { transform: translateY(-3px) rotate(-2deg) }
+  #difficulties button:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--ink) }
+  #difficulties button.chosen { outline: 5px solid var(--pink); outline-offset: 4px }
+  #start p { font-size: min(30px, 4.6vw); font-weight: 600; margin: 0; max-width: 900px; line-height: 1.35 }
   #final { overflow: auto; justify-content: flex-start; padding: 16px }
   #final > * { flex-shrink: 0 }
   #final > :first-child { margin-top: auto }
@@ -151,22 +196,26 @@
   #final .adults span { overflow-wrap: anywhere }
   #final .big { width: min(18vh, 30vw) }
   .facts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 1000px; margin: 0; padding: 0; list-style: none }
-  .highlight { background: var(--play); color: #fff; border-radius: 999px; padding: 8px 24px; font-size: min(30px, 5.5vw); font-weight: 900; box-shadow: 0 5px 0 #1f7a41 }
-  .facts li { background: #fff; border: 3px solid var(--ink); border-radius: 999px; padding: 6px 16px; font-size: min(19px, 4vw); font-weight: 700 }
+  .highlight { padding: 8px 26px; background: var(--orange); border: 4px solid var(--ink); border-radius: 999px; box-shadow: 0 5px 0 var(--ink); color: #fff; -webkit-text-stroke: 6px var(--ink); paint-order: stroke fill; font-size: min(30px, 5.5vw); font-weight: 700; animation: breathe 1.8s ease-in-out infinite }
+  @keyframes breathe { 50% { transform: scale(1.05) } }
+  .facts li { background: var(--c, #fff); border: 3px solid var(--ink); border-radius: 999px; padding: 5px 16px; font-size: min(19px, 4vw); font-weight: 600 }
+  .facts li:nth-child(1) { --c: var(--yellow) } .facts li:nth-child(2) { --c: var(--mint) } .facts li:nth-child(3) { --c: #e2dbff } .facts li:nth-child(4) { --c: #ffd6e3 }
   @keyframes pop { from { transform: scale(0) rotate(-90deg) } }
   #stars { display: flex; gap: 2vw }
   #stars svg { width: min(22vh, 26vw); height: min(22vh, 26vw); animation: pop .5s ease-out backwards }
   #stars svg.off { filter: grayscale(1); opacity: .3 }
-  .enter { font-size: 40px; font-weight: 900; background: var(--play); color: #fff; border-radius: 18px; padding: 10px 28px; box-shadow: 0 6px 0 #1f7a41; cursor: pointer }
+  .enter { display: flex; align-items: center; gap: 12px; padding: 8px 30px; background: var(--mint); border: 4px solid var(--ink); border-radius: 999px; box-shadow: 0 6px 0 var(--ink); color: #fff; -webkit-text-stroke: 7px var(--ink); paint-order: stroke fill; font-size: 40px; font-weight: 700; cursor: pointer; animation: breathe 1.6s ease-in-out infinite }
+  .enter svg { width: 40px; height: 40px; filter: drop-shadow(2px 0 0 var(--ink)) drop-shadow(-2px 0 0 var(--ink)) drop-shadow(0 2px 0 var(--ink)) drop-shadow(0 -2px 0 var(--ink)) }
   .confetti { position: absolute; top: -20px; width: 14px; height: 22px; animation: fall linear forwards }
   @keyframes fall { to { transform: translateY(110vh) rotate(720deg) } }
-  #final p { font-size: min(36px, 5vw); font-weight: 800; margin: 0; max-width: 900px; line-height: 1.3 }
-  #final .adults { display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; font-size: 14px }
-  #final .adults div { display: flex; flex-direction: column; align-items: center; gap: 6px }
+  #final p { font-size: min(36px, 5vw); font-weight: 600; margin: 0; max-width: 900px; line-height: 1.3 }
+  #final .adults { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; font-size: 14px }
+  #final .adults div { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 14px; background: #fff; border: 4px solid var(--ink); border-radius: 22px; box-shadow: 0 5px 0 rgba(47, 42, 74, .25) }
+  #final .adults b { font-size: 17px }
   #final .adults svg { width: 150px; height: 150px }
-  #final .also { color: var(--ink); font-size: min(19px, 4vw); font-weight: 700 }
-  #phone svg { width: min(70vh, 80vw); height: min(70vh, 80vw) }
-  #phone div { font-size: min(32px, 5vw); font-weight: 800 }
+  #final .also { padding: 6px 20px; background: #fff; border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 4px 0 var(--ink); color: var(--ink); font-size: min(19px, 4vw); font-weight: 600; text-decoration: none }
+  #phone svg { width: min(70vh, 80vw); height: min(70vh, 80vw); border: 6px solid var(--ink); border-radius: 22px }
+  #phone div { font-size: min(32px, 5vw); font-weight: 700 }
 
   /* Stacking the code under the board on phones */
   @media (max-width: 600px) {
@@ -176,55 +225,58 @@
     nav button { width: 80px; height: 80px }
     header, #dots { gap: 8px }
     .dot { width: 22px; height: 22px }
-    #budget { margin-left: 10px; padding: 2px 10px; font-size: 18px; border-width: 3px }
-    #mute { margin-left: 10px; width: 36px; font-size: 22px }
+    #budget { margin-left: 10px; padding: 1px 10px 1px 6px; font-size: 18px; border-width: 3px }
+    #budget .plug { width: 20px; height: 20px }
+    #mute { margin-left: 10px; width: 38px; height: 38px }
+    #mute svg { width: 22px; height: 22px }
     html, body { overflow: auto }
   }
 </style>
 </head>
 <body>
+<div class="sky" aria-hidden="true"><div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div><div class="hills"></div></div>
 
-<header><span id="dots"></span><span id="budget" hidden></span><button id="mute" tabindex="-1">🔊</button></header>
+<header><span id="dots"></span><span id="budget" hidden></span><button id="mute" tabindex="-1" aria-label="Som"><svg viewBox="0 0 24 24"><path d="M4 9 H8 L13 5 V19 L8 15 H4 Z" fill="#ffd23f" stroke="#2f2a4a" stroke-width="2.2" stroke-linejoin="round"/><path d="M16.5 9 Q18.5 12 16.5 15 M19 6.5 Q23 12 19 17.5" stroke="#2f2a4a" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg></button></header>
 <main><div id="board"></div><ol id="code"></ol></main>
 <nav>
-  <button class="erase" data-key="Backspace" tabindex="-1">⌫</button>
-  <button class="play" data-key="Enter" tabindex="-1">▶</button>
+  <button class="erase" data-key="Backspace" tabindex="-1" aria-label="Apagar"><svg viewBox="0 0 24 24"><path d="M9 5 H20 A1.5 1.5 0 0 1 21.5 6.5 V17.5 A1.5 1.5 0 0 1 20 19 H9 L2.5 12 Z" fill="#fff" stroke="#2f2a4a" stroke-width="2.4" stroke-linejoin="round"/><path d="M11.5 9.5 L16.5 14.5 M16.5 9.5 L11.5 14.5" stroke="#2f2a4a" stroke-width="2.6" stroke-linecap="round"/></svg></button>
+  <button class="play" data-key="Enter" tabindex="-1" aria-label="Ligar o sistema"><svg viewBox="0 0 24 24"><path d="M7 4 L20 12 L7 20 Z" fill="#fff" stroke="#2f2a4a" stroke-width="2.6" stroke-linejoin="round"/></svg></button>
 </nav>
 
 <div id="start" class="overlay show">
   <h1>Conecta o Sistema</h1>
   <div class="chain">
-    <svg viewBox="0 0 100 100"><use href="#cellphone"/></svg>→<svg viewBox="0 0 100 100"><use href="#server"/></svg>→<svg viewBox="0 0 100 100"><use href="#database"/></svg>
+    <svg viewBox="0 0 100 100"><use href="#cellphone"/></svg><svg viewBox="0 0 24 24" class="link"><path d="M3 12 H19 M13 6 L19 12 L13 18" stroke="#2f2a4a" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><svg viewBox="0 0 100 100"><use href="#server"/></svg><svg viewBox="0 0 24 24" class="link"><path d="M3 12 H19 M13 6 L19 12 L13 18" stroke="#2f2a4a" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><svg viewBox="0 0 100 100"><use href="#database"/></svg>
   </div>
-  <div class="chain no"><svg viewBox="0 0 100 100"><use href="#cellphone"/></svg><b>✗</b><svg viewBox="0 0 100 100"><use href="#database"/></svg></div>
-  <p>Arraste cabos do celular até o servidor e do servidor até o banco de dados. Depois aperte ▶!</p>
+  <div class="chain no"><svg viewBox="0 0 100 100"><use href="#cellphone"/></svg><span class="no-link"><svg viewBox="0 0 24 24"><path d="M6.5 6.5 L17.5 17.5 M17.5 6.5 L6.5 17.5" stroke="#fff" stroke-width="3.6" stroke-linecap="round"/></svg></span><svg viewBox="0 0 100 100"><use href="#database"/></svg></div>
+  <p>Arraste cabos do celular até o servidor e do servidor até o banco de dados. Depois aperte <span class="play-badge"><svg viewBox="0 0 24 24"><path d="M7 4 L20 12 L7 20 Z" fill="#fff" stroke="#2f2a4a" stroke-width="2.6" stroke-linejoin="round"/></svg></span>!</p>
   <div id="difficulties"></div>
-  <small>No Normal e no Desafio o cabo é limitado. Fique de olho no 🔌 lá em cima!</small>
+  <small>No Normal e no Desafio o cabo é limitado. Fique de olho no <svg viewBox="0 0 24 24" class="plug"><path d="M9 2.5 V8 M15 2.5 V8" stroke="#2f2a4a" stroke-width="2.6" stroke-linecap="round"/><path d="M5.5 8 H18.5 V11.5 A6.5 6.5 0 0 1 5.5 11.5 Z" fill="#ffd23f" stroke="#2f2a4a" stroke-width="2.2" stroke-linejoin="round"/><path d="M12 18 V22" stroke="#2f2a4a" stroke-width="2.6" stroke-linecap="round"/></svg> lá em cima!</small>
 </div>
 
-<div id="win" class="overlay"><div id="stars"></div><div class="enter">⏎</div></div>
+<div id="win" class="overlay"><div id="stars"></div><div class="enter">Continuar<svg viewBox="0 0 24 24"><path d="M5 12 H19 M13 6 L19 12 L13 18" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
 
 <div id="final" class="overlay">
   <svg class="big" viewBox="0 0 100 100"><use href="#bot"/></svg>
   <p>Você ligou um sistema! Isso é Engenharia de Software. Na UNIPAMPA a gente aprende a fazer isso.</p>
-  <div class="highlight">🆓 GRATUITO, com projetos e bolsas</div>
+  <div class="highlight">GRATUITO, com projetos e bolsas</div>
   <ul class="facts">
-    <li>⭐ Nota máxima no MEC</li>
-    <li>🛠️ Mão na massa desde o 1º semestre</li>
-    <li>🌙 Noturno</li>
-    <li>⏳ 9 semestres</li>
+    <li>Nota máxima no MEC</li>
+    <li>Mão na massa desde o 1º semestre</li>
+    <li>Noturno</li>
+    <li>9 semestres</li>
   </ul>
   <div class="adults">
-    <div><svg viewBox="0 0 41 41" shape-rendering="crispEdges"><use href="#play-qr"/></svg><b>📱 Jogue no celular</b><span>medeiros08.github.io/Jogo-ES/escola/conecta</span></div>
+    <div><svg viewBox="0 0 41 41" shape-rendering="crispEdges"><use href="#play-qr"/></svg><b>Jogue no celular</b><span>medeiros08.github.io/Jogo-ES/escola/conecta</span></div>
     <div><svg viewBox="0 0 41 41" shape-rendering="crispEdges"><rect width="41" height="41" fill="#fff"/><path stroke="#000" d="M4 4.5h7m3 0h1m6 0h1m3 0h1m4 0h7m-33 1h1m5 0h1m1 0h2m2 0h3m2 0h1m2 0h1m5 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m4 0h1m1 0h4m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m4 0h2m1 0h3m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m2 0h1m2 0h1m3 0h5m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m3 0h4m4 0h1m1 0h2m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h1m1 0h1m5 0h3m1 0h1m1 0h1m-25 1h1m5 0h1m1 0h2m3 0h1m1 0h1m1 0h1m1 0h1m3 0h4m2 0h3m-31 1h1m2 0h1m2 0h2m2 0h2m1 0h2m2 0h2m2 0h2m4 0h4m-32 1h2m2 0h5m2 0h1m3 0h1m4 0h1m4 0h1m2 0h1m1 0h2m-32 1h6m1 0h1m1 0h1m4 0h3m1 0h1m4 0h3m1 0h5m-32 1h1m3 0h1m1 0h1m1 0h1m4 0h2m1 0h1m2 0h2m2 0h2m1 0h2m4 0h1m-32 1h2m2 0h1m4 0h3m1 0h1m4 0h3m1 0h1m2 0h2m2 0h3m-27 1h3m1 0h3m2 0h2m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m2 0h1m-31 1h2m1 0h1m3 0h2m1 0h1m1 0h1m1 0h1m3 0h2m1 0h2m1 0h1m1 0h1m1 0h2m1 0h1m-33 1h1m3 0h1m1 0h1m5 0h3m2 0h2m3 0h2m1 0h1m1 0h3m2 0h1m-33 1h2m1 0h3m1 0h2m1 0h2m3 0h1m2 0h6m2 0h1m2 0h4m-33 1h1m4 0h3m1 0h5m1 0h1m3 0h6m2 0h1m1 0h2m1 0h1m-33 1h1m2 0h3m1 0h2m1 0h2m1 0h1m2 0h1m5 0h3m1 0h1m1 0h5m-33 1h1m1 0h2m2 0h3m3 0h1m2 0h1m1 0h1m2 0h1m1 0h1m1 0h2m1 0h3m-30 1h1m2 0h2m2 0h2m1 0h1m2 0h7m2 0h2m4 0h1m1 0h1m-31 1h1m3 0h1m1 0h2m2 0h1m1 0h2m1 0h3m2 0h3m5 0h2m1 0h1m-32 1h1m4 0h1m1 0h2m3 0h1m3 0h1m1 0h1m1 0h1m1 0h1m2 0h2m2 0h4m-33 1h3m1 0h5m2 0h2m2 0h1m3 0h1m3 0h7m1 0h1m-24 1h1m1 0h1m2 0h1m1 0h2m1 0h3m2 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h7m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m2 0h2m1 0h2m6 0h1m2 0h2m3 0h4m-32 1h1m1 0h3m1 0h1m2 0h2m1 0h4m1 0h1m1 0h1m2 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h6m2 0h3m1 0h3m1 0h3m1 0h2m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h2m2 0h3m1 0h2m3 0h1m2 0h2m2 0h2m-33 1h1m5 0h1m2 0h4m1 0h2m4 0h1m4 0h1m1 0h4m-31 1h7m1 0h1m3 0h1m2 0h1m1 0h1m4 0h6m1 0h1m1 0h1"/></svg>
-<b>🌐 Conheça o curso</b><span>cursos.unipampa.edu.br/cursos/engenhariadesoftware</span></div>
+<b>Conheça o curso</b><span>cursos.unipampa.edu.br/cursos/engenhariadesoftware</span></div>
   </div>
-  <a class="also" href="../index.html">🎮 Ver todos os jogos</a>
+  <a class="also" href="../index.html">Ver todos os jogos</a>
 </div>
 
 <div id="phone" class="overlay">
   <svg viewBox="0 0 41 41" shape-rendering="crispEdges"><use href="#play-qr"/></svg>
-  <div>📱 medeiros08.github.io/Jogo-ES/escola/conecta</div>
+  <div>medeiros08.github.io/Jogo-ES/escola/conecta</div>
 </div>
 
 <svg width="0" height="0" style="position:absolute">
@@ -272,26 +324,36 @@
 </svg>
 
 <script>
+// Drawing the three difficulties: a sprout, a lightning bolt and a flame
+const LEVEL_ICONS = {
+  easy: '<svg viewBox="0 0 48 48" class="lvl-icon"><path d="M24 44 V24" stroke="#2f2a4a" stroke-width="4" stroke-linecap="round"/><path d="M24 27 C24 15 14 10 5 12 C5 22 13 29 24 27 Z" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="3.5" stroke-linejoin="round"/><path d="M24 23 C24 12 33 6 43 8 C43 18 35 25 24 23 Z" fill="#8ddf6a" stroke="#2f2a4a" stroke-width="3.5" stroke-linejoin="round"/></svg>',
+  normal: '<svg viewBox="0 0 48 48" class="lvl-icon"><path d="M29 3 L9 28 H22 L18 45 L39 18 H26 Z" fill="#ffd23f" stroke="#2f2a4a" stroke-width="3.5" stroke-linejoin="round"/></svg>',
+  hard: '<svg viewBox="0 0 48 48" class="lvl-icon"><path d="M24 45 C12 45 8 37 8 31 C8 21 16 17 18 5 C24 11 27 17 27 22 C29 18 31 16 33 13 C39 20 41 26 41 31 C41 39 35 45 24 45 Z" fill="#ff8a3d" stroke="#2f2a4a" stroke-width="3.5" stroke-linejoin="round"/><path d="M24 41 C19 41 17 37 17 34 C17 29 21 27 22 22 C26 26 28 30 28 33 C29 31 30 30 31 29 C33 32 32 37 30 39 C29 40 27 41 24 41 Z" fill="#ffd23f"/></svg>',
+}
+
+// Drawing the plug that counts the cable left
+const PLUG = '<svg viewBox="0 0 24 24" class="plug"><path d="M9 2.5 V8 M15 2.5 V8" stroke="#2f2a4a" stroke-width="2.6" stroke-linecap="round"/><path d="M5.5 8 H18.5 V11.5 A6.5 6.5 0 0 1 5.5 11.5 Z" fill="#ffd23f" stroke="#2f2a4a" stroke-width="2.2" stroke-linejoin="round"/><path d="M12 18 V22" stroke="#2f2a4a" stroke-width="2.6" stroke-linecap="round"/></svg>'
+
 // Grouping five levels per difficulty. Each level is a list of rows of text, with P for a phone, S for the server,
 // D for the database, # for a rock and . for a free cell. A server has only four sides, so it takes at most three phones
 // and the database. From Normal on, only a few of the ways to lay the shortest cables fit together without crossing.
 // The slack is how much cable each level gives beyond the shortest cables: Normal leaves 4 spare cells, Desafio none
 const DIFFICULTIES = [
-  { icon: "🌱", name: "Fácil", slack: Infinity, levels: [
+  { icon: "easy", name: "Fácil", slack: Infinity, levels: [
     [".....", "P.S.D", "....."],
     ["P..#.", ".#...", "..S#D", "....."],
     ["P...P", ".....", "#.S.#", "..#..", "..D.."],
     ["P.#..", "..#.P", "...S.", "##.#.", "....D"],
     ["P....P", "......", ".#.S.#", ".#...#", "P#.#..", "...#.D"],
   ] },
-  { icon: "⚡", name: "Normal", slack: 4, levels: [
+  { icon: "normal", name: "Normal", slack: 4, levels: [
     [".#..P#", "..##.D", "......", ".S....", "#...P."],
     [".P#...", "#....P", "...###", ".....#", "....S.", "D....."],
     [".#.P..", "#..#.P", ".S.#.#", "...#..", "P.....", ".....D"],
     ["..#...#", "#.....P", ".S.....", "....##.", "P.....D", "..#.#P."],
     ["D.P....", ".......", "P.#...#", ".#..S.#", ".......", ".#.#..#", "..#...P"],
   ] },
-  { icon: "🔥", name: "Desafio", slack: 0, levels: [
+  { icon: "hard", name: "Desafio", slack: 0, levels: [
     ["..#P...", "#..#.S.", "P.#....", "..#...P", ".....#.", "..#D..."],
     ["..##.D.", "P..#..#", "P.....#", "#.#....", "..#....", "....S..", "P....#."],
     ["P.#P..#", "P......", "...#.#.", "#......", "#..S..#", "....#..", "..D##.."],
@@ -412,7 +474,7 @@ function render() {
   wires.innerHTML = `<g fill="none" stroke-linecap="round" stroke-linejoin="round">${cableMarkup}${drawing ? line(drawing.cells, "#ffd84d") : ""}</g>${nodeMarkup}<g id="packets"></g>`
   const pill = document.getElementById("budget")
   pill.hidden = budget === Infinity
-  pill.textContent = `🔌 ${stepsUsed()} / ${budget}`
+  pill.innerHTML = `${PLUG} ${stepsUsed()} / ${budget}`
 }
 
 // Counting the cable laid so far, including the one being dragged, one step per cell crossed
@@ -436,7 +498,7 @@ function draw() {
     `<span class="dot ${index < level ? "done" : ""} ${index === level ? "now" : ""}"></span>`).join(" ")
   const cableLines = cables.map(cable => {
     const [from, to] = [nodeAt(cable.cells[0]), nodeAt(cable.cells.at(-1))]
-    return `<li>${from.symbol === "P" ? "📱" : "🖥️"} ${from.name}.ligar(${to.name})</li>`
+    return `<li>${from.name}.ligar(${to.name})</li>`
   })
   const flowLines = flow.map((text, index) => `<li class="${index === flow.length - 1 ? "now" : ""}">${text}</li>`)
   document.getElementById("code").innerHTML = cableLines.concat(flowLines, warning ? `<li class="bad">${warning}</li>` : []).join("")
@@ -472,7 +534,7 @@ function extend(cell) {
   if (isNode(symbol)) {
     const end = nodeAt(cell)
     if (!PARTNERS[start.symbol].includes(symbol)) {
-      if (start.symbol + symbol === "PD" || start.symbol + symbol === "DP") warn("❌ O celular não fala direto com o banco. Passe pelo servidor!")
+      if (start.symbol + symbol === "PD" || start.symbol + symbol === "DP") warn("O celular não fala direto com o banco. Passe pelo servidor!")
       return false
     }
     if ((symbol !== "S" && cablesAt(cell).length) || cablesAt(cell).some(cable => cablesAt(path[0]).includes(cable))) return false
@@ -604,7 +666,7 @@ async function play() {
   const lonely = nodes.filter(node => !cablesAt(node.cell).length)
   if (lonely.length) {
     missing = new Set(lonely.map(node => key(node.cell)))
-    warn(`❌ Falta ligar: ${lonely.map(node => node.name).join(", ")}`)
+    warn(`Falta ligar: ${lonely.map(node => node.name).join(", ")}`)
     board.classList.remove("shake")
     void board.offsetWidth
     board.classList.add("shake")
@@ -619,17 +681,17 @@ async function play() {
   flow = []
   const phoneCables = cables.filter(cable => symbolAt(cable.cells[0]) === "P")
   const databaseCable = cables.find(cable => symbolAt(cable.cells[0]) === "S")
-  say('📱 celular.pedir("foto")')
+  say('celular.pedir("foto")')
   await Promise.all(phoneCables.map(cable => travel(cable.cells, REQUEST)))
-  say('🖥️ servidor.buscar("foto")')
+  say('servidor.buscar("foto")')
   await travel(databaseCable.cells, REQUEST)
-  say('🗄️ banco.ler("foto")')
+  say('banco.ler("foto")')
   await wait(400)
-  say("🖥️ servidor.responder(foto)")
+  say("servidor.responder(foto)")
   await travel(databaseCable.cells.slice().reverse(), ANSWER)
   await Promise.all(phoneCables.map(cable => travel(cable.cells.slice().reverse(), ANSWER)))
   phoneCables.forEach(cable => delivered.add(key(cable.cells[0])))
-  say("📱 celular.mostrar(foto) ✓")
+  say("celular.mostrar(foto)")
   render()
   await wait(800)
   win()
@@ -701,9 +763,13 @@ function press(key) {
   draw()
 }
 
+// Drawing the speaker on the sound button, with or without sound
+const SOUND = '<svg viewBox="0 0 24 24"><path d="M4 9 H8 L13 5 V19 L8 15 H4 Z" fill="#ffd23f" stroke="#2f2a4a" stroke-width="2.2" stroke-linejoin="round"/><path d="M16.5 9 Q18.5 12 16.5 15 M19 6.5 Q23 12 19 17.5" stroke="#2f2a4a" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>'
+const SILENT = '<svg viewBox="0 0 24 24"><path d="M4 9 H8 L13 5 V19 L8 15 H4 Z" fill="#cfcbe6" stroke="#2f2a4a" stroke-width="2.2" stroke-linejoin="round"/><path d="M16.5 9.5 L21.5 14.5 M21.5 9.5 L16.5 14.5" stroke="#2f2a4a" stroke-width="2.4" stroke-linecap="round"/></svg>'
+
 function toggleMute() {
   muted = !muted
-  document.getElementById("mute").textContent = muted ? "🔇" : "🔊"
+  document.getElementById("mute").innerHTML = muted ? SILENT : SOUND
 }
 
 document.addEventListener("keydown", event => {
@@ -717,7 +783,7 @@ document.querySelectorAll("#win, #final, #phone").forEach(overlay => overlay.add
 
 // Building the difficulty buttons of the first screen
 document.getElementById("difficulties").innerHTML = DIFFICULTIES.map((choice, index) =>
-  `<button data-difficulty="${index}" tabindex="-1">${choice.icon}<span>${choice.name}</span></button>`).join("")
+  `<button data-difficulty="${index}" tabindex="-1">${LEVEL_ICONS[choice.icon]}<span>${choice.name}</span></button>`).join("")
 document.getElementById("difficulties").addEventListener("click", event => {
   const button = event.target.closest("button")
   if (button) press(String(Number(button.dataset.difficulty) + 1))
