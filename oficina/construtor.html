@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Construtor de prompts</title>
+<meta name="description" content="Monte em um minuto um bom pedido para o Gemini criar atividades, jogos, histórias e planos de aula para a sua turma.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='20' width='72' height='60' rx='16' fill='%234da3ff' stroke='%231d2a44' stroke-width='6'/><circle cx='36' cy='48' r='9' fill='%23fff'/><circle cx='64' cy='48' r='9' fill='%23fff'/></svg>">
+<style>
+  :root {
+    --sky: #e8f4ff;
+    --ink: #1d2a44;
+    --cell-line: #b9d3ee;
+    --key: #ffd84d;
+    --play: #3cc26b;
+    --erase: #ff9a3c;
+    --bad: #ff4d4d;
+    --now: #4da3ff;
+
+    /* One colour per part of the prompt, the same in the legend, the labels and the result */
+    --role: #4da3ff;
+    --task: #3cc26b;
+    --context: #ffd84d;
+    --format: #ff9a3c;
+  }
+  * { box-sizing: border-box }
+  body { margin: 0; padding: 24px 16px 48px; background: var(--sky); color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 16px; line-height: 1.45 }
+  a { color: var(--ink); font-weight: 800 }
+  header { max-width: 1180px; margin: 0 auto 22px; display: flex; gap: 18px; align-items: center; flex-wrap: wrap }
+  header svg { width: 88px; height: 88px; flex: none }
+  h1 { margin: 0; font-size: min(40px, 8vw); font-weight: 900; line-height: 1.05 }
+  header p { margin: 6px 0 10px; font-size: 18px; font-weight: 700 }
+  .back { display: inline-block; margin-bottom: 6px; font-size: 15px; text-decoration: none }
+  .parts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none }
+  .parts li { padding: 4px 12px; border-radius: 999px; font-size: 15px; font-weight: 800 }
+  .role { background: var(--role); color: #fff }
+  .task { background: var(--task); color: #fff }
+  .context { background: var(--context) }
+  .format { background: var(--format); color: #fff }
+
+  .layout { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; align-items: start }
+  .card { padding: 20px 22px; background: #fff; border: 4px solid var(--ink); border-radius: 24px }
+  .card + .card { margin-top: 18px }
+  h2 { margin: 0 0 12px; font-size: 22px; font-weight: 900 }
+  h2 .number { display: inline-grid; place-items: center; width: 34px; height: 34px; margin-right: 8px; background: var(--ink); color: #fff; border-radius: 50%; font-size: 18px }
+  label { display: block; margin-bottom: 12px; font-weight: 800 }
+  label small { font-weight: 600 }
+  select, input[type=text], textarea { display: block; width: 100%; margin-top: 6px; padding: 10px 12px; border: 3px solid var(--cell-line); border-radius: 12px; background: #fff; font: 600 17px system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink) }
+  select:focus, input:focus, textarea:focus { outline: none; border-color: var(--now) }
+  textarea { min-height: 70px; resize: vertical }
+  .kinds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px }
+  .kinds button { padding: 12px 8px; border: 3px solid var(--cell-line); border-radius: 18px; background: #fff; font: 800 15px system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px }
+  .kinds button span { font-size: 34px; line-height: 1 }
+  .kinds button.chosen { border-color: var(--ink); background: var(--key); box-shadow: 0 4px 0 #b8941a }
+  .checks { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 6px 0 12px }
+  .checks label { margin: 0; display: flex; gap: 6px; align-items: center; font-weight: 700 }
+  .checks input, .ask input { width: 20px; height: 20px; accent-color: var(--now) }
+  .ask { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; background: var(--sky); border-radius: 14px; font-weight: 700 }
+  .privacy { margin-top: 14px; padding: 12px 14px; background: #fff3f3; border: 3px solid var(--bad); border-radius: 14px; font-weight: 700 }
+
+  /* The result stays in view on a computer while the teacher changes the choices */
+  .result { position: sticky; top: 16px }
+  .prompt { max-height: 62vh; overflow: auto; padding: 4px 2px }
+  .part { margin-bottom: 12px; padding: 10px 14px; border-left: 8px solid; border-radius: 10px; background: #fafcff }
+  .part.role-part { border-color: var(--role) }
+  .part.task-part { border-color: var(--task) }
+  .part.context-part { border-color: var(--context) }
+  .part.format-part { border-color: var(--format) }
+  .part b { display: inline-block; margin-bottom: 4px; padding: 1px 10px; border-radius: 999px; font-size: 14px }
+  .part ul { margin: 4px 0 0; padding-left: 20px }
+  .part p { margin: 0 }
+  .empty { padding: 26px 10px; text-align: center; font-weight: 700; color: #4a5a78 }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 6px }
+  .actions button, .actions a { border: none; border-radius: 16px; padding: 12px 22px; font: 900 19px system-ui, -apple-system, "Segoe UI", sans-serif; text-decoration: none; cursor: pointer }
+  #copy { background: var(--play); color: #fff; box-shadow: 0 5px 0 #1f7a41 }
+  #open { background: var(--now); color: #fff; box-shadow: 0 5px 0 #2f7fd6 }
+  .actions button:active, .actions a:active { transform: translateY(3px) }
+  #copied { align-self: center; font-weight: 800; color: #1f7a41 }
+  .tip { margin-top: 10px; padding: 12px 14px; background: var(--key); border-radius: 14px; font-weight: 700 }
+  .next { margin: 0; padding: 0; list-style: none }
+  .next li { display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; padding: 10px 0; border-top: 2px dashed var(--cell-line) }
+  .next li:first-child { border-top: none }
+  .next button { flex: none; border: 2px solid var(--ink); border-radius: 10px; padding: 4px 10px; background: #fff; font-weight: 800; cursor: pointer }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr }
+    .result { position: static }
+    .prompt { max-height: none }
+  }
+  @media (max-width: 480px) {
+    .kinds { grid-template-columns: repeat(2, 1fr) }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <svg viewBox="0 0 100 100"><use href="#bot"/></svg>
+  <div>
+    <a class="back" href="index.html">← Oficina de Prompts</a>
+    <h1>Construtor de prompts</h1>
+    <p>Monte em um minuto um bom pedido para o Gemini criar material para a sua turma.</p>
+    <ul class="parts"><li class="role">👤 Papel</li><li class="task">🎯 Tarefa</li><li class="context">🧭 Contexto</li><li class="format">📐 Formato</li></ul>
+  </div>
+</header>
+
+<div class="layout">
+  <form id="form" autocomplete="off">
+    <section class="card">
+      <h2><span class="number">1</span>O que você quer criar?</h2>
+      <div class="kinds" id="kinds"></div>
+    </section>
+
+    <section class="card">
+      <h2><span class="number">2</span>Para quem?</h2>
+      <label>Turma
+        <select id="stage"></select>
+      </label>
+      <label><span id="area-label">Componente curricular</span>
+        <select id="area"></select>
+      </label>
+    </section>
+
+    <section class="card">
+      <h2><span class="number">3</span>Sobre o quê?</h2>
+      <label>Tema
+        <input type="text" id="topic" placeholder="Por exemplo: animais do Pampa, frações, o ciclo da água">
+      </label>
+      <label>O que as crianças devem aprender? <small>(opcional)</small>
+        <textarea id="goal" placeholder="Por exemplo: reconhecer metades e quartos em situações do dia a dia"></textarea>
+      </label>
+      <label id="paste-box" hidden>Material para adaptar <small>(cole aqui o texto ou a atividade)</small>
+        <textarea id="paste" placeholder="Cole aqui o texto, a atividade ou a prova que você quer adaptar"></textarea>
+      </label>
+    </section>
+
+    <section class="card">
+      <h2><span class="number">4</span>Detalhes <small style="font-size: 16px">(opcional)</small></h2>
+      <label>Tempo
+        <select id="time">
+          <option value="">Sem tempo definido</option>
+          <option>15 minutos</option>
+          <option>30 minutos</option>
+          <option>uma aula de 50 minutos</option>
+          <option>duas aulas de 50 minutos</option>
+        </select>
+      </label>
+      <label id="place-box">Onde vai usar
+        <select id="place">
+          <option value="no celular ou tablet de cada criança">No celular ou tablet de cada criança</option>
+          <option value="no projetor, com a turma toda junta">No projetor, com a turma toda</option>
+          <option value="no celular das crianças e também no projetor">Nos dois</option>
+        </select>
+      </label>
+      <b>Na turma há crianças com:</b>
+      <div class="checks" id="needs"></div>
+      <label>Algo mais que o Gemini precisa saber? <small>(opcional)</small>
+        <textarea id="extra" placeholder="Por exemplo: a turma adora futebol; não temos impressora colorida"></textarea>
+      </label>
+      <label class="ask"><input type="checkbox" id="ask">Pedir para o Gemini me fazer perguntas antes de começar</label>
+      <div class="privacy">🔒 Nunca escreva o nome ou dados das crianças no Gemini. Fale da turma de um jeito geral.</div>
+    </section>
+  </form>
+
+  <aside class="result">
+    <section class="card">
+      <h2>✨ Seu prompt</h2>
+      <div class="prompt" id="prompt"></div>
+      <div class="actions">
+        <button type="button" id="copy">📋 Copiar prompt</button>
+        <a id="open" href="https://gemini.google.com/app" target="_blank" rel="noopener">✨ Abrir o Gemini</a>
+        <span id="copied"></span>
+      </div>
+      <div class="tip" id="tip"></div>
+    </section>
+    <section class="card">
+      <h2>🔁 Depois, continue a conversa</h2>
+      <p style="margin: 0 0 8px">Um bom resultado quase nunca vem no primeiro pedido. Quando o Gemini responder, peça ajustes como estes:</p>
+      <ul class="next" id="next"></ul>
+    </section>
+  </aside>
+</div>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="bot" viewBox="0 0 100 100">
+    <line x1="50" y1="8" x2="50" y2="22" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="50" cy="8" r="6" fill="#ff4d4d"/>
+    <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/>
+    <circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/>
+    <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+  </symbol>
+</svg>
+
+<script>
+// Describing every class the teacher can pick: its age, its stage and how well the children read
+const STAGES = [
+  { group: "Educação Infantil", items: [
+    ["inf3", "Educação Infantil · 3 anos", "3 anos", "infantil", "none"],
+    ["inf4", "Educação Infantil · 4 anos", "4 anos", "infantil", "none"],
+    ["inf5", "Educação Infantil · 5 anos", "5 anos", "infantil", "none"],
+  ] },
+  { group: "Ensino Fundamental · anos iniciais", items: [
+    ["f1", "1º ano", "6 e 7 anos", "iniciais", "start"],
+    ["f2", "2º ano", "7 e 8 anos", "iniciais", "start"],
+    ["f3", "3º ano", "8 e 9 anos", "iniciais", "short"],
+    ["f4", "4º ano", "9 e 10 anos", "iniciais", "fluent"],
+    ["f5", "5º ano", "10 e 11 anos", "iniciais", "fluent"],
+  ] },
+  { group: "Ensino Fundamental · anos finais", items: [
+    ["f6", "6º ano", "11 e 12 anos", "finais", "fluent"],
+    ["f7", "7º ano", "12 e 13 anos", "finais", "fluent"],
+    ["f8", "8º ano", "13 e 14 anos", "finais", "fluent"],
+    ["f9", "9º ano", "14 e 15 anos", "finais", "fluent"],
+  ] },
+]
+
+const READING = {
+  none: "As crianças ainda não leem: use imagens, cores e sons, quase nenhuma palavra, e instruções que o professor possa ler em voz alta.",
+  start: "As crianças estão começando a ler: use palavras simples, frases bem curtas e apoio de imagens.",
+  short: "As crianças já leem frases curtas: use linguagem simples e direta.",
+  fluent: "",
+}
+
+// Using the BNCC fields of experience for early childhood and the school subjects for the other years
+const AREAS = {
+  infantil: ["O eu, o outro e o nós", "Corpo, gestos e movimentos", "Traços, sons, cores e formas", "Escuta, fala, pensamento e imaginação", "Espaços, tempos, quantidades, relações e transformações"],
+  fundamental: ["Língua Portuguesa", "Matemática", "Ciências", "História", "Geografia", "Arte", "Educação Física", "Língua Inglesa", "Vários componentes juntos"],
+}
+
+const NEEDS = ["autismo (TEA)", "TDAH", "deficiência visual", "deficiência auditiva", "dificuldade de leitura", "altas habilidades"]
+
+// Each kind of material brings its own wording for the four parts and its own follow-up requests
+const KINDS = {
+  atividade: {
+    icon: "✏️", label: "Atividade para imprimir", maker: "atividades impressas",
+    task: topic => `Crie uma atividade para imprimir sobre "${topic}".`,
+    format: early => [
+      "Uma folha A4 com título, espaço para o nome e uma instrução curta para a criança.",
+      early ? "De 3 a 4 exercícios com desenhos e quase sem texto (ligar, circular, pintar, desenhar), com instruções que o professor lê em voz alta." : "De 3 a 5 exercícios variados (ligar, completar, circular, desenhar, marcar X), do mais fácil para o mais difícil.",
+      "No fim, separado, o gabarito e uma dica para o professor.",
+    ],
+    next: ["Crie mais 3 exercícios no mesmo estilo.", "Transforme essa atividade em um jogo no Canvas, com estrelas no final."],
+  },
+  jogo: {
+    icon: "🎮", label: "Jogo interativo", maker: "jogos educativos digitais",
+    task: topic => `Crie um jogo educativo interativo sobre "${topic}", para jogar no navegador.`,
+    format: early => [
+      "Um único arquivo HTML que funcione no navegador do celular e do computador, sem instalar nada.",
+      "Botões grandes e fáceis de tocar, cores alegres e visual de desenho.",
+      "Uma tela inicial com o nome do jogo e instruções bem curtas.",
+      "3 fases, da mais fácil para a mais difícil.",
+      "Retorno na hora a cada resposta: verde e um som alegre no acerto, vermelho e uma dica no erro.",
+      "No fim, estrelas pelo desempenho e um botão para jogar de novo.",
+      ...(early ? ["Instruções faladas em voz alta pela voz do navegador, e nada que dependa de saber ler para jogar."] : []),
+      "Tudo em português do Brasil, sem anúncios, sem links para outros sites e sem pedir dados das crianças.",
+    ],
+    next: ["Testei e encontrei um problema: quando eu [o que você fez], acontece [o que aconteceu], mas deveria [o que você esperava]. Conserte só isso.", "Troque as perguntas do jogo por estas: [cole as suas perguntas].", "Adicione narração em voz alta das instruções."],
+  },
+  historia: {
+    icon: "📖", label: "História", maker: "histórias para ler com a turma",
+    task: topic => `Escreva uma história curta e divertida sobre "${topic}".`,
+    format: early => [
+      `Um título e ${early ? "de 5 a 7 parágrafos bem curtos" : "de 6 a 10 parágrafos curtos"}, para ler em voz alta em poucos minutos.`,
+      "Personagens com nomes brasileiros e um problema que eles resolvem juntos.",
+      "No fim, 3 perguntas para conversar com a turma e uma sugestão de desenho ou brincadeira.",
+    ],
+    next: ["Transforme a história em um teatrinho para 5 crianças.", "Sugira 4 cenas da história para as crianças desenharem."],
+  },
+  plano: {
+    icon: "🗺️", label: "Plano de aula", maker: "planos de aula",
+    task: topic => `Crie um plano de aula sobre "${topic}".`,
+    format: () => [
+      "Uma tabela com objetivos, habilidades da BNCC, materiais e tempo total.",
+      "O passo a passo da aula com o tempo de cada parte: abertura, desenvolvimento e fechamento.",
+      "Como perceber se as crianças aprenderam.",
+      "Uma adaptação para quem tiver dificuldade e um desafio extra para quem terminar antes.",
+    ],
+    next: ["Crie a atividade impressa que acompanha esse plano.", "Sugira uma brincadeira de 5 minutos para começar a aula."],
+  },
+  quiz: {
+    icon: "❓", label: "Quiz ou avaliação", maker: "quizzes e avaliações",
+    task: topic => `Crie um quiz de 8 perguntas sobre "${topic}".`,
+    format: early => early ? [
+      "8 perguntas para o professor fazer em voz alta, com 3 respostas que as crianças mostram apontando para desenhos.",
+      "Sugira o desenho de cada resposta.",
+      "No fim, a resposta certa de cada pergunta e uma explicação simples.",
+    ] : [
+      "8 perguntas de múltipla escolha, com 3 alternativas cada, da mais fácil para a mais difícil.",
+      "Linguagem simples e alternativas do mesmo tamanho, para a resposta certa não ficar óbvia.",
+      "No fim, o gabarito com uma explicação curta de cada resposta.",
+    ],
+    next: ["Transforme esse quiz em um jogo no Canvas, com estrelas no final.", "Crie mais 8 perguntas no mesmo nível."],
+  },
+  adaptar: {
+    icon: "🧩", label: "Adaptar um material", maker: "materiais adaptados para inclusão",
+    task: topic => `Adapte o material que está no fim desta mensagem${topic ? `, sobre "${topic}"` : ""}.`,
+    format: () => [
+      "Mantenha o conteúdo e os objetivos do material original.",
+      "Use frases curtas, palavras simples e sugira imagens ou ícones de apoio.",
+      "Divida em partes pequenas, com instruções numeradas.",
+      "No fim, liste o que você mudou e por quê.",
+    ],
+    next: ["Crie também uma versão com letras maiores e mais espaço entre as linhas.", "Sugira como apresentar esse material para a turma inteira."],
+  },
+}
+
+// Asking the same final checks of every material, the habit the workshop wants teachers to keep
+const COMMON_NEXT = ["Deixe mais simples, para crianças com dificuldade.", "Revise o que você escreveu: tem algum erro de conteúdo ou palavra difícil para essa idade?"]
+
+const $ = id => document.getElementById(id)
+let kind = "atividade"
+
+const stageOf = id => STAGES.flatMap(group => group.items).find(item => item[0] === id)
+const escape = text => text.replace(/[&<>"]/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[character])
+
+// Building the four parts from the choices on the left
+function buildPrompt() {
+  const [, label, age, group, reading] = stageOf($("stage").value)
+  const early = group === "infantil", details = KINDS[kind], area = $("area").value
+  const topic = $("topic").value.trim() || "[escreva o tema]"
+  const role = early
+    ? `Você é um(a) professor(a) de Educação Infantil experiente, que conhece a BNCC e sabe criar ${details.maker} para crianças pequenas.`
+    : `Você é um(a) professor(a) experiente de ${area === "Vários componentes juntos" ? "vários componentes" : area} do ${label} do Ensino Fundamental, que conhece a BNCC e sabe criar ${details.maker}.`
+
+  const context = [
+    early ? `A turma é da Educação Infantil, com crianças de ${age}, e o trabalho é no campo de experiência "${area}".` : `A turma é do ${label} do Ensino Fundamental, com crianças de ${age}, e o componente é ${area}.`,
+    READING[reading],
+    $("goal").value.trim() && `As crianças devem aprender: ${$("goal").value.trim().replace(/\.$/, "")}.`,
+    $("time").value && `O tempo disponível é ${$("time").value}.`,
+    (kind === "jogo" || kind === "quiz") && `Vai ser usado ${$("place").value}.`,
+    selectedNeeds().length && `Na turma há crianças com ${joinList(selectedNeeds())}: inclua adaptações para elas.`,
+    (kind === "plano" || kind === "atividade") && "Relacione com a BNCC. Se não tiver certeza do código da habilidade, escreva só a descrição, sem inventar o código.",
+    "Use português do Brasil e exemplos do dia a dia das crianças brasileiras.",
+    $("extra").value.trim(),
+  ].filter(Boolean)
+
+  const format = details.format(early)
+  if (kind === "adaptar") format.push(`MATERIAL ORIGINAL:\n${$("paste").value.trim() || "[cole aqui o texto ou a atividade]"}`)
+  return { role, task: details.task(kind === "adaptar" ? $("topic").value.trim() : topic), context, format, ask: $("ask").checked }
+}
+
+const selectedNeeds = () => [...document.querySelectorAll("#needs input:checked")].map(input => input.value)
+const joinList = list => list.length < 2 ? list.join("") : `${list.slice(0, -1).join(", ")} e ${list.at(-1)}`
+
+// Writing the prompt as plain text with labelled parts, which is what gets copied into Gemini
+function toText(prompt) {
+  return [
+    `Papel: ${prompt.role}`,
+    `Tarefa: ${prompt.task}`,
+    `Contexto:\n${prompt.context.map(line => `- ${line}`).join("\n")}`,
+    `Formato:\n${prompt.format.map(line => line.startsWith("MATERIAL ORIGINAL") ? `\n${line}` : `- ${line}`).join("\n")}`,
+    prompt.ask && "Antes de criar, me faça até 3 perguntas para entender melhor o que eu preciso. Só comece depois das minhas respostas.",
+  ].filter(Boolean).join("\n\n")
+}
+
+function render() {
+  const prompt = buildPrompt(), details = KINDS[kind]
+  const list = lines => `<ul>${lines.map(line => `<li>${escape(line).replace(/\n/g, "<br>")}</li>`).join("")}</ul>`
+  $("prompt").innerHTML = `
+    <div class="part role-part"><b class="role">👤 Papel</b><p>${escape(prompt.role)}</p></div>
+    <div class="part task-part"><b class="task">🎯 Tarefa</b><p>${escape(prompt.task)}</p></div>
+    <div class="part context-part"><b class="context">🧭 Contexto</b>${list(prompt.context)}</div>
+    <div class="part format-part"><b class="format">📐 Formato</b>${list(prompt.format)}</div>
+    ${prompt.ask ? `<div class="part"><b style="background: var(--sky)">❔ Antes de começar</b><p>Antes de criar, me faça até 3 perguntas para entender melhor o que eu preciso. Só comece depois das minhas respostas.</p></div>` : ""}`
+  $("tip").innerHTML = kind === "jogo"
+    ? "🎮 No Gemini, ative o <b>Canvas</b> no menu de ferramentas da caixa de mensagem antes de enviar. Assim o jogo aparece pronto para testar ao lado da conversa."
+    : "💡 Leia a resposta com atenção antes de usar com a turma. O Gemini pode errar fatos ou usar palavras difíceis para a idade."
+  $("next").innerHTML = details.next.concat(COMMON_NEXT).map(text =>
+    `<li><span>${escape(text)}</span><button type="button" data-copy="${escape(text)}">Copiar</button></li>`).join("")
+  $("paste-box").hidden = kind !== "adaptar"
+  $("place-box").hidden = kind !== "jogo" && kind !== "quiz"
+}
+
+// Copying with the clipboard API, and falling back to a hidden text box when the page was opened from a file
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text)
+  } catch {
+    const box = document.createElement("textarea")
+    box.value = text
+    document.body.append(box)
+    box.select()
+    document.execCommand("copy")
+    box.remove()
+  }
+}
+
+function fillAreas() {
+  const group = stageOf($("stage").value)[3], early = group === "infantil", previous = $("area").value
+  const areas = AREAS[early ? "infantil" : "fundamental"]
+  $("area-label").textContent = early ? "Campo de experiência (BNCC)" : "Componente curricular"
+  $("area").innerHTML = areas.map(area => `<option>${area}</option>`).join("")
+  if (areas.includes(previous)) $("area").value = previous
+}
+
+$("kinds").innerHTML = Object.entries(KINDS).map(([id, details]) =>
+  `<button type="button" data-kind="${id}" class="${id === kind ? "chosen" : ""}"><span>${details.icon}</span>${details.label}</button>`).join("")
+$("stage").innerHTML = STAGES.map(group => `<optgroup label="${group.group}">${group.items.map(([id, label]) => `<option value="${id}">${label}</option>`).join("")}</optgroup>`).join("")
+$("stage").value = "f2"
+$("needs").innerHTML = NEEDS.map(need => `<label><input type="checkbox" value="${need}">${need}</label>`).join("")
+fillAreas()
+
+$("kinds").addEventListener("click", event => {
+  const button = event.target.closest("button")
+  if (!button) return
+  kind = button.dataset.kind
+  document.querySelectorAll("#kinds button").forEach(other => other.classList.toggle("chosen", other === button))
+  render()
+})
+$("stage").addEventListener("change", () => { fillAreas(); render() })
+$("form").addEventListener("input", render)
+$("form").addEventListener("change", render)
+$("form").addEventListener("submit", event => event.preventDefault())
+$("copy").addEventListener("click", async () => {
+  await copyText(toText(buildPrompt()))
+  $("copied").textContent = "✅ Copiado! Agora cole no Gemini."
+  setTimeout(() => { $("copied").textContent = "" }, 4000)
+})
+$("next").addEventListener("click", async event => {
+  const button = event.target.closest("button")
+  if (!button) return
+  await copyText(button.dataset.copy)
+  button.textContent = "✅ Copiado"
+  setTimeout(() => { button.textContent = "Copiar" }, 2500)
+})
+render()
+</script>
+</body>
+</html>
