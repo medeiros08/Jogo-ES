@@ -15,32 +15,28 @@
 
 ## Jogos
 
-| Jogo | Para quem | Abrir |
-|---|---|---|
-| **Menu da turma** (os 4 jogos num lugar só) | turma toda | [medeiros08.github.io/Jogo-ES/escola](https://medeiros08.github.io/Jogo-ES/escola/) |
-| **Robô pega a estrela**: monte as setas e leve o robô até a estrela | a partir de 6 anos | [medeiros08.github.io/Jogo-ES/robo](https://medeiros08.github.io/Jogo-ES/robo/) |
-| **Ninja dos Bugs**: deslize para cortar os bugs, sem cortar o robô | a partir de 6 anos | [medeiros08.github.io/Jogo-ES/ninja](https://medeiros08.github.io/Jogo-ES/ninja/) |
-| **Programação em Dupla**: um pilota, o outro vê os bugs e mostra o caminho | a partir de 7 anos | [medeiros08.github.io/Jogo-ES/dupla](https://medeiros08.github.io/Jogo-ES/dupla/) |
-| **Conecta o Sistema**: ligue o celular ao servidor e ao banco de dados | a partir de 8 anos | [medeiros08.github.io/Jogo-ES/conecta](https://medeiros08.github.io/Jogo-ES/conecta/) |
-| **Arcade do Código**: três jogos rápidos com placar | todas as idades | [medeiros08.github.io/Jogo-ES/arcade](https://medeiros08.github.io/Jogo-ES/arcade/) |
-| **Caça aos Bugs!**: toque nos insetos em 30 segundos | todas as idades | [medeiros08.github.io/Jogo-ES/caca-bugs](https://medeiros08.github.io/Jogo-ES/caca-bugs/) |
+- **[Menu da turma](https://medeiros08.github.io/Jogo-ES/escola/)**: os quatro jogos num lugar só, para projetar o QR code e cada criança escolher o seu.
+- **[Robô pega a estrela](https://medeiros08.github.io/Jogo-ES/robo/)**: monte as setas e leve o robô até a estrela. A partir de 6 anos.
+- **[Ninja dos Bugs](https://medeiros08.github.io/Jogo-ES/ninja/)**: deslize para cortar os bugs, sem cortar o robô. A partir de 6 anos.
+- **[Programação em Dupla](https://medeiros08.github.io/Jogo-ES/dupla/)**: um pilota o robô e o outro, que vê os bugs, mostra o caminho. A partir de 7 anos.
+- **[Conecta o Sistema](https://medeiros08.github.io/Jogo-ES/conecta/)**: ligue o celular ao servidor e ao banco de dados. A partir de 8 anos.
+- **[Arcade do Código](https://medeiros08.github.io/Jogo-ES/arcade/)**: três jogos rápidos com placar.
+- **[Caça aos Bugs!](https://medeiros08.github.io/Jogo-ES/caca-bugs/)**: toque nos insetos em 30 segundos.
 
 ## Materiais da aula
 
-| Material | Abrir |
-|---|---|
-| **Certificado de Programador(a) Mirim**: escreva os nomes e imprima ou baixe em PDF | [medeiros08.github.io/Jogo-ES/certificado](https://medeiros08.github.io/Jogo-ES/certificado/) |
-| **Slides da aula**: 10 telas para o projetor | [medeiros08.github.io/Jogo-ES/slides](https://medeiros08.github.io/Jogo-ES/slides/) |
-| **Roteiro da aula** (PDF) | [medeiros08.github.io/Jogo-ES/roteiro](https://medeiros08.github.io/Jogo-ES/roteiro/) |
-| **Folha de atividades** (PDF) | [medeiros08.github.io/Jogo-ES/atividades](https://medeiros08.github.io/Jogo-ES/atividades/) |
-| **Mapas do navegador** da Programação em Dupla (PDF) | [medeiros08.github.io/Jogo-ES/mapas](https://medeiros08.github.io/Jogo-ES/mapas/) |
+- **[Certificado de Programador(a) Mirim](https://medeiros08.github.io/Jogo-ES/certificado/)**: escreva os nomes da turma e imprima, ou baixe em PDF.
+- **[Slides da aula](https://medeiros08.github.io/Jogo-ES/slides/)**: dez telas para o projetor.
+- **[Roteiro da aula](https://medeiros08.github.io/Jogo-ES/roteiro/)**: passo a passo de 50 minutos, em PDF.
+- **[Folha de atividades](https://medeiros08.github.io/Jogo-ES/atividades/)**: três folhas por criança, em PDF.
+- **[Mapas do navegador](https://medeiros08.github.io/Jogo-ES/mapas/)**: as 15 fases da Programação em Dupla para imprimir, em PDF.
 
 ## Oficina de Prompts para professores
 
-| O quê | Abrir |
-|---|---|
-| **Oficina de Prompts**: a formação em 4 encontros | [medeiros08.github.io/Jogo-ES/oficina](https://medeiros08.github.io/Jogo-ES/oficina/) |
-| **Construtor de prompts**: monte um pedido pronto para o Gemini | [medeiros08.github.io/Jogo-ES/prompt](https://medeiros08.github.io/Jogo-ES/prompt/) |
+- **[Oficina de Prompts](https://medeiros08.github.io/Jogo-ES/oficina/)**: a formação em quatro encontros.
+- **[Construtor de prompts](https://medeiros08.github.io/Jogo-ES/prompt/)**: monte um pedido pronto para colar no Gemini.
+
+Todos esses links são curtos e podem ser ditados ou escritos no quadro, por exemplo **medeiros08.github.io/Jogo-ES/ninja**.
 
 ## No celular
 
