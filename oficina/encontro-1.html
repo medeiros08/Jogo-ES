@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Encontro 1: Conversando com o Gemini</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='20' width='72' height='60' rx='16' fill='%234da3ff' stroke='%231d2a44' stroke-width='6'/><circle cx='36' cy='48' r='9' fill='%23fff'/><circle cx='64' cy='48' r='9' fill='%23fff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky1: #5fbcff; --sky2: #cdeeff; --hill: #8ddf6a; --hill2: #6cc653;
+    --ink: #2f2a4a; --soft: #5d5880;
+    --blue: #4da3ff; --pink: #ff5f8f; --mint: #4fd6a6; --orange: #ff8a3d; --purple: #8c73ff; --yellow: #ffd23f;
+    --font: "Fredoka", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--sky2) }
+  body { display: grid; place-items: center; color: var(--ink); font-family: var(--font); touch-action: manipulation }
+
+  /* The deck keeps a 16:9 shape and sizes everything in its own height, so it looks the same on any projector */
+  .deck { position: relative; width: min(100vw, 177.78vh); aspect-ratio: 16 / 9; container-type: size; overflow: hidden; background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 80%); user-select: none; cursor: pointer }
+  .cloud { position: absolute; background: #fff; border-radius: 999px; opacity: .9; animation: drift 50s linear infinite }
+  .cloud::before, .cloud::after { content: ""; position: absolute; background: #fff; border-radius: 50% }
+  .cloud::before { width: 55%; height: 160%; left: 15%; bottom: 20% }
+  .cloud::after { width: 40%; height: 130%; right: 12%; bottom: 25% }
+  .c1 { width: 22cqh; height: 6cqh; top: 6%; animation-delay: -10s }
+  .c2 { width: 15cqh; height: 4.4cqh; top: 32%; animation-duration: 64s; animation-delay: -40s; opacity: .7 }
+  @keyframes drift { from { transform: translateX(-30cqw) } to { transform: translateX(130cqw) } }
+  .hills { position: absolute; left: 0; right: 0; bottom: 0; height: 12cqh }
+  .hills::before, .hills::after { content: ""; position: absolute; bottom: -40%; border-radius: 50% }
+  .hills::before { left: -20%; width: 90%; height: 140%; background: var(--hill) }
+  .hills::after { right: -25%; width: 95%; height: 120%; background: var(--hill2) }
+
+  .slide { position: absolute; inset: 0; z-index: 1; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 3cqh; padding: 5cqh 7cqw 11cqh; text-align: center }
+  .slide.active { display: flex; animation: enter .5s cubic-bezier(.3, 1.4, .6, 1) }
+  @keyframes enter { from { opacity: 0; transform: translateY(4cqh) scale(.97) } }
+  h1, h2 { margin: 0; font-weight: 700; color: #fff; -webkit-text-stroke: 1cqh var(--ink); paint-order: stroke fill; text-shadow: 0 1cqh 0 var(--ink) }
+  h1 { font-size: 11cqh; line-height: 1.05; color: var(--yellow) }
+  h2 { font-size: 7.6cqh; line-height: 1.08 }
+  h3 { margin: 0 0 1.2cqh; font-size: 4.2cqh; font-weight: 700 }
+  p { margin: 0; max-width: 82cqw; font-size: 4cqh; font-weight: 500; line-height: 1.35 }
+  p b, li b, .say b { font-weight: 700 }
+  p b { background: linear-gradient(transparent 58%, var(--yellow) 58%) }
+  p.small, .small { font-size: 3cqh }
+  p.next { margin-top: 2cqh; font-size: 3.6cqh }
+  .pill { padding: .8cqh 3.4cqh; background: var(--ink); color: #fff; border-radius: 999px; font-size: 3.6cqh; font-weight: 600 }
+  .cover h1 { animation: hop 3.2s ease-in-out infinite }
+  @keyframes hop { 0%, 80%, 100% { transform: translateY(0) } 88% { transform: translateY(-1.4cqh) rotate(-2deg) } }
+  .wave { width: 26cqh; height: 28cqh; animation: wave 2.4s ease-in-out infinite; transform-origin: 50% 90%; overflow: visible }
+  @keyframes wave { 50% { transform: rotate(6deg) translateY(-1.5cqh) } }
+  .tag-oficina { position: absolute; z-index: 2; left: 3cqh; bottom: 2.6cqh; padding: .4cqh 2cqh; background: #fff; border: .5cqh solid var(--ink); border-radius: 999px; font-size: 2.4cqh; font-weight: 600 }
+
+  .row { display: flex; gap: 4cqh; align-items: center; justify-content: center; max-width: 88cqw }
+  .row.top { align-items: stretch }
+  .col { display: flex; flex-direction: column; gap: 2.4cqh; align-items: center; flex: 1; min-width: 0 }
+  .ico { width: 11cqh; height: 11cqh; flex: none; overflow: visible }
+  .mini { width: 5.4cqh; height: 5.4cqh; flex: none; vertical-align: middle; overflow: visible }
+  .hero-ico { width: 26cqh; height: 26cqh; flex: none; animation: wave 2.4s ease-in-out infinite }
+
+  /* Colored tiles with a drawing on top, popping in one after the other */
+  .tiles { display: flex; flex-wrap: wrap; justify-content: center; gap: 2.6cqh; max-width: 90cqw }
+  .tile { display: flex; flex-direction: column; align-items: center; gap: 1.4cqh; width: 30cqh; padding: 2.6cqh 2.2cqh; background: var(--c, #fff); border: .7cqh solid var(--ink); border-radius: 4.4cqh; box-shadow: 0 1.1cqh 0 rgba(47, 42, 74, .28); font-size: 3.3cqh; font-weight: 600; line-height: 1.2; animation: pop .6s cubic-bezier(.3, 1.5, .6, 1) backwards }
+  .tiles.small .tile { flex-direction: row; width: auto; max-width: 42cqh; padding: 1.4cqh 2.4cqh; gap: 1.6cqh; border-width: .5cqh; border-radius: 3cqh; font-size: 2.9cqh; text-align: left; box-shadow: 0 .7cqh 0 rgba(47, 42, 74, .22) }
+  .tiles.small .ico { width: 6.4cqh; height: 6.4cqh }
+  .active .tile:nth-child(2) { animation-delay: .1s } .active .tile:nth-child(3) { animation-delay: .2s } .active .tile:nth-child(4) { animation-delay: .3s }
+  @keyframes pop { from { opacity: 0; transform: scale(.6) rotate(-6deg) } }
+
+  /* The four parts of a prompt, in the same colors as the builder */
+  .parts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.4cqh; max-width: 90cqw }
+  .part { display: flex; flex-direction: column; align-items: flex-start; gap: 1cqh; padding: 2.4cqh; background: var(--light); border: .7cqh solid var(--ink); border-radius: 4cqh; box-shadow: 0 1cqh 0 rgba(47, 42, 74, .25); text-align: left; animation: pop .6s cubic-bezier(.3, 1.5, .6, 1) backwards }
+  .active .part:nth-child(2) { animation-delay: .1s } .active .part:nth-child(3) { animation-delay: .2s } .active .part:nth-child(4) { animation-delay: .3s }
+  .part .letter { display: grid; place-items: center; width: 8cqh; height: 8cqh; background: var(--c); border: .6cqh solid var(--ink); border-radius: 2.4cqh; color: #fff; -webkit-text-stroke: .8cqh var(--ink); paint-order: stroke fill; font-size: 5cqh }
+  .part strong { font-size: 4cqh }
+  .part span { font-size: 2.8cqh; font-weight: 500; line-height: 1.3 }
+  .part em { display: block; margin-top: 1cqh; padding: 1cqh 1.4cqh; background: #fff; border: .4cqh solid var(--ink); border-radius: 1.8cqh; font-style: normal; font-weight: 600 }
+
+  /* Good and bad, side by side */
+  .side { flex: 1; padding: 2.6cqh 3cqh; background: #fff; border: .7cqh solid var(--ink); border-radius: 4cqh; box-shadow: 0 1cqh 0 rgba(47, 42, 74, .25); text-align: left }
+  .side.good { background: #c9f5e3 } .side.bad { background: #ffd6e3 }
+  .side h3 { display: flex; align-items: center; gap: 1.4cqh }
+  .side ul { margin: 0; padding-left: 4cqh; font-size: 3.4cqh; font-weight: 500; line-height: 1.5 }
+  .side .tiles { justify-content: flex-start }
+  .side p.small { margin-top: 1.6cqh }
+  .say { position: relative; padding: 1.8cqh 2.6cqh; background: #fff; border: .6cqh solid var(--ink); border-radius: 3cqh; font-size: 3cqh; font-weight: 500; line-height: 1.35; text-align: left }
+  .say.big { max-width: 80cqw; padding: 2.6cqh 3.6cqh; font-size: 4.2cqh; text-align: center; box-shadow: 0 1cqh 0 rgba(47, 42, 74, .25) }
+  .note { position: relative; max-width: 80cqw; padding: 2.4cqh 4cqh 2cqh; background: #fff1a8; border: .7cqh solid var(--ink); border-radius: 2cqh 2cqh 5cqh 2cqh; box-shadow: 0 1cqh 0 rgba(47, 42, 74, .25); font-size: 3.6cqh; font-weight: 500; line-height: 1.35; transform: rotate(-1deg) }
+  .note::before { content: ""; position: absolute; top: -2.2cqh; left: 50%; width: 15cqh; height: 4cqh; margin-left: -7.5cqh; background: var(--pink); opacity: .75; border: .3cqh solid rgba(47, 42, 74, .35); transform: rotate(-3deg) }
+  .note.small { padding: 1.8cqh 3cqh 1.4cqh; font-size: 3cqh }
+
+  /* Numbered steps */
+  .steps { display: grid; gap: 1.6cqh; margin: 0; padding: 0; list-style: none; text-align: left; max-width: 80cqw }
+  .steps li { display: flex; align-items: center; gap: 2cqh; padding: 1.2cqh 3cqh 1.2cqh 1.4cqh; background: #fff; border: .5cqh solid var(--ink); border-radius: 999px; font-size: 3.4cqh; font-weight: 500; animation: pop .5s cubic-bezier(.3, 1.5, .6, 1) backwards }
+  .active .steps li:nth-child(2) { animation-delay: .1s } .active .steps li:nth-child(3) { animation-delay: .2s } .active .steps li:nth-child(4) { animation-delay: .3s }
+  .steps li i { display: grid; place-items: center; width: 6cqh; height: 6cqh; flex: none; background: var(--blue); border: .5cqh solid var(--ink); border-radius: 50%; color: #fff; -webkit-text-stroke: .6cqh var(--ink); paint-order: stroke fill; font-style: normal; font-weight: 700; font-size: 3.4cqh }
+  .steps li:nth-child(2) i { background: var(--mint) } .steps li:nth-child(3) i { background: var(--yellow) } .steps li:nth-child(4) i { background: var(--orange) }
+
+  /* Practice time: a timer badge, the task and a QR code to the tool */
+  .practice { display: flex; flex-direction: column; align-items: center; gap: 2.4cqh }
+  .practice .row { align-items: center }
+  .practice h3 { font-size: 4.6cqh }
+  .timer { display: inline-flex; align-items: center; gap: 1.4cqh; padding: 1cqh 3cqh 1cqh 1.4cqh; background: var(--orange); border: .6cqh solid var(--ink); border-radius: 999px; box-shadow: 0 .8cqh 0 var(--ink); color: #fff; -webkit-text-stroke: .8cqh var(--ink); paint-order: stroke fill; font-size: 4.4cqh; font-weight: 700; animation: breathe 1.8s ease-in-out infinite }
+  .timer .ico { width: 7cqh; height: 7cqh }
+  .timer.inline { font-size: 3.8cqh }
+  @keyframes breathe { 50% { transform: scale(1.05) } }
+
+  .qr { display: flex; flex-direction: column; align-items: center; gap: .8cqh; flex: none; padding: 2cqh; background: #fff; border: .7cqh solid var(--ink); border-radius: 4cqh; box-shadow: 0 1.1cqh 0 rgba(47, 42, 74, .28); font-size: 3.2cqh; font-weight: 700; transform: rotate(2deg) }
+  .qr svg { width: 30cqh; height: 30cqh }
+  .qr small { font-size: 2.2cqh; font-weight: 500 }
+
+  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.8cqh; max-width: 86cqw }
+  .chips span { padding: 1.2cqh 3cqh; background: #fff; border: .6cqh solid var(--ink); border-radius: 999px; box-shadow: 0 .7cqh 0 rgba(47, 42, 74, .25); font-size: 3.4cqh; font-weight: 600; animation: pop .5s cubic-bezier(.3, 1.5, .6, 1) backwards }
+  .chips span:nth-child(5n+1) { background: #cfe6ff } .chips span:nth-child(5n+2) { background: #c9f5e3 } .chips span:nth-child(5n+3) { background: #fff1a8 } .chips span:nth-child(5n+4) { background: #ffdcc4 } .chips span:nth-child(5n+5) { background: #ffd6e3 }
+  .checklist { display: grid; gap: 1.6cqh; margin: 0; padding: 0; list-style: none; text-align: left }
+  .checklist li { display: flex; align-items: center; gap: 2cqh; padding: 1.2cqh 3cqh 1.2cqh 1.4cqh; background: #fff; border: .5cqh solid var(--ink); border-radius: 999px; font-size: 3.6cqh; font-weight: 500; animation: pop .5s cubic-bezier(.3, 1.5, .6, 1) backwards }
+  .active .checklist li:nth-child(2) { animation-delay: .1s } .active .checklist li:nth-child(3) { animation-delay: .2s } .active .checklist li:nth-child(4) { animation-delay: .3s } .active .checklist li:nth-child(5) { animation-delay: .4s }
+  .cards3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.6cqh; max-width: 90cqw }
+  .trick { display: flex; flex-direction: column; align-items: center; gap: 1.4cqh; padding: 2.6cqh; background: var(--c); border: .7cqh solid var(--ink); border-radius: 4cqh; box-shadow: 0 1cqh 0 rgba(47, 42, 74, .25); animation: pop .6s cubic-bezier(.3, 1.5, .6, 1) backwards }
+  .active .trick:nth-child(2) { animation-delay: .12s } .active .trick:nth-child(3) { animation-delay: .24s }
+  .trick h3 { margin: 0 }
+  .trick .say { font-size: 2.8cqh }
+
+  /* Dots at the bottom, so the presenter knows where the group is */
+  .progress { position: absolute; z-index: 2; left: 0; right: 0; bottom: 3cqh; display: flex; justify-content: center; gap: 1.6cqh; pointer-events: none }
+  .progress span { width: 2.4cqh; height: 2.4cqh; border: .5cqh solid var(--ink); border-radius: 50%; background: #fff }
+  .progress span.seen { background: var(--yellow) }
+  .progress span.now { background: var(--pink); transform: scale(1.3) }
+  .hint { position: fixed; right: 12px; bottom: 8px; color: var(--soft); font-size: 13px; font-weight: 600 }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important }
+  }
+  .tiles + .note { margin-top: 2.4cqh }
+  .thanks .wave { width: 22cqh; height: 24cqh }
+  .thanks .col { align-items: flex-start; text-align: left }
+</style>
+</head>
+<body>
+
+<main class="deck" id="deck">
+  <div class="cloud c1"></div><div class="cloud c2"></div><div class="hills"></div>
+
+  <section class="slide cover">
+    <svg class="wave" viewBox="0 0 100 110" aria-hidden="true"><use href="#bot-cap"/></svg>
+    <div class="pill">Encontro 1 de 4</div>
+    <h1>Conversando com o Gemini</h1>
+    <p>Como pedir com clareza, conversar para melhorar e proteger as crianças.</p>
+  </section>
+
+  <section class="slide ">
+    <h2>Hoje você vai…</h2>
+    <div class="tiles"><div class="tile" style="--c: #e2dbff"><svg class="ico" viewBox="0 0 64 64"><path d="M32 4 C34 22 42 30 60 32 C42 34 34 42 32 60 C30 42 22 34 4 32 C22 30 30 22 32 4 Z" fill="#8c73ff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/></svg><span>Entender o que a IA faz e onde ela erra</span></div><div class="tile" style="--c: #c9f5e3"><svg class="ico" viewBox="0 0 64 64"><path d="M8 20 H24 A7 7 0 1 1 38 20 H54 V34 A7 7 0 1 0 54 48 V58 H8 V46 A7 7 0 1 0 8 32 Z" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/></svg><span>Montar um bom pedido em 4 partes</span></div><div class="tile" style="--c: #cfe6ff"><svg class="ico" viewBox="0 0 64 64"><path d="M6 10 H58 V42 H30 L17 55 V42 H6 Z" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><circle cx="21" cy="26" r="4" fill="#2f2a4a"/><circle cx="32" cy="26" r="4" fill="#2f2a4a"/><circle cx="43" cy="26" r="4" fill="#2f2a4a"/></svg><span>Conversar para melhorar a resposta</span></div><div class="tile" style="--c: #ffd6e3"><svg class="ico" viewBox="0 0 64 64"><rect x="12" y="28" width="40" height="30" rx="7" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="4"/><path d="M20 28 V20 A12 12 0 0 1 44 20 V28" fill="none" stroke="#2f2a4a" stroke-width="5"/><circle cx="32" cy="42" r="4.5" fill="#2f2a4a"/></svg><span>Proteger os dados das crianças</span></div></div><div class="note small">Você sai com: <b>uma atividade pronta para a sua turma</b>, criada e revisada por você.</div>
+  </section>
+
+  <section class="slide ">
+    <h2>O que é IA generativa?</h2>
+    <p>Ela cria textos, imagens e até jogos a partir do que você escreve. Ela não pensa como a gente: ela <b>prevê as palavras</b> mais prováveis.</p>
+    <div class="row top">
+      <div class="side good"><h3><svg class="mini" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="4"/><path d="M19 33 L28 42 L46 22" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Faz bem</h3><ul><li>Rascunhos e ideias</li><li>Adaptar textos</li><li>Criar exercícios</li><li>Jogos simples</li></ul></div>
+      <div class="side bad"><h3><svg class="mini" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="4"/><path d="M21 21 L43 43 M43 21 L21 43" stroke="#fff" stroke-width="7" stroke-linecap="round"/></svg>Pode errar</h3><ul><li>Fatos e datas</li><li>Contas</li><li>Inventar referências</li><li>Códigos da BNCC</li></ul></div>
+    </div>
+  </section>
+
+  <section class="slide ">
+    <h2>Vamos testar ao vivo</h2>
+    <div class="say big">Faça uma atividade de matemática.</div>
+    <p>Olhe a resposta com a turma:</p>
+    <div class="tiles small"><div class="tile" style="--c: #cfe6ff"><svg class="ico" viewBox="0 0 64 64"><circle cx="22" cy="22" r="10" fill="#ffd9b8" stroke="#2f2a4a" stroke-width="4"/><circle cx="44" cy="22" r="10" fill="#ffd9b8" stroke="#2f2a4a" stroke-width="4"/><path d="M6 56 C6 42 14 36 22 36 C30 36 38 42 38 56 Z" fill="#4da3ff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><path d="M28 56 C28 42 36 36 44 36 C52 36 60 42 60 56 Z" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/></svg><span>Para que idade ficou?</span></div><div class="tile" style="--c: #c9f5e3"><svg class="ico" viewBox="0 0 64 64"><rect x="10" y="6" width="44" height="52" rx="6" fill="#fff" stroke="#2f2a4a" stroke-width="4"/><path d="M18 20 H46 M18 30 H46 M18 40 H36" stroke="#8cc4ff" stroke-width="5" stroke-linecap="round"/></svg><span>Serve para imprimir?</span></div><div class="tile" style="--c: #fff1a8"><svg class="ico" viewBox="0 0 64 64"><circle cx="26" cy="26" r="17" fill="#fff" stroke="#2f2a4a" stroke-width="5"/><use href="#bug" x="15" y="15" width="22" height="22"/><path d="M39 39 L56 56" stroke="#2f2a4a" stroke-width="8" stroke-linecap="round"/></svg><span>O que ficou faltando?</span></div></div>
+  </section>
+
+  <section class="slide ">
+    <h2>Jogo do Prompt</h2>
+    <div class="row">
+      <div class="col">
+        <p>Em duplas, transformem <b>5 pedidos vagos</b> em bons prompts. Cada parte tem um bloco bom e um fraco.</p>
+        <span class="timer inline"><svg class="ico" viewBox="0 0 64 64"><circle cx="32" cy="34" r="24" fill="#fff" stroke="#2f2a4a" stroke-width="5"/><path d="M32 20 V34 L42 40" stroke="#2f2a4a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 6 H40" stroke="#2f2a4a" stroke-width="5" stroke-linecap="round"/></svg><b>10 min</b></span>
+      </div>
+      <div class="qr"><svg viewBox="0 0 41 41" shape-rendering="crispEdges"><use href="#qr-jogo-do-prompt"/></svg><b>Abra o Jogo do Prompt</b><small>medeiros08.github.io/Jogo-ES/jogo-do-prompt</small></div>
+    </div>
+  </section>
+
+  <section class="slide ">
+    <h2>As quatro partes de um bom prompt</h2>
+    <div class="parts"><div class="part" style="--c: #4da3ff; --light: #cfe6ff"><b class="letter">P</b><strong>Papel</strong><span>Quem o Gemini deve ser. <em>Você é professor(a) de Matemática do 2º ano.</em></span></div><div class="part" style="--c: #4fd6a6; --light: #c9f5e3"><b class="letter">T</b><strong>Tarefa</strong><span>O que ele deve fazer, com um verbo. <em>Crie um jogo de somas até 20.</em></span></div><div class="part" style="--c: #ffd23f; --light: #fff1a8"><b class="letter">C</b><strong>Contexto</strong><span>Para quem, para quê e com quais limites. <em>Crianças de 7 anos, começando a ler.</em></span></div><div class="part" style="--c: #ff8a3d; --light: #ffdcc4"><b class="letter">F</b><strong>Formato</strong><span>Como o resultado deve sair. <em>Botões grandes, 3 fases, estrelas no final.</em></span></div></div>
+  </section>
+
+  <section class="slide ">
+    <h2>Antes e depois</h2>
+    <div class="row top">
+      <div class="side bad"><h3><svg class="mini" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="4"/><path d="M21 21 L43 43 M43 21 L21 43" stroke="#fff" stroke-width="7" stroke-linecap="round"/></svg>Pedido vago</h3><div class="say">Faça um jogo de matemática.</div><p class="small">O Gemini precisa adivinhar a idade, o conteúdo e o formato.</p></div>
+      <div class="side good"><h3><svg class="mini" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="4"/><path d="M19 33 L28 42 L46 22" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Com as 4 partes</h3><div class="say">Você é professor(a) de Matemática do 2º ano. Crie um jogo de somas até 20, para crianças de 7 anos que estão começando a ler, no celular. Use botões grandes, 3 fases e estrelas no final.</div></div>
+    </div>
+  </section>
+
+  <section class="slide ">
+    <h2>Hora da prática</h2>
+    <div class="practice"><span class="timer"><svg class="ico" viewBox="0 0 64 64"><circle cx="32" cy="34" r="24" fill="#fff" stroke="#2f2a4a" stroke-width="5"/><path d="M32 20 V34 L42 40" stroke="#2f2a4a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 6 H40" stroke="#2f2a4a" stroke-width="5" stroke-linecap="round"/></svg><b>30 min</b></span>
+      <div class="row"><div class="col"><h3>Seu primeiro prompt</h3><ol class="steps"><li><i>1</i><span>Escolha um conteúdo da próxima semana.</span></li><li><i>2</i><span>Preencha Papel, Tarefa, Contexto e Formato no caderno.</span></li><li><i>3</i><span>Cole no Gemini, com a conta da escola.</span></li><li><i>4</i><span>Compare com um pedido vago. O que mudou?</span></li></ol></div><div class="qr"><svg viewBox="0 0 41 41" shape-rendering="crispEdges"><use href="#qr-prompt"/></svg><b>Ou use o Construtor</b><small>medeiros08.github.io/Jogo-ES/prompt</small></div></div></div>
+  </section>
+
+  <section class="slide ">
+    <h2>Converse para melhorar</h2>
+    <div class="chips">
+      <span>Deixe mais simples, para 7 anos.</span>
+      <span>Antes de criar, me faça 3 perguntas.</span>
+      <span>Troque o tema para futebol.</span>
+      <span>Crie mais 3 exercícios iguais.</span>
+      <span>Revise: tem algum erro de conteúdo?</span>
+    </div>
+    <div class="note">Peça <b>uma mudança de cada vez</b>. Fica mais fácil ver o que melhorou.</div>
+  </section>
+
+  <section class="slide ">
+    <h2>O que nunca vai para o Gemini</h2>
+    <div class="row top">
+      <div class="side bad"><h3><svg class="mini" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="4"/><path d="M21 21 L43 43 M43 21 L21 43" stroke="#fff" stroke-width="7" stroke-linecap="round"/></svg>Nunca</h3><div class="tiles small"><div class="tile" style="--c: #fff"><svg class="ico" viewBox="0 0 64 64"><rect x="6" y="12" width="52" height="40" rx="7" fill="#cfe6ff" stroke="#2f2a4a" stroke-width="4"/><circle cx="22" cy="28" r="7" fill="#fff" stroke="#2f2a4a" stroke-width="3"/><path d="M12 44 C14 38 18 36 22 36 C26 36 30 38 32 44" fill="none" stroke="#2f2a4a" stroke-width="3"/><path d="M38 26 H50 M38 34 H50 M38 42 H46" stroke="#2f2a4a" stroke-width="3.5" stroke-linecap="round"/></svg><span>Nomes das crianças</span></div><div class="tile" style="--c: #fff"><svg class="ico" viewBox="0 0 64 64"><rect x="6" y="18" width="52" height="36" rx="7" fill="#ffd23f" stroke="#2f2a4a" stroke-width="4"/><path d="M22 18 L26 10 H38 L42 18" fill="#fff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><circle cx="32" cy="36" r="10" fill="#fff" stroke="#2f2a4a" stroke-width="4"/></svg><span>Fotos</span></div><div class="tile" style="--c: #fff"><svg class="ico" viewBox="0 0 64 64"><rect x="10" y="6" width="44" height="52" rx="6" fill="#fff" stroke="#2f2a4a" stroke-width="4"/><path d="M18 20 H46 M18 30 H46 M18 40 H36" stroke="#8cc4ff" stroke-width="5" stroke-linecap="round"/></svg><span>Laudos, notas, endereços</span></div></div></div>
+      <div class="side good"><h3><svg class="mini" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="4"/><path d="M19 33 L28 42 L46 22" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Pode</h3><div class="tiles small"><div class="tile" style="--c: #fff"><svg class="ico" viewBox="0 0 64 64"><circle cx="22" cy="22" r="10" fill="#ffd9b8" stroke="#2f2a4a" stroke-width="4"/><circle cx="44" cy="22" r="10" fill="#ffd9b8" stroke="#2f2a4a" stroke-width="4"/><path d="M6 56 C6 42 14 36 22 36 C30 36 38 42 38 56 Z" fill="#4da3ff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><path d="M28 56 C28 42 36 36 44 36 C52 36 60 42 60 56 Z" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/></svg><span>Idade e ano da turma</span></div><div class="tile" style="--c: #fff"><svg class="ico" viewBox="0 0 64 64"><path d="M32 16 Q20 8 6 12 V52 Q20 48 32 56 Q44 48 58 52 V12 Q44 8 32 16 Z" fill="#fff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><path d="M32 16 V56" stroke="#2f2a4a" stroke-width="3"/><path d="M12 24 Q19 22 26 25 M12 33 Q19 31 26 34 M38 25 Q45 22 52 24 M38 34 Q45 31 52 33" stroke="#ff5f8f" stroke-width="3" fill="none" stroke-linecap="round"/></svg><span>Tema e conteúdo</span></div><div class="tile" style="--c: #fff"><svg class="ico" viewBox="0 0 64 64"><path d="M8 20 H24 A7 7 0 1 1 38 20 H54 V34 A7 7 0 1 0 54 48 V58 H8 V46 A7 7 0 1 0 8 32 Z" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/></svg><span>Necessidades, sem identificar</span></div></div></div>
+    </div>
+    <p class="small">Use a <b>conta da escola</b> e revise tudo antes de usar com a turma.</p>
+  </section>
+
+  <section class="slide ">
+    <h2>Para a próxima semana</h2>
+    <div class="row">
+      <div class="col">
+        <div class="note">Use a atividade com a turma e traga o que aconteceu: o que funcionou e o que você mudaria.</div>
+        <p class="next">Encontro 2: <b>Conteúdo para a turma</b></p>
+      </div>
+      <div class="qr"><svg class="" viewBox="0 0 64 64"><rect x="12" y="10" width="40" height="50" rx="5" fill="#fff" stroke="#2f2a4a" stroke-width="4"/><rect x="22" y="4" width="20" height="11" rx="3" fill="#ffd23f" stroke="#2f2a4a" stroke-width="3"/><path d="M19 27 l4 4 l7 -8 M19 43 l4 4 l7 -8" stroke="#4fd6a6" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M35 28 H45 M35 44 H45" stroke="#8cc4ff" stroke-width="4" stroke-linecap="round"/></svg><b>Avalie este encontro</b><small>Na folha, sem o seu nome</small></div>
+    </div>
+  </section>
+
+  <nav class="progress" id="progress"></nav>
+  <span class="tag-oficina">Oficina de Prompts · Encontro 1</span>
+</main>
+<div class="hint">← → passam os slides · F tela cheia</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="qr-jogo-do-prompt" viewBox="0 0 41 41"><rect width="41" height="41" fill="#fff"/><path stroke="#000" d="M4 4.5h7m2 0h1m4 0h2m10 0h7m-33 1h1m5 0h1m1 0h1m4 0h2m1 0h2m2 0h1m1 0h1m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m1 0h2m2 0h3m2 0h2m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m4 0h1m3 0h3m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m5 0h2m1 0h1m2 0h1m2 0h4m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m2 0h3m1 0h1m2 0h1m3 0h2m4 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h2m8 0h3m2 0h1m-24 1h1m5 0h1m1 0h1m3 0h4m1 0h1m1 0h1m2 0h5m2 0h3m-32 1h4m4 0h2m4 0h3m1 0h2m2 0h2m4 0h3m-30 1h3m2 0h2m1 0h3m3 0h2m1 0h1m1 0h2m3 0h2m1 0h1m1 0h1m-31 1h2m1 0h1m4 0h1m5 0h3m2 0h2m4 0h8m-33 1h1m5 0h1m6 0h2m1 0h5m2 0h2m1 0h2m-28 1h1m1 0h1m1 0h2m2 0h3m3 0h1m1 0h2m1 0h1m1 0h3m2 0h2m1 0h1m1 0h2m-33 1h8m1 0h1m2 0h2m4 0h1m3 0h1m1 0h8m-32 1h3m2 0h1m1 0h1m2 0h1m3 0h2m2 0h1m6 0h1m3 0h2m1 0h1m-33 1h1m1 0h1m1 0h3m2 0h1m2 0h3m2 0h1m4 0h1m1 0h2m1 0h2m1 0h1m1 0h1m-33 1h5m3 0h2m1 0h7m1 0h2m1 0h2m2 0h1m2 0h2m1 0h1m-33 1h1m4 0h2m4 0h1m1 0h3m3 0h2m1 0h3m1 0h2m1 0h2m1 0h1m-32 1h1m2 0h2m2 0h1m1 0h3m4 0h4m4 0h2m1 0h5m-33 1h1m3 0h1m1 0h4m2 0h1m1 0h1m1 0h1m2 0h2m1 0h1m1 0h2m1 0h3m1 0h1m-32 1h1m1 0h1m8 0h1m2 0h1m1 0h1m1 0h2m2 0h2m3 0h4m-31 1h1m2 0h8m1 0h2m1 0h2m8 0h2m1 0h4m-32 1h1m4 0h1m1 0h3m1 0h1m2 0h1m7 0h1m2 0h1m1 0h4m-31 1h8m3 0h1m1 0h1m1 0h2m2 0h2m1 0h1m1 0h5m1 0h1m1 0h1m-25 1h1m1 0h1m2 0h4m1 0h2m1 0h2m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h1m2 0h2m1 0h1m2 0h1m3 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m6 0h3m4 0h1m2 0h2m3 0h4m-32 1h1m1 0h3m1 0h1m3 0h2m1 0h2m3 0h3m1 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m2 0h3m2 0h1m1 0h1m2 0h2m2 0h3m1 0h2m1 0h3m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h1m2 0h1m1 0h2m1 0h2m1 0h2m1 0h2m2 0h2m-33 1h1m5 0h1m4 0h1m3 0h2m1 0h1m1 0h1m4 0h4m1 0h1m-31 1h7m1 0h2m1 0h2m1 0h1m2 0h4m3 0h4m3 0h1"/></symbol>
+  <symbol id="qr-prompt" viewBox="0 0 41 41"><rect width="41" height="41" fill="#fff"/><path stroke="#000" d="M4 4.5h7m2 0h1m1 0h4m2 0h1m1 0h1m1 0h1m1 0h1m2 0h7m-33 1h1m5 0h1m2 0h1m1 0h5m2 0h1m1 0h1m2 0h2m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m2 0h2m2 0h1m1 0h1m2 0h1m2 0h4m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m1 0h3m1 0h3m1 0h3m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h4m1 0h1m3 0h3m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h5m1 0h3m1 0h2m4 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-24 1h1m1 0h1m3 0h3m3 0h2m1 0h1m-25 1h1m2 0h1m1 0h2m1 0h1m2 0h1m1 0h2m1 0h1m4 0h1m2 0h2m1 0h1m-28 1h2m1 0h3m2 0h1m4 0h1m3 0h1m2 0h2m2 0h4m3 0h2m-33 1h1m1 0h1m3 0h3m1 0h1m1 0h3m1 0h1m1 0h2m5 0h4m1 0h3m-33 1h5m4 0h1m2 0h2m2 0h1m1 0h1m2 0h2m1 0h2m2 0h2m-30 1h2m1 0h4m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h4m1 0h1m1 0h1m-31 1h1m2 0h1m2 0h3m4 0h2m2 0h1m1 0h1m5 0h1m1 0h1m1 0h3m-33 1h1m5 0h1m1 0h1m4 0h1m1 0h5m1 0h1m1 0h4m1 0h1m1 0h2m-32 1h1m1 0h1m1 0h1m2 0h1m1 0h2m3 0h1m1 0h2m2 0h5m1 0h2m3 0h1m-32 1h1m5 0h3m1 0h1m2 0h3m1 0h1m2 0h3m1 0h1m1 0h1m1 0h1m1 0h2m-32 1h1m3 0h2m4 0h1m5 0h3m3 0h4m1 0h1m1 0h1m1 0h1m-31 1h1m1 0h5m2 0h4m3 0h1m2 0h2m2 0h2m4 0h3m-33 1h2m1 0h1m1 0h1m2 0h1m4 0h4m2 0h2m1 0h6m3 0h2m-33 1h5m1 0h1m2 0h1m3 0h3m1 0h1m1 0h2m2 0h1m1 0h1m1 0h1m3 0h1m-29 1h1m1 0h1m6 0h4m1 0h1m1 0h1m1 0h1m2 0h3m4 0h2m-33 1h2m2 0h1m1 0h2m6 0h1m1 0h1m2 0h1m1 0h1m2 0h1m2 0h4m1 0h1m-32 1h1m2 0h1m5 0h1m2 0h1m1 0h1m2 0h5m3 0h1m1 0h2m1 0h2m-33 1h1m2 0h1m1 0h2m1 0h4m1 0h2m1 0h2m2 0h3m1 0h8m-24 1h2m1 0h1m5 0h1m1 0h1m1 0h1m1 0h2m3 0h2m2 0h1m-33 1h7m2 0h2m1 0h3m1 0h3m3 0h1m1 0h1m1 0h1m1 0h4m-32 1h1m5 0h1m1 0h3m1 0h1m3 0h4m1 0h2m1 0h1m3 0h1m3 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m2 0h4m2 0h1m1 0h1m3 0h6m-30 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m1 0h2m1 0h2m1 0h3m2 0h1m1 0h1m2 0h1m-32 1h1m1 0h3m1 0h1m2 0h2m1 0h9m1 0h3m3 0h2m2 0h1m-33 1h1m5 0h1m2 0h2m1 0h3m2 0h1m1 0h4m1 0h3m2 0h1m-30 1h7m1 0h1m1 0h1m2 0h1m1 0h2m1 0h5m1 0h2m2 0h2m1 0h1"/></symbol>
+  <symbol id="bot-cap" viewBox="0 0 100 110">
+    <g transform="translate(0 10)">
+      <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+      <circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/>
+      <circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/>
+      <circle cx="27" cy="57" r="4" fill="#ff8fb0"/><circle cx="73" cy="57" r="4" fill="#ff8fb0"/>
+      <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+    </g>
+    <path d="M12 22 L50 6 L88 22 L50 38 Z" fill="#2f2a4a"/><path d="M30 28 V38 Q50 47 70 38 V28" fill="#2f2a4a"/>
+    <path d="M80 25 V44" stroke="#ffd23f" stroke-width="4" stroke-linecap="round"/><circle cx="80" cy="46" r="5" fill="#ffd23f"/>
+  </symbol>
+  <symbol id="star" viewBox="0 0 100 100">
+    <polygon points="50,6 62,38 96,38 68,58 79,92 50,72 21,92 32,58 4,38 38,38" fill="#ffd84d" stroke="#e0a800" stroke-width="5" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="bug" viewBox="0 0 100 100">
+    <path d="M26 54 10 46M24 67 8 70M29 81 17 93M74 54 90 46M76 67 92 70M71 81 83 93M43 18 35 6M57 18 65 6" stroke="#1d2a44" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <circle cx="35" cy="6" r="5" fill="#ff4d4d" stroke="#1d2a44" stroke-width="3"/><circle cx="65" cy="6" r="5" fill="#ff4d4d" stroke="#1d2a44" stroke-width="3"/>
+    <ellipse cx="50" cy="64" rx="30" ry="29" fill="#ff4d4d" stroke="#1d2a44" stroke-width="5"/>
+    <path d="M50 40V91" stroke="#b52a2a" stroke-width="4"/>
+    <circle cx="38" cy="58" r="6" fill="#b52a2a"/><circle cx="63" cy="56" r="5" fill="#b52a2a"/><circle cx="62" cy="78" r="6" fill="#b52a2a"/><circle cx="38" cy="79" r="4" fill="#b52a2a"/>
+    <circle cx="50" cy="30" r="17" fill="#1d2a44"/>
+    <circle cx="43" cy="29" r="6.5" fill="#fff"/><circle cx="57" cy="29" r="6.5" fill="#fff"/>
+    <circle cx="44" cy="30" r="3" fill="#1d2a44"/><circle cx="58" cy="30" r="3" fill="#1d2a44"/>
+    <path d="M45 39q5 4 10 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<script>
+const slides = [...document.querySelectorAll(".slide")]
+const progress = document.getElementById("progress")
+let current = 0
+
+// Showing one slide and remembering it in the address, so reloading the page keeps the group where it was
+function show(index) {
+  current = Math.max(0, Math.min(slides.length - 1, index))
+  slides.forEach((slide, number) => slide.classList.toggle("active", number === current))
+  progress.innerHTML = slides.map((_, number) => `<span class="${number < current ? "seen" : ""} ${number === current ? "now" : ""}"></span>`).join("")
+  history.replaceState(null, "", "#" + (current + 1))
+}
+
+function toggleFullscreen() {
+  if (document.fullscreenElement) document.exitFullscreen()
+  else document.documentElement.requestFullscreen?.()
+}
+
+// Moving with the arrows and the keys a presentation clicker sends, and F for full screen
+document.addEventListener("keydown", event => {
+  if (event.metaKey || event.ctrlKey || event.altKey) return
+  if (["ArrowRight", "ArrowDown", "PageDown", " ", "Enter"].includes(event.key)) show(current + 1)
+  else if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace"].includes(event.key)) show(current - 1)
+  else if (event.key === "Home") show(0)
+  else if (event.key === "End") show(slides.length - 1)
+  else if (event.key === "f" || event.key === "F") toggleFullscreen()
+  else return
+  event.preventDefault()
+})
+
+// Clicking the right side of the slide goes forward and the left side goes back, and a swipe works on phones
+let swipeStart = null
+document.getElementById("deck").addEventListener("pointerdown", event => { swipeStart = event.clientX })
+document.getElementById("deck").addEventListener("pointerup", event => {
+  const distance = event.clientX - swipeStart
+  if (Math.abs(distance) > 50) return show(current + (distance < 0 ? 1 : -1))
+  const box = event.currentTarget.getBoundingClientRect()
+  show(current + (event.clientX - box.left > box.width / 3 ? 1 : -1))
+})
+
+show(Number(location.hash.slice(1)) - 1 || 0)
+</script>
+</body>
+</html>

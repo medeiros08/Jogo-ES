@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gems prontos · Oficina de Prompts</title>
+<meta name="description" content="Instruções prontas para criar Gems no Gemini: assistentes para planos de aula, atividades, jogos, histórias, inclusão e revisão de materiais.">
+<meta name="theme-color" content="#5fbcff">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='20' width='72' height='60' rx='16' fill='%234da3ff' stroke='%231d2a44' stroke-width='6'/><circle cx='36' cy='48' r='9' fill='%23fff'/><circle cx='64' cy='48' r='9' fill='%23fff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky1: #5fbcff; --sky2: #cdeeff; --hill: #8ddf6a; --hill2: #6cc653;
+    --ink: #2f2a4a; --soft: #5d5880; --line: #cfcbe6;
+    --blue: #4da3ff; --pink: #ff5f8f; --mint: #4fd6a6; --orange: #ff8a3d; --purple: #8c73ff; --yellow: #ffd23f;
+    --font: "Fredoka", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent }
+  html { background: var(--sky2) }
+  body { margin: 0; min-height: 100vh; color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.45 }
+  a { color: var(--ink); font-weight: 600 }
+  button { font: inherit; color: inherit; cursor: pointer }
+  .g { transform-box: fill-box; transform-origin: center }
+
+  /* The scenery behind everything: sky, drifting clouds and two hills */
+  .sky { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 80%) }
+  .cloud { position: absolute; background: #fff; border-radius: 999px; opacity: .9; animation: drift 50s linear infinite }
+  .cloud::before, .cloud::after { content: ""; position: absolute; background: #fff; border-radius: 50% }
+  .cloud::before { width: 55%; height: 160%; left: 15%; bottom: 20% }
+  .cloud::after { width: 40%; height: 130%; right: 12%; bottom: 25% }
+  .c1 { width: 130px; height: 36px; top: 8%; animation-delay: -10s }
+  .c2 { width: 92px; height: 26px; top: 42%; animation-duration: 64s; animation-delay: -40s; opacity: .75 }
+  @keyframes drift { from { transform: translateX(-30vw) } to { transform: translateX(130vw) } }
+  .hills { position: absolute; left: 0; right: 0; bottom: 0; height: 13vh }
+  .hills::before, .hills::after { content: ""; position: absolute; bottom: -40%; border-radius: 50% }
+  .hills::before { left: -20%; width: 90%; height: 140%; background: var(--hill) }
+  .hills::after { right: -25%; width: 95%; height: 120%; background: var(--hill2) }
+  .page { max-width: 1100px; margin: 0 auto; padding: max(16px, env(safe-area-inset-top)) 16px 40px }
+
+  .back { display: inline-flex; align-items: center; gap: 4px; padding: 3px 14px 3px 8px; background: #fff; border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink); font-size: 15px; text-decoration: none }
+  .back svg { width: 18px; height: 18px }
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; margin: 14px 0 26px }
+  header .gem { width: clamp(80px, 20vw, 110px); flex: none; animation: float 3s ease-in-out infinite }
+  @keyframes float { 50% { transform: translateY(-8px) rotate(4deg) } }
+  h1 { margin: 0; font-size: clamp(42px, 10vw, 70px); font-weight: 700; line-height: 1.02; color: #fff; -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; text-shadow: 0 5px 0 var(--ink) }
+  h1 .y { color: var(--purple) } h1 .p { color: var(--yellow) }
+  header p { max-width: 640px; margin: 10px 0 0; font-size: 19px; font-weight: 600 }
+
+  .card { padding: 20px 22px; background: #fff; border: 4px solid var(--ink); border-radius: 26px; box-shadow: 0 7px 0 rgba(47, 42, 74, .25) }
+  .card + .card, .how + .gems { margin-top: 24px }
+  h2 { margin: 0 0 12px; font-size: 26px; font-weight: 700 }
+  .how { display: grid; grid-template-columns: 1.3fr 1fr; gap: 22px; align-items: start }
+  .steps { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; counter-reset: step }
+  .steps li { display: flex; align-items: center; gap: 12px; padding: 8px 16px 8px 8px; background: var(--sky2); border-radius: 999px; font-weight: 500 }
+  .steps li::before { counter-increment: step; content: counter(step); display: grid; place-items: center; width: 34px; height: 34px; flex: none; background: var(--c); border: 3px solid var(--ink); border-radius: 50%; color: #fff; -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; font-weight: 700 }
+  .steps li:nth-child(1) { --c: var(--blue) } .steps li:nth-child(2) { --c: var(--mint) } .steps li:nth-child(3) { --c: var(--yellow) } .steps li:nth-child(4) { --c: var(--orange) }
+  .steps b { font-weight: 700 }
+  .small { margin: 12px 0 0; color: var(--soft); font-size: 15px; font-weight: 500 }
+  .care { padding: 16px 18px; background: #ffd6e3; border: 3px solid var(--ink); border-radius: 20px; font-weight: 500 }
+  .care h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; font-size: 20px }
+  .care h3 svg { width: 34px; height: 34px }
+  .care ul { margin: 0; padding-left: 20px }
+
+  .gems { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 480px), 1fr)); gap: 24px }
+  .gem-card { display: flex; flex-direction: column; gap: 10px; padding: 18px 20px 20px; background: #fff; border: 4px solid var(--ink); border-top: 16px solid var(--c); border-radius: 26px; box-shadow: 0 7px 0 rgba(47, 42, 74, .25) }
+  .gem-card .top { display: flex; align-items: center; gap: 12px }
+  .gem-card .top svg { width: 56px; height: 56px; flex: none }
+  .gem-card h3 { margin: 0; font-size: 24px; font-weight: 700; line-height: 1.1 }
+  .gem-card .for { margin: 0; font-weight: 500; color: var(--soft) }
+  .tag { align-self: flex-start; padding: 1px 12px; background: var(--light); border: 2px solid var(--ink); border-radius: 999px; font-size: 14px; font-weight: 600 }
+  .instructions { max-height: 210px; overflow: auto; margin: 0; padding: 12px 14px; background: var(--light); border: 3px dashed var(--ink); border-radius: 16px; font-size: 15px; font-weight: 500; white-space: pre-wrap }
+  .try { margin: 0; font-size: 15px; font-weight: 500 }
+  .try b { font-weight: 700 }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px }
+  .btn { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 6px 20px; background: var(--c, #fff); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 5px 0 var(--ink); color: #fff; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; font-size: 19px; font-weight: 700; text-decoration: none; transition: transform .1s, box-shadow .1s }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--ink) }
+  .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink) }
+  .btn svg { width: 22px; height: 22px }
+  .btn.calm { background: #fff; color: var(--ink); -webkit-text-stroke: 0; font-size: 17px }
+  .done { font-weight: 700; color: #1f8a60 }
+  .more { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 28px }
+  footer { padding: 30px 16px 10px; text-align: center; font-weight: 600 }
+
+  @media (max-width: 760px) {
+    .how { grid-template-columns: 1fr }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important }
+  }
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true"><div class="cloud c1"></div><div class="cloud c2"></div><div class="hills"></div></div>
+
+<div class="page">
+  <a class="back" href="index.html"><svg viewBox="0 0 24 24"><path d="M15 4.5 L7.5 12 L15 19.5" fill="none" stroke="#2f2a4a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Oficina de Prompts</a>
+
+  <header>
+    <svg class="gem" viewBox="0 0 64 64" aria-hidden="true"><path d="M8 24 L20 8 H44 L56 24 L32 58 Z" fill="#8c73ff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><path d="M8 24 H56 M20 8 L26 24 L32 58 L38 24 L44 8" fill="none" stroke="#2f2a4a" stroke-width="3" stroke-linejoin="round"/><path d="M26 24 L32 8 L38 24" fill="none" stroke="#2f2a4a" stroke-width="3" stroke-linejoin="round"/><path d="M18 18 L22 14" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>
+    <div>
+      <h1><span class="y">Gems</span> <span class="p">prontos</span></h1>
+      <p>Um Gem é um Gemini com as suas instruções fixas. Você explica uma vez como é a sua turma e o que precisa, e usa o ano todo.</p>
+    </div>
+  </header>
+
+  <section class="how">
+    <div class="card">
+      <h2>Como criar o seu Gem</h2>
+      <ol class="steps">
+        <li><span>No Gemini, abra o menu lateral, toque em <b>Gems</b> e depois em <b>Novo Gem</b>.</span></li>
+        <li><span>Dê um nome, como <b>Assistente do 2º ano</b>.</span></li>
+        <li><span>Copie as instruções de um Gem abaixo, cole e troque o que está entre [colchetes].</span></li>
+        <li><span>Teste com um pedido, ajuste as instruções e salve.</span></li>
+      </ol>
+      <p class="small">O nome dos botões pode mudar um pouco com as atualizações do Gemini, mas o caminho é parecido. Se a conta da escola não mostrar os Gems, guarde as instruções num documento e cole no começo de cada conversa.</p>
+    </div>
+    <div class="care">
+      <h3><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="7" y="16" width="22" height="17" rx="4" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="3"/><path d="M11.5 16 V11 A6.5 6.5 0 0 1 24.5 11 V16" fill="none" stroke="#2f2a4a" stroke-width="3"/><circle cx="18" cy="24" r="2.6" fill="#2f2a4a"/></svg>Nas instruções, nunca</h3>
+      <ul>
+        <li>nomes, fotos ou dados das crianças;</li>
+        <li>laudos, notas ou informações de saúde;</li>
+        <li>endereços ou telefones das famílias.</li>
+      </ul>
+      <p class="small" style="color: var(--ink)">Descreva a turma de um jeito geral: a etapa, a idade, o jeito de aprender e o que funciona com ela.</p>
+    </div>
+  </section>
+
+  <section class="gems" id="gems"></section>
+
+  <div class="more">
+    <a class="btn" href="construtor.html" style="--c: var(--blue)">Construtor de prompts</a>
+    <a class="btn calm" href="biblioteca.html">Biblioteca de prompts</a>
+    <a class="btn calm" href="https://gemini.google.com/app" target="_blank" rel="noopener">Abrir o Gemini</a>
+  </div>
+</div>
+
+<footer>Oficina de Prompts para Professores · Engenharia de Software · UNIPAMPA</footer>
+
+<script>
+// The ready-made Gems: what each one is for, its instructions to copy and a first request to test it
+const GEMS = [
+  {
+    name: "Assistente de planos de aula", tag: "Ensino Fundamental", color: ["#4da3ff", "#cfe6ff"], icon: "plan",
+    for: "Monta planos de aula com objetivos, BNCC, passo a passo e avaliação.",
+    try: "Faça um plano de uma aula de 50 minutos sobre [tema].",
+    text: `Você é meu assistente para planejar aulas. Eu sou professor(a) de [componente] do [ano] do Ensino Fundamental, numa escola pública.
+
+Quando eu pedir um plano de aula:
+- Se eu não disser o tema ou o tempo, pergunte antes de começar.
+- Entregue uma tabela com objetivos, habilidades da BNCC, materiais e tempo total. Se não tiver certeza do código da habilidade, escreva só a descrição, sem inventar o código.
+- Descreva a abertura, o desenvolvimento e o fechamento, com o tempo de cada parte.
+- Sugira como perceber se as crianças aprenderam.
+- Inclua uma adaptação para quem tem dificuldade e um desafio para quem termina antes.
+
+Use português do Brasil, linguagem simples e exemplos do dia a dia das crianças. Nunca peça nem use nomes ou dados das crianças.`,
+  },
+  {
+    name: "Criador de atividades para imprimir", tag: "Anos iniciais", color: ["#4fd6a6", "#c9f5e3"], icon: "sheet",
+    for: "Cria folhas de atividades prontas para imprimir, com gabarito.",
+    try: "Crie uma atividade sobre [tema] para a minha turma.",
+    text: `Você cria atividades para imprimir para uma turma do [ano] do Ensino Fundamental, com crianças de [idade] anos que [já leem frases curtas / estão começando a ler].
+
+Toda atividade deve ter:
+- Uma folha A4 com título, espaço para o nome e uma instrução curta.
+- De 3 a 5 exercícios variados (ligar, completar, circular, desenhar, marcar X), do mais fácil para o mais difícil.
+- Pouco texto, letras grandes e sugestões de desenhos de apoio.
+- No fim, separado, o gabarito e uma dica para o professor.
+
+Pense que a impressão pode ser em preto e branco. Use português do Brasil e exemplos do dia a dia. Nunca use nomes ou dados das crianças.`,
+  },
+  {
+    name: "Criador de jogos no Canvas", tag: "Todas as etapas", color: ["#8c73ff", "#e2dbff"], icon: "game",
+    for: "Cria jogos educativos que abrem no navegador do celular e do computador.",
+    try: "Crie um jogo sobre [conteúdo] para crianças de [idade] anos.",
+    text: `Você cria jogos educativos digitais para crianças de [idade] anos, para jogar [no celular de cada criança / no projetor com a turma toda].
+
+Todo jogo deve:
+- Ser um único arquivo HTML que funcione no navegador, sem instalar nada.
+- Ter botões grandes, cores alegres, visual de desenho e funcionar com toque.
+- Começar com uma tela com o nome do jogo e instruções bem curtas.
+- Ter 3 fases, da mais fácil para a mais difícil.
+- Dar retorno na hora: verde e um som alegre no acerto, vermelho e uma dica no erro.
+- Terminar com estrelas pelo desempenho e um botão para jogar de novo.
+- Estar em português do Brasil, sem anúncios, sem links para outros sites e sem pedir dados das crianças.
+
+Se eu disser que algo não funcionou, conserte só aquilo, sem mudar o resto do jogo.`,
+  },
+  {
+    name: "Contador de histórias", tag: "Educação Infantil", color: ["#ff5f8f", "#ffd6e3"], icon: "book",
+    for: "Escreve histórias curtas para ler em voz alta na roda.",
+    try: "Escreva uma história sobre [tema] para ler na roda.",
+    text: `Você escreve histórias para crianças de [idade] anos da Educação Infantil. Elas ainda não leem: eu vou ler em voz alta, na roda.
+
+Toda história deve:
+- Ter um título e de 5 a 7 parágrafos bem curtos, para ler em poucos minutos.
+- Ter personagens com nomes brasileiros e um problema que eles resolvem juntos.
+- Usar frases simples, repetições e sons divertidos que as crianças possam imitar.
+- Terminar com 3 perguntas para conversar e uma sugestão de desenho ou brincadeira.
+
+Use cenários e animais que as crianças conhecem, como os do Pampa. Use português do Brasil.`,
+  },
+  {
+    name: "Adaptador para inclusão", tag: "Todas as etapas", color: ["#ffd23f", "#fff1a8"], icon: "puzzle",
+    for: "Adapta textos e atividades para crianças com necessidades diferentes.",
+    try: "Adapte este texto para uma criança que lê frases curtas: [cole o texto].",
+    text: `Você adapta materiais escolares para a inclusão. Quando eu colar um texto ou uma atividade e descrever a necessidade (por exemplo: TEA, TDAH, dificuldade de leitura, baixa visão):
+- Mantenha o conteúdo e os objetivos do material original.
+- Use frases curtas, palavras simples e sugira imagens ou ícones de apoio.
+- Divida em partes pequenas, com instruções numeradas.
+- No fim, liste o que você mudou e por quê.
+
+Eu nunca vou dizer quem é a criança, só a necessidade. Não peça nomes nem dados. Use português do Brasil.`,
+  },
+  {
+    name: "Revisor de materiais", tag: "Todas as etapas", color: ["#ff8a3d", "#ffdcc4"], icon: "search",
+    for: "Revisa um material antes de usar com a turma e aponta o que melhorar.",
+    try: "Revise esta atividade para o [ano]: [cole o material].",
+    text: `Você revisa materiais escolares antes que eu use com a turma. Quando eu colar um material e disser a turma:
+- Aponte erros de conteúdo e informações que eu devo conferir em outra fonte.
+- Aponte palavras ou frases difíceis para a idade e sugira trocas.
+- Diga se todas as crianças conseguem participar e o que poderia incluir mais.
+- Avise se aparecer algum nome, foto ou dado de criança.
+
+Responda em tópicos curtos. Não reescreva o material inteiro: só aponte e sugira. Use português do Brasil.`,
+  },
+]
+
+const ICONS = {
+  plan: '<rect x="12" y="10" width="40" height="50" rx="5" fill="#fff" stroke="#2f2a4a" stroke-width="4"/><rect x="22" y="4" width="20" height="11" rx="3" fill="#ffd23f" stroke="#2f2a4a" stroke-width="3"/><path d="M19 27 l4 4 l7 -8 M19 43 l4 4 l7 -8" stroke="#4fd6a6" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M35 28 H45 M35 44 H45" stroke="#8cc4ff" stroke-width="4" stroke-linecap="round"/>',
+  sheet: '<rect x="8" y="6" width="38" height="52" rx="5" fill="#fff" stroke="#2f2a4a" stroke-width="4"/><path d="M16 19 H38 M16 28 H38 M16 37 H30" stroke="#8cc4ff" stroke-width="4" stroke-linecap="round"/><g transform="rotate(32 48 36)"><rect x="43" y="14" width="11" height="34" rx="2" fill="#ffd23f" stroke="#2f2a4a" stroke-width="3"/><path d="M43 48 L48.5 59 L54 48 Z" fill="#ffe1b0" stroke="#2f2a4a" stroke-width="3" stroke-linejoin="round"/></g>',
+  game: '<rect x="4" y="18" width="56" height="30" rx="15" fill="#8c73ff" stroke="#2f2a4a" stroke-width="4"/><path d="M18 26 V40 M11 33 H25" stroke="#fff" stroke-width="5" stroke-linecap="round"/><circle cx="42" cy="28" r="4.5" fill="#ffd23f" stroke="#2f2a4a" stroke-width="2.5"/><circle cx="50" cy="37" r="4.5" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="2.5"/>',
+  book: '<path d="M32 16 Q20 8 6 12 V52 Q20 48 32 56 Q44 48 58 52 V12 Q44 8 32 16 Z" fill="#fff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><path d="M32 16 V56" stroke="#2f2a4a" stroke-width="3"/><path d="M12 24 Q19 22 26 25 M12 33 Q19 31 26 34 M38 25 Q45 22 52 24 M38 34 Q45 31 52 33" stroke="#ff5f8f" stroke-width="3" fill="none" stroke-linecap="round"/>',
+  puzzle: '<path d="M8 20 H24 A7 7 0 1 1 38 20 H54 V34 A7 7 0 1 0 54 48 V58 H8 V46 A7 7 0 1 0 8 32 Z" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/>',
+  search: '<circle cx="26" cy="26" r="17" fill="#fff" stroke="#2f2a4a" stroke-width="5"/><path d="M18 26 L24 32 L35 20" stroke="#4fd6a6" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M39 39 L56 56" stroke="#2f2a4a" stroke-width="8" stroke-linecap="round"/>',
+}
+const COPY = '<svg viewBox="0 0 24 24"><path d="M9 8 H19 A1.5 1.5 0 0 1 20.5 9.5 V19.5 A1.5 1.5 0 0 1 19 21 H9 A1.5 1.5 0 0 1 7.5 19.5 V9.5 A1.5 1.5 0 0 1 9 8 Z M16 8 V4.5 A1.5 1.5 0 0 0 14.5 3 H5 A1.5 1.5 0 0 0 3.5 4.5 V14.5 A1.5 1.5 0 0 0 5 16 H7.5" fill="#fff" stroke="#2f2a4a" stroke-width="2.4" stroke-linejoin="round"/></svg>'
+const escape = text => text.replace(/[&<>"]/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[character])
+
+document.getElementById("gems").innerHTML = GEMS.map((gem, index) => `
+  <article class="gem-card" style="--c: ${gem.color[0]}; --light: ${gem.color[1]}">
+    <div class="top"><svg viewBox="0 0 64 64" aria-hidden="true">${ICONS[gem.icon]}</svg><h3>${gem.name}</h3></div>
+    <span class="tag">${gem.tag}</span>
+    <p class="for">${gem.for}</p>
+    <pre class="instructions">${escape(gem.text)}</pre>
+    <p class="try"><b>Para testar depois de criar:</b> “${escape(gem.try)}”</p>
+    <div class="row"><button class="btn" type="button" data-index="${index}" style="--c: var(--mint)">${COPY}Copiar instruções</button><span class="done" aria-live="polite"></span></div>
+  </article>`).join("")
+
+// Copying with the clipboard API, and falling back to a hidden text box when the page was opened from a file
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text)
+  } catch {
+    const box = document.createElement("textarea")
+    box.value = text
+    document.body.append(box)
+    box.select()
+    document.execCommand("copy")
+    box.remove()
+  }
+}
+
+document.getElementById("gems").addEventListener("click", async event => {
+  const button = event.target.closest("button[data-index]")
+  if (!button) return
+  await copyText(GEMS[button.dataset.index].text)
+  const done = button.parentElement.querySelector(".done")
+  done.textContent = "Copiado! Agora cole nas instruções do Gem."
+  setTimeout(() => { done.textContent = "" }, 4000)
+})
+</script>
+</body>
+</html>

@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jogo do Prompt</title>
+<meta name="description" content="Um jogo para professores: transforme pedidos vagos em bons prompts para o Gemini, escolhendo o Papel, a Tarefa, o Contexto e o Formato certos.">
+<meta name="theme-color" content="#5fbcff">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='20' width='72' height='60' rx='16' fill='%234da3ff' stroke='%231d2a44' stroke-width='6'/><circle cx='36' cy='48' r='9' fill='%23fff'/><circle cx='64' cy='48' r='9' fill='%23fff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky1: #5fbcff; --sky2: #cdeeff; --hill: #8ddf6a; --hill2: #6cc653;
+    --ink: #2f2a4a; --soft: #5d5880; --line: #cfcbe6;
+    --blue: #4da3ff; --pink: #ff5f8f; --mint: #4fd6a6; --orange: #ff8a3d; --purple: #8c73ff; --yellow: #ffd23f;
+    --font: "Fredoka", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+
+    /* One colour per part of the prompt, the same as in the builder */
+    --role: #4da3ff; --role-light: #cfe6ff;
+    --task: #4fd6a6; --task-light: #c9f5e3;
+    --context: #ffd23f; --context-light: #fff1a8;
+    --format: #ff8a3d; --format-light: #ffdcc4;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent }
+  [hidden] { display: none !important }
+  html { background: var(--sky2) }
+  body { margin: 0; min-height: 100vh; color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.4 }
+  button { font: inherit; color: inherit; cursor: pointer }
+  .g { transform-box: fill-box; transform-origin: center }
+
+  /* The scenery behind the game: sky, drifting clouds and two hills */
+  .sky { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 80%) }
+  .cloud { position: absolute; background: #fff; border-radius: 999px; opacity: .9; animation: drift 50s linear infinite }
+  .cloud::before, .cloud::after { content: ""; position: absolute; background: #fff; border-radius: 50% }
+  .cloud::before { width: 55%; height: 160%; left: 15%; bottom: 20% }
+  .cloud::after { width: 40%; height: 130%; right: 12%; bottom: 25% }
+  .c1 { width: 130px; height: 36px; top: 8%; animation-delay: -10s }
+  .c2 { width: 92px; height: 26px; top: 40%; animation-duration: 64s; animation-delay: -40s; opacity: .75 }
+  @keyframes drift { from { transform: translateX(-30vw) } to { transform: translateX(130vw) } }
+  .hills { position: absolute; left: 0; right: 0; bottom: 0; height: 13vh }
+  .hills::before, .hills::after { content: ""; position: absolute; bottom: -40%; border-radius: 50% }
+  .hills::before { left: -20%; width: 90%; height: 140%; background: var(--hill) }
+  .hills::after { right: -25%; width: 95%; height: 120%; background: var(--hill2) }
+
+  .page { max-width: 1120px; margin: 0 auto; padding: max(12px, env(safe-area-inset-top)) 16px 40px }
+  .top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px }
+  .back { display: inline-flex; align-items: center; gap: 4px; padding: 3px 14px 3px 8px; background: #fff; border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink); color: var(--ink); font-size: 15px; font-weight: 600; text-decoration: none }
+  .back svg { width: 18px; height: 18px }
+  #dots { display: flex; gap: 8px; margin-left: auto }
+  .dot { width: 22px; height: 22px; border: 4px solid var(--ink); border-radius: 50%; background: #fff; transition: transform .2s }
+  .dot.done { background: var(--yellow) }
+  .dot.now { background: var(--pink); transform: scale(1.25) }
+  .round { display: grid; place-items: center; width: 48px; height: 48px; flex: none; padding: 0; background: #fff; border: 3px solid var(--ink); border-radius: 50%; box-shadow: 0 4px 0 var(--ink) }
+  .round svg { width: 26px; height: 26px; pointer-events: none }
+
+  /* The vague request a teacher typed, said by a little teacher */
+  .vague { display: flex; align-items: center; gap: 14px; margin-bottom: 18px }
+  .vague svg { width: 74px; height: 74px; flex: none }
+  .vague .bubble { position: relative; flex: 1; padding: 10px 18px; background: #fff; border: 4px solid var(--ink); border-radius: 22px; box-shadow: 0 5px 0 rgba(47, 42, 74, .25) }
+  .vague .bubble::before { content: ""; position: absolute; left: -15px; top: 50%; margin-top: -11px; border: 11px solid transparent; border-right-color: var(--ink); border-left: 0 }
+  .vague .bubble::after { content: ""; position: absolute; left: -8px; top: 50%; margin-top: -7px; border: 7px solid transparent; border-right-color: #fff; border-left: 0 }
+  .vague small { display: block; color: var(--pink); font-weight: 700; font-size: 14px; letter-spacing: .5px; text-transform: uppercase }
+  .vague b { font-size: clamp(20px, 5vw, 28px); font-weight: 700 }
+
+  /* The prompt being built on the left and the answer it would get on the right */
+  .build { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; align-items: start }
+  .panel { padding: 16px; background: #fff; border: 4px solid var(--ink); border-radius: 26px; box-shadow: 0 7px 0 rgba(47, 42, 74, .25) }
+  .panel h2 { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; font-size: 22px; font-weight: 700 }
+  .panel h2 svg { width: 32px; height: 32px }
+  .slots { display: grid; gap: 10px }
+  .slot { position: relative; min-height: 64px; padding: 8px 12px 8px 14px; background: var(--light); border: 3px dashed var(--c); border-radius: 16px; transition: background .2s }
+  .slot .tag { display: inline-flex; align-items: center; gap: 6px; padding: 1px 10px 1px 3px; background: var(--c); border: 2px solid var(--ink); border-radius: 999px; font-size: 14px; font-weight: 600 }
+  .slot .tag i, .block i { display: grid; place-items: center; width: 22px; height: 22px; background: #fff; border: 2px solid var(--ink); border-radius: 50%; font-style: normal; font-weight: 700; font-size: 13px }
+  .slot .hint { margin: 4px 0 0; color: var(--soft); font-weight: 500; font-size: 15px }
+  .slot .text { margin: 4px 0 0; font-weight: 600 }
+  .slot.filled { border-style: solid; border-color: var(--ink); background: #fff; animation: pop .35s cubic-bezier(.3, 1.6, .6, 1) }
+  .slot.filled .hint { display: none }
+  .slot.over { background: #fff; transform: scale(1.02) }
+  .slot.wrong { animation: shake .12s 4 }
+  .role { --c: var(--role); --light: var(--role-light) }
+  .task { --c: var(--task); --light: var(--task-light) }
+  .context { --c: var(--context); --light: var(--context-light) }
+  .format { --c: var(--format); --light: var(--format-light) }
+  @keyframes pop { from { transform: scale(.92) } }
+  @keyframes shake { 25% { transform: translateX(-6px) } 75% { transform: translateX(6px) } }
+
+  /* The answer Gemini would give, getting clearer with every good block */
+  .answer { position: relative }
+  .meter { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px }
+  .meter span { height: 14px; background: #eeecf7; border: 2px solid var(--ink); border-radius: 999px; transition: background .3s }
+  .meter span.on { background: var(--c) }
+  .missing { margin: 0 0 12px; font-weight: 600; font-size: 15px }
+  .missing b { color: var(--pink) }
+  .missing.done b { color: #1f8a60 }
+  .screen { position: relative; overflow: hidden; padding: 14px; min-height: 250px; background: #f6f5fb; border: 3px solid var(--ink); border-radius: 18px }
+  .screen .head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px }
+  .screen .avatar { display: grid; place-items: center; width: 46px; height: 46px; flex: none; background: #fff; border: 3px solid var(--ink); border-radius: 50% }
+  .screen .avatar svg { width: 38px; height: 38px }
+  .screen .avatar.unknown { background: #eeecf7; color: var(--soft); font-size: 24px; font-weight: 700 }
+  .screen .who { font-size: 14px; font-weight: 600; color: var(--soft) }
+  .screen .title { margin: 0 0 6px; font-size: 21px; font-weight: 700 }
+  .screen .title.unknown { width: 70%; height: 20px; background: #dcd9ea; border-radius: 8px }
+  .chip { display: inline-block; margin-bottom: 10px; padding: 1px 12px; background: var(--context); border: 2px solid var(--ink); border-radius: 999px; font-size: 14px; font-weight: 600 }
+  .chip.unknown { background: #eeecf7; color: var(--soft); border-style: dashed }
+  .gray { display: grid; gap: 8px }
+  .gray span { height: 14px; background: #dcd9ea; border-radius: 8px }
+  .gray span:nth-child(2) { width: 85% } .gray span:nth-child(3) { width: 60% }
+  .shape { animation: pop .4s cubic-bezier(.3, 1.6, .6, 1) }
+  .game-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 6px 0 10px }
+  .game-buttons span { display: grid; place-items: center; height: 48px; background: var(--c); border: 3px solid var(--ink); border-radius: 14px; box-shadow: 0 3px 0 var(--ink); font-size: 20px; font-weight: 700 }
+  .stars-row { display: flex; justify-content: center; gap: 6px }
+  .stars-row svg { width: 30px; height: 30px }
+  .lines { display: grid; gap: 7px; margin: 6px 0 10px }
+  .lines span { height: 10px; background: #b9b4d6; border-radius: 6px }
+  .lines span:nth-child(3n) { width: 75% }
+  .questions { display: flex; gap: 8px }
+  .questions span { display: grid; place-items: center; width: 34px; height: 34px; background: var(--yellow); border: 3px solid var(--ink); border-radius: 50%; font-weight: 700 }
+  .exercises { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 6px 0 10px }
+  .exercises span { display: grid; place-items: center; aspect-ratio: 1; background: #fff; border: 3px solid var(--ink); border-radius: 10px; font-weight: 700 }
+  .exercises span:nth-child(odd) { background: var(--task-light) }
+  .key { padding: 4px 10px; background: var(--format-light); border: 2px dashed var(--ink); border-radius: 10px; font-size: 14px; font-weight: 600 }
+  .options { display: grid; gap: 6px; margin: 6px 0 10px }
+  .options span { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #fff; border: 3px solid var(--ink); border-radius: 12px; font-weight: 600 }
+  .options span b { display: grid; place-items: center; width: 26px; height: 26px; background: var(--role-light); border: 2px solid var(--ink); border-radius: 50%; font-size: 14px }
+  .options span.right { background: var(--task-light) }
+  .numbered { display: grid; gap: 6px; margin: 6px 0 10px; padding: 0; list-style: none }
+  .numbered li { display: flex; align-items: center; gap: 8px }
+  .numbered li b { display: grid; place-items: center; width: 26px; height: 26px; flex: none; background: var(--format); border: 2px solid var(--ink); border-radius: 8px; font-size: 14px }
+  .numbered li span { flex: 1; height: 10px; background: #b9b4d6; border-radius: 6px }
+  .thinking { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(246, 245, 251, .92) }
+  .thinking div { display: flex; gap: 10px }
+  .thinking span { width: 16px; height: 16px; background: var(--purple); border: 2px solid var(--ink); border-radius: 50%; animation: bounce .9s ease-in-out infinite }
+  .thinking span:nth-child(2) { animation-delay: .15s } .thinking span:nth-child(3) { animation-delay: .3s }
+  @keyframes bounce { 50% { transform: translateY(-12px) } }
+
+  /* Feedback after every block, and the tray of blocks to drag */
+  .tip { min-height: 52px; margin: 18px 0 14px; padding: 10px 16px; background: #fff; border: 3px solid var(--ink); border-radius: 18px; font-weight: 600 }
+  .tip.good { background: var(--task-light) }
+  .tip.bad { background: #ffd6e3 }
+  .tip.pop { animation: pop .3s cubic-bezier(.3, 1.6, .6, 1) }
+  .tray-title { margin: 0 0 10px; font-size: 20px; font-weight: 700 }
+  .tray { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 12px }
+  .block { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background: #fff; border: 3px solid var(--ink); border-left: 12px solid var(--c); border-radius: 16px; box-shadow: 0 5px 0 var(--ink); font-weight: 600; text-align: left; touch-action: none; user-select: none; transition: transform .15s, opacity .2s }
+  .block:hover { transform: translateY(-3px) rotate(-1deg) }
+  .block i { flex: none; margin-top: 1px; background: var(--c) }
+  .block.used { opacity: .35; box-shadow: none; text-decoration: line-through; pointer-events: none }
+  .block.gone { visibility: hidden }
+  .block.wrong { animation: shake .12s 4 }
+  .ghost { position: fixed; z-index: 30; pointer-events: none; transform: rotate(-3deg) scale(1.04); box-shadow: 0 12px 0 rgba(47, 42, 74, .3) }
+  .run-row { display: flex; justify-content: center; margin-top: 18px }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 8px 26px; background: var(--c, #fff); border: 4px solid var(--ink); border-radius: 999px; box-shadow: 0 6px 0 var(--ink); color: #fff; -webkit-text-stroke: 6px var(--ink); paint-order: stroke fill; font-size: 24px; font-weight: 700; text-decoration: none; transition: transform .1s, box-shadow .1s }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--ink) }
+  .btn:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--ink) }
+  .btn svg { width: 26px; height: 26px; filter: drop-shadow(2px 0 0 var(--ink)) drop-shadow(-2px 0 0 var(--ink)) drop-shadow(0 2px 0 var(--ink)) drop-shadow(0 -2px 0 var(--ink)) }
+  .btn.calm { background: #fff; color: var(--ink); -webkit-text-stroke: 0; font-size: 19px }
+  #run { --c: var(--purple); animation: breathe 1.6s ease-in-out infinite }
+  @keyframes breathe { 50% { transform: scale(1.05) } }
+
+  /* Start, round and final screens */
+  .overlay { position: fixed; inset: 0; z-index: 20; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 20px 16px; overflow-x: hidden; overflow-y: auto; background: rgba(205, 238, 255, .96); text-align: center }
+  .overlay.show { display: flex }
+  .overlay > * { flex-shrink: 0 }
+  h1 { margin: 0; font-size: clamp(46px, 12vw, 84px); font-weight: 700; line-height: 1; color: #fff; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; text-shadow: 0 6px 0 var(--ink) }
+  h1 span { display: inline-block; animation: hop 3.2s ease-in-out infinite }
+  h1 .y { color: var(--yellow) } h1 .p { color: var(--pink); animation-delay: .3s }
+  @keyframes hop { 0%, 80%, 100% { transform: translateY(0) } 88% { transform: translateY(-9px) rotate(-3deg) } }
+  .hello { display: flex; align-items: center; gap: 12px; max-width: 640px }
+  .hello svg { width: clamp(80px, 22vw, 116px); flex: none; animation: bob 2.6s ease-in-out infinite }
+  @keyframes bob { 50% { transform: translateY(-6px) } }
+  .hello p { position: relative; margin: 0; padding: 12px 18px; background: #fff; border: 4px solid var(--ink); border-radius: 22px; font-size: clamp(17px, 4.4vw, 21px); font-weight: 600; text-align: left }
+  .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 0; padding: 0; list-style: none }
+  .legend li { display: flex; align-items: center; gap: 6px; padding: 3px 14px 3px 4px; background: var(--c); border: 3px solid var(--ink); border-radius: 999px; font-weight: 600 }
+  .legend li i { display: grid; place-items: center; width: 26px; height: 26px; background: #fff; border: 2px solid var(--ink); border-radius: 50%; font-style: normal; font-weight: 700 }
+  .how { max-width: 620px; margin: 0; font-size: 18px; font-weight: 500 }
+  #start .btn, #win .btn, #final .btn { --c: var(--mint) }
+  #stars { display: flex; gap: 2vw }
+  #stars svg { width: min(20vh, 24vw); height: min(20vh, 24vw); animation: spin-in .5s ease-out backwards }
+  #stars svg.off { filter: grayscale(1); opacity: .3 }
+  @keyframes spin-in { from { transform: scale(0) rotate(-90deg) } }
+  #win h2, #final h2 { margin: 0; font-size: clamp(30px, 7vw, 44px); font-weight: 700 }
+  #win p { max-width: 640px; margin: 0; font-size: 19px; font-weight: 500 }
+  .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px }
+  .score { padding: 6px 22px; background: var(--yellow); border: 4px solid var(--ink); border-radius: 999px; box-shadow: 0 5px 0 var(--ink); font-size: 26px; font-weight: 700 }
+  .confetti { position: absolute; top: -20px; width: 14px; height: 22px; animation: fall linear forwards }
+  @keyframes fall { to { transform: translateY(110vh) rotate(720deg) } }
+
+  /* On phones the blocks come right under the prompt, and the answer after them */
+  @media (max-width: 760px) {
+    .page { display: flex; flex-direction: column }
+    .build { display: contents }
+    .top { order: 0 } .vague { order: 1 } .build > .panel:first-child { order: 2 } .tip { order: 3 } .tray-title { order: 4 } .tray { order: 5 } .run-row { order: 6 }
+    .answer { order: 7; margin-top: 22px }
+    .vague svg { width: 58px; height: 58px }
+    .btn { font-size: 21px; padding: 8px 20px }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important }
+  }
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true"><div class="cloud c1"></div><div class="cloud c2"></div><div class="hills"></div></div>
+
+<div class="page">
+  <header class="top">
+    <a class="back" href="index.html"><svg viewBox="0 0 24 24"><path d="M15 4.5 L7.5 12 L15 19.5" fill="none" stroke="#2f2a4a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Oficina de Prompts</a>
+    <span id="dots"></span>
+    <button class="round" id="mute" type="button" aria-label="Som"></button>
+  </header>
+
+  <section class="vague">
+    <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#teacher"/></svg>
+    <div class="bubble"><small>Pedido vago</small><b id="vague"></b></div>
+  </section>
+
+  <section class="build">
+    <div class="panel">
+      <h2><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="48" width="48" height="12" rx="4" fill="#ff8a3d" stroke="#2f2a4a" stroke-width="3"/><rect x="8" y="35" width="48" height="12" rx="4" fill="#ffd23f" stroke="#2f2a4a" stroke-width="3"/><rect x="8" y="22" width="48" height="12" rx="4" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="3"/><rect x="8" y="9" width="48" height="12" rx="4" fill="#4da3ff" stroke="#2f2a4a" stroke-width="3"/></svg>Seu prompt</h2>
+      <div class="slots" id="slots"></div>
+    </div>
+    <div class="panel answer">
+      <h2><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4 C34 22 42 30 60 32 C42 34 34 42 32 60 C30 42 22 34 4 32 C22 30 30 22 32 4 Z" fill="#8c73ff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/></svg>Resposta do Gemini</h2>
+      <div class="meter" id="meter"></div>
+      <p class="missing" id="missing"></p>
+      <div class="screen" id="screen"></div>
+    </div>
+  </section>
+
+  <p class="tip" id="tip" role="status"></p>
+  <h2 class="tray-title">Arraste ou toque nos blocos</h2>
+  <div class="tray" id="tray"></div>
+  <div class="run-row"><button class="btn" id="run" type="button" hidden>Pedir ao Gemini<svg viewBox="0 0 24 24"><path d="M12 2 C12.8 8.5 15.5 11.2 22 12 C15.5 12.8 12.8 15.5 12 22 C11.2 15.5 8.5 12.8 2 12 C8.5 11.2 11.2 8.5 12 2 Z" fill="#fff"/></svg></button></div>
+</div>
+
+<div class="overlay show" id="start">
+  <h1><span class="y">Jogo</span> do <span class="p">Prompt</span></h1>
+  <div class="hello">
+    <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#bot"/></svg>
+    <p>Um pedido vago faz o Gemini adivinhar. Escolha os blocos certos e veja a resposta melhorar!</p>
+  </div>
+  <ul class="legend">
+    <li class="role"><i>P</i>Papel: quem ele é</li>
+    <li class="task"><i>T</i>Tarefa: o que fazer</li>
+    <li class="context"><i>C</i>Contexto: para quem</li>
+    <li class="format"><i>F</i>Formato: como sai</li>
+  </ul>
+  <p class="how">São 5 pedidos. Em cada parte, um bloco é bom e o outro é fraco. Acerte de primeira para ganhar 3 estrelas.</p>
+  <button class="btn" type="button" id="begin">Começar<svg viewBox="0 0 24 24"><path d="M7 4 L20 12 L7 20 Z" fill="#fff"/></svg></button>
+</div>
+
+<div class="overlay" id="win">
+  <div id="stars"></div>
+  <h2 id="win-title"></h2>
+  <p id="win-text"></p>
+  <button class="btn" type="button" id="next">Próximo pedido<svg viewBox="0 0 24 24"><path d="M5 12 H19 M13 6 L19 12 L13 18" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+</div>
+
+<div class="overlay" id="final">
+  <h1><span class="y">Mandou</span> <span class="p">bem!</span></h1>
+  <div class="score" id="score"></div>
+  <div class="hello">
+    <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#bot"/></svg>
+    <p>Agora você sabe o segredo: Papel, Tarefa, Contexto e Formato. E nunca o nome das crianças! Que tal montar um pedido de verdade para a sua turma?</p>
+  </div>
+  <div class="actions">
+    <a class="btn" href="construtor.html">Abrir o Construtor<svg viewBox="0 0 24 24"><path d="M7 4 L20 12 L7 20 Z" fill="#fff"/></svg></a>
+    <a class="btn calm" href="biblioteca.html">Ver a Biblioteca de prompts</a>
+    <button class="btn calm" type="button" id="again">Jogar de novo</button>
+  </div>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="bot" viewBox="0 0 100 100">
+    <line x1="50" y1="8" x2="50" y2="22" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="50" cy="8" r="6" fill="#ff4d4d"/>
+    <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/>
+    <circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/>
+    <circle cx="27" cy="57" r="4" fill="#ff8fb0"/><circle cx="73" cy="57" r="4" fill="#ff8fb0"/>
+    <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+  </symbol>
+  <symbol id="teacher" viewBox="0 0 100 100">
+    <path d="M18 98 C18 74 32 66 50 66 C68 66 82 74 82 98 Z" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M24 44 C22 18 40 10 52 12 C70 14 80 26 76 48 C70 40 60 36 48 34 C38 36 30 40 24 44 Z" fill="#6b4a3a" stroke="#2f2a4a" stroke-width="5" stroke-linejoin="round"/>
+    <circle cx="50" cy="44" r="22" fill="#ffd9b8" stroke="#2f2a4a" stroke-width="5"/>
+    <path d="M28 40 C34 30 48 26 62 30 C68 32 72 36 72 40 C64 34 52 34 44 36 C38 37 32 38 28 40 Z" fill="#6b4a3a"/>
+    <circle cx="41" cy="45" r="6.5" fill="#fff" stroke="#2f2a4a" stroke-width="3"/><circle cx="59" cy="45" r="6.5" fill="#fff" stroke="#2f2a4a" stroke-width="3"/>
+    <path d="M47.5 45 H52.5" stroke="#2f2a4a" stroke-width="3"/>
+    <circle cx="41" cy="46" r="2.5" fill="#2f2a4a"/><circle cx="59" cy="46" r="2.5" fill="#2f2a4a"/>
+    <path d="M43 56 q7 5 14 0" stroke="#2f2a4a" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="star" viewBox="0 0 100 100">
+    <polygon points="50,6 62,38 96,38 68,58 79,92 50,72 21,92 32,58 4,38 38,38" fill="#ffd84d" stroke="#e0a800" stroke-width="5" stroke-linejoin="round"/>
+  </symbol>
+</svg>
+
+<script>
+// The four parts of a prompt, in the order they are written
+const PARTS = [
+  { id: "role", letter: "P", name: "Papel", hint: "Quem o Gemini deve ser", missing: "quem ele é" },
+  { id: "task", letter: "T", name: "Tarefa", hint: "O que ele deve fazer", missing: "o que fazer" },
+  { id: "context", letter: "C", name: "Contexto", hint: "Para quem e com quais limites", missing: "para quem" },
+  { id: "format", letter: "F", name: "Formato", hint: "Como o resultado deve sair", missing: "como deve sair" },
+]
+
+// Every round: the vague request, how the answer looks when the prompt is complete,
+// and for each part a good block and a weak block, each with the reason shown after it is picked
+const ROUNDS = [
+  {
+    vague: "Faça um jogo de matemática.",
+    answer: { who: "Professor(a) de Matemática · 2º ano", title: "Jogo das somas até 20", audience: "7 anos · no celular", shape: "game" },
+    role: [["Você é professor(a) de Matemática do 2º ano.", "Agora o Gemini usa a linguagem e o conteúdo do 2º ano."],
+           ["Você é um gênio da matemática.", "Genérico demais. Diga a matéria e o ano, para ele falar do jeito certo para a turma."]],
+    task: [["Crie um jogo de somas até 20 para jogar no navegador.", "Verbo claro e conteúdo certo: ele sabe exatamente o que criar."],
+           ["Faça alguma coisa divertida.", "Sem verbo claro e sem conteúdo, o Gemini vai inventar qualquer coisa."]],
+    context: [["Para crianças de 7 anos que estão começando a ler, no celular.", "Com a idade, a leitura e o aparelho, o jogo sai do tamanho certo."],
+              ["Para alunos.", "Que idade? Eles já leem? Onde vão jogar? Sem isso, ele adivinha."]],
+    format: [["Botões grandes, 3 fases, som no acerto e estrelas no final.", "Você disse como quer: o resultado vem pronto para usar."],
+             ["Do jeito que você achar melhor.", "Se você não diz como quer, recebe qualquer formato."]],
+  },
+  {
+    vague: "Escreva uma história sobre animais.",
+    answer: { who: "Professor(a) de Educação Infantil", title: "O quero-quero que perdeu o ninho", audience: "4 anos · leitura em voz alta", shape: "story" },
+    role: [["Você é professor(a) de Educação Infantil e conta histórias para crianças pequenas.", "Agora ele escreve com o jeito de quem conta histórias para os pequenos."],
+           ["Você é um escritor famoso.", "Escritor de quê, para quem? Esse papel não ajuda a acertar a idade."]],
+    task: [["Escreva uma história curta sobre um quero-quero que perde o ninho.", "Um tema concreto e perto das crianças do Pampa."],
+           ["Escreva uma história.", "Sobre o quê? Sem tema, a história vem genérica."]],
+    context: [["Para crianças de 4 anos que ainda não leem; vou ler em voz alta na roda.", "Ele sabe que é para ouvir, não para ler, e usa frases simples."],
+              ["Para crianças.", "Crianças de 4 ou de 12 anos? A idade muda tudo."]],
+    format: [["Até 6 parágrafos curtos, nomes brasileiros e 3 perguntas para conversar no fim.", "O tamanho cabe na roda e as perguntas já vêm prontas."],
+             ["Pode ser longa.", "Longa demais para a atenção de uma criança de 4 anos."]],
+  },
+  {
+    vague: "Faça uma atividade de frações.",
+    answer: { who: "Professor(a) de Matemática · 5º ano", title: "Frações do dia a dia", audience: "10 anos · 50 minutos", shape: "sheet" },
+    role: [["Você é professor(a) de Matemática do 5º ano e conhece a BNCC.", "Ele pensa como quem planeja a aula e conhece o currículo."],
+           ["Você é uma inteligência artificial.", "Ele já sabe disso! Diga o papel que ele deve assumir."]],
+    task: [["Crie uma atividade para imprimir sobre frações do dia a dia.", "Fica claro que é para imprimir e qual é o conteúdo."],
+           ["Crie umas questões aí.", "Questões de quê? Para imprimir ou para a tela?"]],
+    context: [["Turma de 10 anos, com dois alunos com dificuldade de leitura, para uma aula de 50 minutos.", "Ele ajusta a quantidade ao tempo e inclui quem tem dificuldade."],
+              ["Uma turma normal.", "Toda turma é diferente. Conte o que importa, sem identificar ninguém."]],
+    format: [["Uma folha A4, 5 exercícios do fácil ao difícil e o gabarito separado no fim.", "Pronto para imprimir, com gabarito para você conferir."],
+             ["Muitas questões.", "Quantas? Em que ordem? Com gabarito?"]],
+  },
+  {
+    vague: "Faça um quiz de ciências.",
+    answer: { who: "Professor(a) de Ciências · 8º ano", title: "Quiz: fontes de energia", audience: "13 anos · revisão para a prova", shape: "quiz" },
+    role: [["Você é professor(a) de Ciências do 8º ano.", "Matéria e ano certos: o nível das perguntas acerta."],
+           ["Você sabe tudo de ciências.", "Saber tudo não diz para quem ele está escrevendo."]],
+    task: [["Crie um quiz de 8 perguntas sobre fontes de energia.", "Quantidade e tema definidos."],
+           ["Faça perguntas difíceis.", "Difíceis para quem? Sobre qual assunto?"]],
+    context: [["Para revisar antes da prova, com alunos de 13 anos.", "Ele foca no que é importante revisar."],
+              ["Para usar na escola.", "Toda atividade é para a escola. Diga o objetivo e a idade."]],
+    format: [["Múltipla escolha com 3 alternativas e o gabarito explicado no fim.", "Formato fácil de aplicar e de corrigir."],
+             ["Qualquer formato serve.", "Sem formato, você vai gastar tempo arrumando depois."]],
+  },
+  {
+    vague: "Adapte este texto.",
+    answer: { who: "Professor(a) do 3º ano · inclusão", title: "Texto adaptado: o ciclo da água", audience: "8 anos · TEA · frases curtas", shape: "text" },
+    role: [["Você é professor(a) do 3º ano e sabe adaptar materiais para a inclusão.", "Ele assume o olhar de quem adapta materiais para incluir."],
+           ["Você é um corretor de textos.", "Corrigir não é adaptar. Diga que a ideia é incluir."]],
+    task: [["Adapte o texto que vou colar no fim, sem mudar o conteúdo.", "Ele sabe que deve manter o conteúdo e onde está o texto."],
+           ["Mude o texto.", "Mudar como? Pode até mudar o conteúdo sem querer."]],
+    context: [["Para um aluno com TEA, de 8 anos, que lê frases curtas.", "Você descreveu a necessidade sem identificar a criança. Perfeito!"],
+              ["Para o Joãozinho, do 3º B, que tem autismo.", "Nunca escreva o nome nem dados da criança no Gemini! Descreva a necessidade sem identificar ninguém."]],
+    format: [["Frases curtas, instruções numeradas e, no fim, uma lista do que mudou.", "Você recebe o texto pronto e sabe o que foi alterado."],
+             ["Deixe mais fácil.", "Mais fácil como? Diga o formato que ajuda esse aluno."]],
+  },
+]
+
+const $ = id => document.getElementById(id)
+let round = 0, filled = {}, mistakes = 0, totalStars = 0, muted = false, audio, busy = false
+
+// Playing short notes with the Web Audio API, created on the first tap because browsers block it before that
+function beep(notes, { type = "triangle", volume = 0.2, spacing = 0.11, length = 0.22 } = {}) {
+  if (muted) return
+  audio ??= new AudioContext()
+  audio.resume()
+  notes.forEach((frequency, index) => {
+    const oscillator = audio.createOscillator(), gain = audio.createGain(), start = audio.currentTime + index * spacing
+    oscillator.type = type
+    oscillator.frequency.value = frequency
+    gain.gain.setValueAtTime(volume, start)
+    gain.gain.exponentialRampToValueAtTime(0.001, start + length)
+    oscillator.connect(gain).connect(audio.destination)
+    oscillator.start(start)
+    oscillator.stop(start + length)
+  })
+}
+
+const SOUND = '<svg viewBox="0 0 24 24"><path d="M4 9 H8 L13 5 V19 L8 15 H4 Z" fill="#ffd23f" stroke="#2f2a4a" stroke-width="2.2" stroke-linejoin="round"/><path d="M16.5 9 Q18.5 12 16.5 15 M19 6.5 Q23 12 19 17.5" stroke="#2f2a4a" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>'
+const SILENT = '<svg viewBox="0 0 24 24"><path d="M4 9 H8 L13 5 V19 L8 15 H4 Z" fill="#cfcbe6" stroke="#2f2a4a" stroke-width="2.2" stroke-linejoin="round"/><path d="M16.5 9.5 L21.5 14.5 M21.5 9.5 L16.5 14.5" stroke="#2f2a4a" stroke-width="2.4" stroke-linecap="round"/></svg>'
+const STAR = '<svg viewBox="0 0 100 100"><use href="#star"/></svg>'
+
+const shuffle = list => list.map(item => [Math.random(), item]).sort((a, b) => a[0] - b[0]).map(([, item]) => item)
+
+// Starting a round: empty slots, a shuffled tray with a good and a weak block for each part
+function loadRound(number) {
+  round = number
+  filled = {}
+  mistakes = 0
+  busy = false
+  const data = ROUNDS[round]
+  $("vague").textContent = data.vague
+  $("dots").innerHTML = ROUNDS.map((_, index) => `<span class="dot ${index < round ? "done" : ""} ${index === round ? "now" : ""}"></span>`).join("")
+  $("slots").innerHTML = PARTS.map(part => `
+    <div class="slot ${part.id}" data-part="${part.id}">
+      <span class="tag"><i>${part.letter}</i>${part.name}</span>
+      <p class="hint">${part.hint}</p>
+      <p class="text"></p>
+    </div>`).join("")
+  const blocks = PARTS.flatMap(part => data[part.id].map(([text, why], index) => ({ part, text, why, good: index === 0 })))
+  $("tray").innerHTML = shuffle(blocks).map(block =>
+    `<button class="block ${block.part.id}" type="button" data-part="${block.part.id}" data-good="${block.good}" data-why="${block.why}"><i>${block.part.letter}</i><span>${block.text}</span></button>`).join("")
+  $("run").hidden = true
+  say("Comece pelo Papel ou por qualquer parte: toque num bloco ou arraste até o lugar dele.")
+  drawAnswer()
+  scrollTo({ top: 0, behavior: "smooth" })
+}
+
+function say(text, mood = "") {
+  const tip = $("tip")
+  tip.textContent = text
+  tip.className = `tip ${mood}`
+  void tip.offsetWidth
+  tip.classList.add("pop")
+}
+
+// Drawing the answer Gemini would give with only the parts filled so far
+function drawAnswer(final = false) {
+  const { answer } = ROUNDS[round]
+  const has = id => Boolean(filled[id])
+  $("meter").innerHTML = PARTS.map(part => `<span class="${part.id} ${has(part.id) ? "on" : ""}"></span>`).join("")
+  const missing = PARTS.filter(part => !has(part.id)).map(part => part.missing)
+  $("missing").className = `missing ${missing.length ? "" : "done"}`
+  $("missing").innerHTML = missing.length
+    ? `O Gemini ainda vai adivinhar: <b>${missing.join(", ")}</b>.`
+    : final ? "<b>Resposta certa para a sua turma!</b>" : "<b>Pedido completo!</b> Agora é só pedir ao Gemini."
+  const avatar = has("role")
+    ? '<span class="avatar"><svg viewBox="0 0 100 100"><use href="#teacher"/></svg></span>'
+    : '<span class="avatar unknown">?</span>'
+  const who = has("role") ? answer.who : "Quem está respondendo?"
+  const title = has("task") ? `<p class="title">${answer.title}</p>` : '<p class="title unknown"></p>'
+  const chip = has("context") ? `<span class="chip">${answer.audience}</span>` : '<span class="chip unknown">para quem?</span>'
+  $("screen").innerHTML = `
+    <div class="head">${avatar}<span class="who">${who}</span></div>
+    ${title}${chip}
+    ${has("format") ? `<div class="shape">${SHAPES[answer.shape]()}</div>` : '<div class="gray"><span></span><span></span><span></span></div>'}`
+}
+
+// What each kind of answer looks like once the format is known
+const SHAPES = {
+  game: () => `<div class="game-buttons"><span style="--c: var(--blue)">12</span><span style="--c: var(--mint)">15</span><span style="--c: var(--pink)">9</span></div><div class="stars-row">${STAR.repeat(3)}</div>`,
+  story: () => `<div class="lines">${"<span></span>".repeat(6)}</div><div class="questions"><span>?</span><span>?</span><span>?</span></div>`,
+  sheet: () => `<div class="exercises">${[1, 2, 3, 4, 5].map(n => `<span>${n}</span>`).join("")}</div><span class="key">Gabarito no fim da folha</span>`,
+  quiz: () => `<div class="options"><span><b>A</b>Energia solar</span><span class="right"><b>B</b>Energia eólica</span><span><b>C</b>Carvão</span></div>`,
+  text: () => `<ol class="numbered">${[1, 2, 3, 4].map(n => `<li><b>${n}</b><span></span></li>`).join("")}</ol><span class="key">O que mudou no texto</span>`,
+}
+
+// Putting a block in its slot: a good block fills it, a weak one is crossed out with the reason
+function place(block) {
+  if (busy || block.classList.contains("used") || block.classList.contains("gone")) return
+  const part = block.dataset.part, slot = document.querySelector(`.slot[data-part="${part}"]`)
+  if (filled[part]) return say("Essa parte já está pronta. Escolha um bloco de outra cor.")
+  if (block.dataset.good === "true") {
+    filled[part] = block.querySelector("span").textContent
+    slot.querySelector(".text").textContent = filled[part]
+    slot.classList.add("filled")
+    block.classList.add("gone")
+    beep([523, 784])
+    say(block.dataset.why, "good")
+    const twin = document.querySelector(`.block[data-part="${part}"]:not(.gone)`)
+    twin?.classList.add("used")
+  } else {
+    mistakes++
+    block.classList.add("wrong", "used")
+    slot.classList.remove("wrong")
+    void slot.offsetWidth
+    slot.classList.add("wrong")
+    beep([300, 200], { type: "sawtooth", volume: 0.12, spacing: 0.12 })
+    say(block.dataset.why, "bad")
+  }
+  drawAnswer()
+  if (PARTS.every(part => filled[part.id])) {
+    $("run").hidden = false
+    $("run").scrollIntoView({ behavior: "smooth", block: "center" })
+  }
+}
+
+// Sending the finished prompt: a short wait, the complete answer, then the stars of the round
+async function run() {
+  if (busy || !PARTS.every(part => filled[part.id])) return
+  busy = true
+  $("run").hidden = true
+  beep([440, 554, 659], { spacing: 0.15 })
+  $("screen").insertAdjacentHTML("beforeend", '<div class="thinking"><div><span></span><span></span><span></span></div></div>')
+  $("screen").scrollIntoView({ behavior: "smooth", block: "center" })
+  await new Promise(resolve => setTimeout(resolve, 1300))
+  drawAnswer(true)
+  await new Promise(resolve => setTimeout(resolve, 1400))
+  const stars = Math.max(1, 3 - mistakes)
+  totalStars += stars
+  $("stars").innerHTML = [0, 1, 2].map(index => STAR.replace("<svg ", `<svg class="${index < stars ? "" : "off"}" style="animation-delay: ${index * 0.25}s" `)).join("")
+  $("win-title").textContent = mistakes === 0 ? "Pedido perfeito!" : mistakes === 1 ? "Muito bom!" : "Pedido consertado!"
+  $("win-text").textContent = `"${ROUNDS[round].vague}" virou um pedido completo, com Papel, Tarefa, Contexto e Formato.`
+  $("next").firstChild.textContent = round + 1 < ROUNDS.length ? "Próximo pedido" : "Ver o resultado"
+  for (let index = 0; index < stars; index++) setTimeout(() => beep([1047 + index * 262]), 300 + index * 260)
+  confetti($("win"))
+  $("win").classList.add("show")
+}
+
+function confetti(overlay) {
+  overlay.querySelectorAll(".confetti").forEach(piece => piece.remove())
+  for (let index = 0; index < 60; index++) {
+    const piece = document.createElement("span")
+    piece.className = "confetti"
+    piece.style.left = Math.random() * 100 + "vw"
+    piece.style.background = ["#4da3ff", "#4fd6a6", "#ffd23f", "#ff8a3d", "#ff5f8f", "#8c73ff"][index % 6]
+    piece.style.animationDuration = 1.5 + Math.random() * 2 + "s"
+    piece.style.animationDelay = Math.random() * 0.5 + "s"
+    overlay.append(piece)
+  }
+}
+
+function nextRound() {
+  $("win").classList.remove("show")
+  if (round + 1 < ROUNDS.length) return loadRound(round + 1)
+  $("score").innerHTML = `${totalStars} de ${ROUNDS.length * 3} estrelas`
+  beep([523, 659, 784, 1047], { spacing: 0.14 })
+  confetti($("final"))
+  $("final").classList.add("show")
+}
+
+// Dragging a block with a finger or the mouse; a tap, a click or the keyboard sends it straight to its slot
+let drag = null, dragged = false
+$("tray").addEventListener("click", event => {
+  const block = event.target.closest(".block")
+  if (!block) return
+  if (dragged) return void (dragged = false)
+  place(block)
+})
+$("tray").addEventListener("pointerdown", event => {
+  const block = event.target.closest(".block")
+  if (!block || block.classList.contains("used")) return
+  drag = { block, x: event.clientX, y: event.clientY, ghost: null }
+  try { block.setPointerCapture(event.pointerId) } catch {}
+})
+$("tray").addEventListener("pointermove", event => {
+  if (!drag) return
+  const moved = Math.hypot(event.clientX - drag.x, event.clientY - drag.y)
+  if (!drag.ghost && moved > 10) {
+    const box = drag.block.getBoundingClientRect()
+    drag.ghost = drag.block.cloneNode(true)
+    drag.ghost.classList.add("ghost")
+    drag.ghost.style.width = box.width + "px"
+    drag.offset = [event.clientX - box.left, event.clientY - box.top]
+    document.body.append(drag.ghost)
+    drag.block.style.opacity = ".3"
+  }
+  if (!drag.ghost) return
+  drag.ghost.style.left = event.clientX - drag.offset[0] + "px"
+  drag.ghost.style.top = event.clientY - drag.offset[1] + "px"
+  document.querySelectorAll(".slot").forEach(slot => slot.classList.remove("over"))
+  document.elementsFromPoint(event.clientX, event.clientY).find(element => element.classList?.contains("slot"))?.classList.add("over")
+})
+function release(event) {
+  if (!drag) return
+  const { block, ghost } = drag
+  drag = null
+  document.querySelectorAll(".slot").forEach(slot => slot.classList.remove("over"))
+  block.style.opacity = ""
+  if (!ghost) return
+  dragged = true
+  setTimeout(() => { dragged = false })
+  ghost.remove()
+  const slot = document.elementsFromPoint(event.clientX, event.clientY).find(element => element.classList?.contains("slot"))
+  if (!slot) return
+  if (slot.dataset.part !== block.dataset.part) return say("Esse bloco é de outra parte. Repare na cor e na letra.", "bad")
+  place(block)
+}
+$("tray").addEventListener("pointerup", release)
+$("tray").addEventListener("pointercancel", () => {
+  if (drag?.ghost) drag.ghost.remove()
+  if (drag) drag.block.style.opacity = ""
+  drag = null
+})
+
+$("run").addEventListener("click", run)
+$("next").addEventListener("click", nextRound)
+$("begin").addEventListener("click", () => {
+  beep([523, 659, 784])
+  $("start").classList.remove("show")
+  loadRound(0)
+})
+$("again").addEventListener("click", () => {
+  totalStars = 0
+  $("final").classList.remove("show")
+  loadRound(0)
+})
+$("mute").innerHTML = SOUND
+$("mute").addEventListener("click", () => {
+  muted = !muted
+  $("mute").innerHTML = muted ? SILENT : SOUND
+})
+document.addEventListener("keydown", event => {
+  if (event.key !== "Enter") return
+  if ($("win").classList.contains("show")) nextRound()
+  else if (!$("run").hidden) run()
+})
+loadRound(0)
+</script>
+</body>
+</html>

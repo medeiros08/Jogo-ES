@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roteiro do formador · Oficina de Prompts</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='20' width='72' height='60' rx='16' fill='%234da3ff' stroke='%231d2a44' stroke-width='6'/><circle cx='36' cy='48' r='9' fill='%23fff'/><circle cx='64' cy='48' r='9' fill='%23fff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky1: #5fbcff; --sky2: #cdeeff; --line: #cfcbe6;
+    --ink: #2f2a4a; --soft: #5d5880;
+    --blue: #4da3ff; --pink: #ff5f8f; --mint: #4fd6a6; --orange: #ff8a3d; --purple: #8c73ff; --yellow: #ffd23f;
+    --font: "Fredoka", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box }
+  body { margin: 0; padding: 24px 16px 40px; background: linear-gradient(180deg, var(--sky1) 0, var(--sky2) 520px) no-repeat var(--sky2); color: var(--ink); font-family: var(--font); font-size: 16.5px; line-height: 1.45 }
+  .doc { max-width: 210mm; margin: 0 auto }
+  .bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; margin-bottom: 16px }
+  .bar a { display: inline-flex; align-items: center; gap: 4px; padding: 3px 14px 3px 8px; background: #fff; border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink); color: var(--ink); font-size: 15px; font-weight: 600; text-decoration: none }
+  .bar a svg { width: 18px; height: 18px }
+  .bar button { display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; background: var(--mint); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 5px 0 var(--ink); color: #fff; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; font: 700 22px var(--font); cursor: pointer }
+  .bar button:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink) }
+  .bar button svg { width: 24px; height: 24px }
+  header { display: flex; gap: 18px; align-items: center; margin-bottom: 22px }
+  header svg { width: 100px; height: 110px; flex: none }
+  h1 { margin: 0 0 12px; font-size: 50px; font-weight: 700; line-height: 1; color: #fff; -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; text-shadow: 0 5px 0 var(--ink) }
+  h1 .y { color: var(--yellow) } h1 .p { color: var(--pink) }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none }
+  .chips li { padding: 3px 14px; background: var(--c); border: 3px solid var(--ink); border-radius: 999px; font-size: 15px; font-weight: 600 }
+  .card { margin-bottom: 20px; padding: 20px 22px; background: #fff; border: 4px solid var(--ink); border-radius: 24px; box-shadow: 0 6px 0 rgba(47, 42, 74, .25); break-inside: avoid; page-break-inside: avoid }
+  .card.flow { break-inside: auto; page-break-inside: auto }
+  h2 { display: inline-block; margin: 0 0 14px; padding: 3px 18px; background: var(--c, var(--yellow)); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink); font-size: 23px; font-weight: 700 }
+  .meeting-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-bottom: 12px }
+  .meeting-head .n { display: grid; place-items: center; width: 64px; height: 64px; flex: none; background: var(--c); border: 4px solid var(--ink); border-radius: 50%; box-shadow: 0 4px 0 var(--ink); color: #fff; -webkit-text-stroke: 6px var(--ink); paint-order: stroke fill; font-size: 36px; font-weight: 700 }
+  .meeting-head h2 { margin: 0 }
+  .meeting-head p { flex-basis: 100%; margin: 0 }
+  h3 { margin: 0; font-size: 19px; font-weight: 700 }
+  p { margin: 0 0 8px }
+  .bring { margin: 8px 0 4px; padding: 8px 12px; background: var(--sky2); border-radius: 14px; font-weight: 500 }
+  .bring b, .goal b { font-weight: 700 }
+  .goal { font-weight: 500 }
+  ul.check { margin: 0; padding: 0; list-style: none }
+  ul.check li { position: relative; padding-left: 36px; margin-bottom: 9px }
+  ul.check li::before { content: ""; position: absolute; left: 0; top: 1px; width: 22px; height: 22px; background: #c9f5e3; border: 3px solid var(--ink); border-radius: 7px }
+  .step { display: grid; grid-template-columns: 92px 1fr; gap: 6px 16px; padding: 14px 0; border-top: 3px dashed var(--line); break-inside: avoid; page-break-inside: avoid }
+  .step:first-of-type { border-top: none }
+  .time { grid-row: span 5; align-self: start; padding: 8px 0 6px; background: var(--c, var(--blue)); border: 3px solid var(--ink); border-radius: 16px; box-shadow: 0 3px 0 var(--ink); color: #fff; -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; text-align: center; font-weight: 700; font-size: 20px; line-height: 1.05 }
+  .time small { display: block; font-size: 13px; -webkit-text-stroke: 0; color: var(--ink); font-weight: 600 }
+  .step p { margin: 0 }
+  .step b.label { font-weight: 700; margin-right: 4px }
+  .idea { position: relative; padding: 8px 12px 8px 74px; background: #fff1a8; border: 2px dashed var(--ink); border-radius: 14px; font-weight: 500 }
+  .idea::before { content: "Ideia"; position: absolute; left: 10px; top: 8px; padding: 0 8px; background: var(--yellow); border: 2px solid var(--ink); border-radius: 999px; font-size: 13px; font-weight: 700 }
+  .trouble { margin-top: 10px; padding: 12px 16px; background: #ffd6e3; border: 3px solid var(--ink); border-radius: 16px; break-inside: avoid; page-break-inside: avoid }
+  .trouble h3 { margin-bottom: 6px }
+  .trouble ul { margin: 0; padding-left: 20px; font-weight: 500 }
+  .trouble li { margin-bottom: 4px }
+  .trouble b { font-weight: 700 }
+  .new-page { break-before: page; page-break-before: always }
+
+  @page { size: A4; margin: 12mm }
+  @media print {
+    body { padding: 0; background: #fff; font-size: 13px; -webkit-print-color-adjust: exact; print-color-adjust: exact }
+    .bar { display: none }
+    .card { border-width: 3px; padding: 14px 18px; margin-bottom: 12px; box-shadow: none }
+    h1 { font-size: 40px }
+    h2 { font-size: 18px; margin-bottom: 10px }
+    header svg { width: 76px; height: 84px }
+    .step { padding: 10px 0 }
+  }
+</style>
+</head>
+<body>
+<div class="doc">
+
+<div class="bar">
+  <a href="index.html"><svg viewBox="0 0 24 24"><path d="M15 4.5 L7.5 12 L15 19.5" fill="none" stroke="#2f2a4a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Oficina de Prompts</a>
+  <button type="button" onclick="print()"><svg viewBox="0 0 24 24"><path d="M7 9 V3 H17 V9 M7 18 H4 V10 H20 V18 H17 M7 14 H17 V21 H7 Z" fill="#fff" stroke="#2f2a4a" stroke-width="2.4" stroke-linejoin="round"/></svg>Imprimir</button>
+</div>
+
+<header>
+  <svg viewBox="0 0 100 110" aria-hidden="true">
+    <g transform="translate(0 10)">
+      <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+      <circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/>
+      <circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/>
+      <circle cx="27" cy="57" r="4" fill="#ff8fb0"/><circle cx="73" cy="57" r="4" fill="#ff8fb0"/>
+      <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+    </g>
+    <path d="M12 22 L50 6 L88 22 L50 38 Z" fill="#2f2a4a"/><path d="M30 28 V38 Q50 47 70 38 V28" fill="#2f2a4a"/>
+    <path d="M80 25 V44" stroke="#ffd23f" stroke-width="4" stroke-linecap="round"/><circle cx="80" cy="46" r="5" fill="#ffd23f"/>
+  </svg>
+  <div>
+    <h1><span class="y">Roteiro</span> do <span class="p">formador</span></h1>
+    <ul class="chips"><li style="--c: var(--yellow)">4 encontros de 2 horas</li><li style="--c: var(--pink)">professores da Educação Infantil e do Fundamental</li><li style="--c: var(--mint)">Gemini</li></ul>
+  </div>
+</header>
+
+<section class="card">
+  <h2 style="--c: var(--yellow)">Como a oficina funciona</h2>
+  <p>Cada encontro tem uma parte curta de explicação e muito tempo de prática. Em todos eles, cada professor sai com algo pronto para usar com a turma. Os slides de cada encontro estão na página da oficina: passe com as setas do teclado e aperte F para tela cheia.</p>
+  <p>Os professores usam o <b>Caderno do participante</b> (uma cópia por pessoa) e, na prática, o <b>Construtor de prompts</b>, a <b>Biblioteca de prompts</b> e os <b>Gems prontos</b>. No fim de cada encontro, entregue a <b>Avaliação do encontro</b>.</p>
+</section>
+
+<section class="card">
+  <h2 style="--c: var(--mint)">Antes do primeiro encontro</h2>
+  <ul class="check">
+    <li>Confira a internet, o projetor e o som da sala. Deixe os slides do Encontro 1 abertos.</li>
+    <li>Peça que os professores tragam celular ou notebook, de preferência com a <b>conta Google da escola</b> (Google for Education). Teste antes se o Gemini abre nessa conta.</li>
+    <li>Imprima um <b>Caderno do participante</b> por professor e uma <b>Avaliação do encontro</b> por professor, para cada encontro.</li>
+    <li>Jogue o <b>Jogo do Prompt</b> e use o <b>Construtor de prompts</b> no celular, para conhecer o caminho.</li>
+    <li>Crie um grupo de mensagens da turma de professores e mande todos os links de uma vez pelo botão <b>Enviar os links</b> da página inicial.</li>
+    <li>Leia o <b>Guia do professor</b>: ele resume o método e os cuidados.</li>
+  </ul>
+</section>
+
+<section class="card flow new-page">
+  <div class="meeting-head" style="--c: var(--blue)"><span class="n">1</span><h2 style="--c: #cfe6ff">Conversando com o Gemini</h2>
+    <p class="goal"><b>Objetivo:</b> entender o que a IA faz e onde erra, montar um pedido em 4 partes, refinar conversando e proteger os dados das crianças.</p></div>
+  <p class="bring"><b>Leve:</b> slides do Encontro 1, cadernos (páginas 1 e 2), avaliações, quadro e canetas.</p>
+
+  <div class="step"><div class="time" style="--c: var(--blue)">0–15<small>minutos</small></div>
+    <h3>Boas-vindas · slides 1 e 2</h3>
+    <p><b class="label">Faça:</b> apresente-se, mostre o plano dos 4 encontros e combine os horários.</p>
+    <p><b class="label">Pergunte:</b> “Que tarefa da sua semana você gostaria de fazer mais rápido?” Anote as respostas no quadro.</p>
+    <p class="idea">A IA ajuda a ganhar tempo, mas quem decide o que vai para a turma é sempre o professor.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--pink)">15–30<small>minutos</small></div>
+    <h3>O que é IA generativa · slides 3 e 4</h3>
+    <p><b class="label">Faça:</b> no projetor, peça ao Gemini “Faça uma atividade de matemática.” e leia a resposta em voz alta com o grupo.</p>
+    <p><b class="label">Pergunte:</b> “Para que idade ficou? Dá para imprimir? O que ficou faltando?”</p>
+    <p class="idea">Ela prevê as palavras mais prováveis. Por isso é ótima para rascunhos, mas pode errar fatos, contas e códigos da BNCC.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--mint)">30–45<small>minutos</small></div>
+    <h3>Jogo do Prompt · slide 5</h3>
+    <p><b class="label">Faça:</b> em duplas, os professores escaneiam o QR do slide e jogam as 5 rodadas. Circule pela sala e ajude.</p>
+    <p><b class="label">Pergunte:</b> “Qual bloco fraco quase enganou vocês? Por quê?”</p>
+    <p class="idea">Cada parte do pedido tira um palpite do Gemini. A última rodada lembra: nunca escreva o nome da criança.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--yellow)">45–55<small>minutos</small></div>
+    <h3>As quatro partes · slides 6 e 7</h3>
+    <p><b class="label">Faça:</b> mostre Papel, Tarefa, Contexto e Formato, cada um com a sua cor, e leia o antes e depois.</p>
+    <p class="idea">Nem todo pedido precisa das quatro partes, mas quanto mais você der, melhor o resultado.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--orange)">55–85<small>minutos</small></div>
+    <h3>Prática: o primeiro prompt · slide 8 · caderno p. 1</h3>
+    <p><b class="label">Faça:</b> cada professor escolhe um conteúdo da próxima semana, escreve as 4 partes no caderno e testa no Gemini. Quem travar, usa o Construtor de prompts.</p>
+    <p><b class="label">Pergunte:</b> “O que mudou entre o pedido vago e o pedido completo?”</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--purple)">85–100<small>minutos</small></div>
+    <h3>Converse para melhorar · slide 9</h3>
+    <p><b class="label">Faça:</b> peça que cada um faça pelo menos 2 ajustes na mesma conversa, como “deixe mais simples” ou “me faça 3 perguntas antes”.</p>
+    <p class="idea">Uma mudança de cada vez: fica fácil ver o que melhorou e voltar atrás se piorar.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--pink)">100–110<small>minutos</small></div>
+    <h3>O que nunca vai para o Gemini · slide 10 · caderno p. 2</h3>
+    <p><b class="label">Faça:</b> façam juntos o exercício “Pode ou não pode?” do caderno.</p>
+    <p class="idea">Descreva a necessidade, nunca a criança. Use a conta da escola e revise tudo antes de usar.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--blue)">110–120<small>minutos</small></div>
+    <h3>Fechamento · slide 11</h3>
+    <p><b class="label">Faça:</b> 2 ou 3 professores mostram a atividade que criaram. Entregue a avaliação e combine a tarefa: usar a atividade com a turma.</p></div>
+
+  <div class="trouble"><h3>Se der problema</h3><ul>
+    <li><b>O Gemini não abre na conta da escola:</b> a função pode estar desligada pelo administrador. Trabalhem em duplas com quem tem acesso e avise a coordenação.</li>
+    <li><b>A internet está lenta:</b> faça a prática em grupos, com o projetor, e deixe o teste individual para casa.</li>
+    <li><b>Alguém escreveu o nome de um aluno:</b> sem constrangimento, apague a conversa e retome a regra com o grupo.</li>
+  </ul></div>
+</section>
+
+<section class="card flow new-page">
+  <div class="meeting-head" style="--c: var(--pink)"><span class="n">2</span><h2 style="--c: #ffd6e3">Conteúdo para a turma</h2>
+    <p class="goal"><b>Objetivo:</b> criar planos, atividades e quizzes com técnicas que melhoram o resultado, usar a BNCC sem inventar e adaptar materiais para a inclusão.</p></div>
+  <p class="bring"><b>Leve:</b> slides do Encontro 2, cadernos (página 3), avaliações e um texto curto de livro didático para adaptar ao vivo.</p>
+
+  <div class="step"><div class="time" style="--c: var(--blue)">0–15<small>minutos</small></div>
+    <h3>Como foi com a turma? · slide 2</h3>
+    <p><b class="label">Faça:</b> roda de conversa sobre a atividade da semana. Anote no quadro os pedidos que deram certo.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--pink)">15–30<small>minutos</small></div>
+    <h3>Três truques · slide 3</h3>
+    <p><b class="label">Faça:</b> mostre ao vivo um pedido com exemplo (“faça no mesmo estilo deste exercício”), um pedido que começa com perguntas e um pedido com três níveis.</p>
+    <p class="idea">Dar um exemplo é o jeito mais rápido de o Gemini entender o que você quer.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--mint)">30–40<small>minutos</small></div>
+    <h3>Biblioteca de prompts · slide 4</h3>
+    <p><b class="label">Faça:</b> cada um abre a Biblioteca pelo QR, escolhe um prompt de partida da sua etapa e troca o que está entre colchetes.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--yellow)">40–50<small>minutos</small></div>
+    <h3>BNCC sem inventar · slide 5</h3>
+    <p><b class="label">Faça:</b> peça ao Gemini um plano relacionado à BNCC e confira um dos códigos no site oficial, basenacionalcomum.mec.gov.br.</p>
+    <p class="idea">A frase “se não tiver certeza do código, escreva só a descrição” evita códigos inventados.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--orange)">50–60<small>minutos</small></div>
+    <h3>Adaptar para incluir · slide 6</h3>
+    <p><b class="label">Faça:</b> adapte ao vivo o texto que você trouxe, descrevendo a necessidade sem identificar nenhuma criança.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--purple)">60–100<small>minutos</small></div>
+    <h3>Prática: sequência didática · slide 7 · caderno p. 3</h3>
+    <p><b class="label">Faça:</b> cada professor escolhe um tema e pede, na mesma conversa, o plano da aula 1, a atividade da aula 2 e o quiz da aula 3.</p>
+    <p><b class="label">Pergunte:</b> “O que você precisou ajustar em cada resposta?”</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--pink)">100–112<small>minutos</small></div>
+    <h3>Revisão em dupla · slide 8</h3>
+    <p><b class="label">Faça:</b> em duplas, cada um revisa o material do outro com o checklist do caderno.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--blue)">112–120<small>minutos</small></div>
+    <h3>Fechamento · slide 9</h3>
+    <p><b class="label">Faça:</b> entregue a avaliação e combine a tarefa: aplicar uma das três aulas.</p></div>
+
+  <div class="trouble"><h3>Se der problema</h3><ul>
+    <li><b>A resposta veio longa demais:</b> peça “resuma em uma página” ou “só a atividade, sem explicações”.</li>
+    <li><b>O conteúdo tem erro:</b> ótimo momento para mostrar por que revisar. Peça ao Gemini para revisar e confira no livro.</li>
+  </ul></div>
+</section>
+
+<section class="card flow new-page">
+  <div class="meeting-head" style="--c: var(--mint)"><span class="n">3</span><h2 style="--c: #c9f5e3">Criando jogos com o Canvas</h2>
+    <p class="goal"><b>Objetivo:</b> criar um jogo educativo no Canvas do Gemini, testar, consertar um problema de cada vez e compartilhar com a turma.</p></div>
+  <p class="bring"><b>Leve:</b> slides do Encontro 3, cadernos (página 4) e avaliações. Teste antes se o Canvas aparece na conta da escola.</p>
+
+  <div class="step"><div class="time" style="--c: var(--blue)">0–10<small>minutos</small></div>
+    <h3>Retomada</h3>
+    <p><b class="label">Pergunte:</b> “Qual aula vocês aplicaram? O que as crianças acharam?”</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--pink)">10–25<small>minutos</small></div>
+    <h3>Jogue antes de criar · slides 2 e 3</h3>
+    <p><b class="label">Faça:</b> os professores jogam os jogos de exemplo pelo QR do slide e conversam sobre o que deixa cada um divertido.</p>
+    <p class="idea">Objetivo claro, retorno na hora, fases do fácil ao difícil e funcionar no celular.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--mint)">25–35<small>minutos</small></div>
+    <h3>O Canvas · slide 4</h3>
+    <p><b class="label">Faça:</b> no projetor, ative o Canvas e peça um jogo simples, como “um jogo de tabuada do 2 com botões grandes”. Mostre o jogo aparecendo ao lado da conversa.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--yellow)">35–45<small>minutos</small></div>
+    <h3>Um bom pedido de jogo · slide 5</h3>
+    <p><b class="label">Faça:</b> mostre como as 4 partes ficam num pedido de jogo. No Construtor, o tipo Jogo interativo já traz o formato certo.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--orange)">45–80<small>minutos</small></div>
+    <h3>Prática: o primeiro jogo · slide 6 · caderno p. 4</h3>
+    <p><b class="label">Faça:</b> cada professor escreve a ideia do jogo no caderno, monta o pedido e cria o jogo no Canvas.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--purple)">80–100<small>minutos</small></div>
+    <h3>Testar e consertar · slide 7</h3>
+    <p><b class="label">Faça:</b> cada um joga como se fosse uma criança e anota os problemas no diário de testes do caderno. Para cada problema, usa a frase do slide.</p>
+    <p class="idea">Quando eu [o que fiz], acontece [o que aconteceu], mas deveria [o que eu esperava]. Conserte só isso.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--pink)">100–112<small>minutos</small></div>
+    <h3>Compartilhar · slides 8 e 9</h3>
+    <p><b class="label">Faça:</b> criem o link público, testem numa janela anônima do celular e mandem o link para a Galeria da oficina.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--blue)">112–120<small>minutos</small></div>
+    <h3>Fechamento · slide 10</h3>
+    <p><b class="label">Faça:</b> entregue a avaliação e combine a tarefa: jogar com a turma e trazer o que as crianças acharam.</p></div>
+
+  <div class="trouble"><h3>Se der problema</h3><ul>
+    <li><b>O Canvas não aparece:</b> a função pode estar desligada na conta da escola. Faça a criação no projetor, em grupo, e avise a coordenação.</li>
+    <li><b>O jogo não funciona bem no celular:</b> peça “faça funcionar no celular, com botões grandes e sem precisar de teclado”.</li>
+    <li><b>Um ajuste quebrou o jogo:</b> peça “volte para a versão anterior” e tente um ajuste menor.</li>
+  </ul></div>
+</section>
+
+<section class="card flow new-page">
+  <div class="meeting-head" style="--c: var(--purple)"><span class="n">4</span><h2 style="--c: #e2dbff">Seu assistente e o projeto final</h2>
+    <p class="goal"><b>Objetivo:</b> criar um Gem com instruções fixas para a rotina, revisar com o checklist e terminar um material ou jogo para a turma.</p></div>
+  <p class="bring"><b>Leve:</b> slides do Encontro 4, cadernos (página 5), avaliações e os certificados da oficina já preenchidos.</p>
+
+  <div class="step"><div class="time" style="--c: var(--blue)">0–10<small>minutos</small></div>
+    <h3>Retomada</h3>
+    <p><b class="label">Pergunte:</b> “Como as crianças reagiram aos jogos?”</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--pink)">10–25<small>minutos</small></div>
+    <h3>O que é um Gem · slides 2 e 3</h3>
+    <p><b class="label">Faça:</b> explique que o Gem é um Gemini com instruções fixas e mostre a página dos Gems prontos.</p>
+    <p class="idea">Nas instruções vão a etapa, o jeito da turma e o formato preferido. Nunca dados das crianças.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--mint)">25–35<small>minutos</small></div>
+    <h3>Como criar · slide 4</h3>
+    <p><b class="label">Faça:</b> crie um Gem ao vivo no projetor, colando as instruções de um Gem pronto.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--yellow)">35–60<small>minutos</small></div>
+    <h3>Prática: o seu Gem · slide 5 · caderno p. 5</h3>
+    <p><b class="label">Faça:</b> cada professor adapta um Gem pronto ou escreve o seu, testa com 2 pedidos e ajusta as instruções.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--orange)">60–70<small>minutos</small></div>
+    <h3>Checklist · slide 6</h3>
+    <p><b class="label">Faça:</b> leia o checklist e peça que cada um aplique no material que vai usar no projeto final.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--purple)">70–95<small>minutos</small></div>
+    <h3>Projeto final · slide 7</h3>
+    <p><b class="label">Faça:</b> cada professor termina um material ou jogo que vai usar de verdade com a turma.</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--pink)">95–112<small>minutos</small></div>
+    <h3>Mostra dos projetos · slide 8</h3>
+    <p><b class="label">Faça:</b> 2 minutos para cada um: o que criou, para qual turma e o que aprendeu. Aplausos!</p></div>
+
+  <div class="step"><div class="time" style="--c: var(--blue)">112–120<small>minutos</small></div>
+    <h3>Encerramento · slides 9 e 10</h3>
+    <p><b class="label">Faça:</b> mostre onde continuar (construtor, biblioteca, Gems e guia), entregue os certificados e a avaliação final.</p></div>
+
+  <div class="trouble"><h3>Se der problema</h3><ul>
+    <li><b>Não aparece a opção de Gems:</b> a conta pode não ter essa função liberada. Mostre no projetor e deixe as instruções guardadas num documento para colar no começo de cada conversa.</li>
+    <li><b>Falta tempo para a mostra:</b> peça só uma frase de cada um e convide quem quiser a mandar o projeto para a galeria.</li>
+  </ul></div>
+</section>
+
+</div>
+</body>
+</html>

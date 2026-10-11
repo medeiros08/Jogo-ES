@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caderno do participante · Oficina de Prompts</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='20' width='72' height='60' rx='16' fill='%234da3ff' stroke='%231d2a44' stroke-width='6'/><circle cx='36' cy='48' r='9' fill='%23fff'/><circle cx='64' cy='48' r='9' fill='%23fff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky1: #5fbcff; --sky2: #cdeeff; --line: #b9b4d6;
+    --ink: #2f2a4a; --soft: #5d5880;
+    --blue: #4da3ff; --pink: #ff5f8f; --mint: #4fd6a6; --orange: #ff8a3d; --purple: #8c73ff; --yellow: #ffd23f;
+    --font: "Fredoka", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box }
+  body { margin: 0; padding: 24px 16px 40px; background: linear-gradient(180deg, var(--sky1) 0, var(--sky2) 520px) no-repeat var(--sky2); color: var(--ink); font-family: var(--font) }
+  .bar { max-width: 210mm; margin: 0 auto 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between }
+  .bar a { display: inline-flex; align-items: center; gap: 4px; padding: 3px 14px 3px 8px; background: #fff; border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink); color: var(--ink); font-size: 15px; font-weight: 600; text-decoration: none }
+  .bar a svg { width: 18px; height: 18px }
+  .bar p { margin: 0; flex: 1 1 300px; padding: 10px 16px; background: #fff; border: 3px solid var(--ink); border-radius: 18px; font-size: 17px; font-weight: 500 }
+  .bar button { display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; background: var(--mint); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 5px 0 var(--ink); color: #fff; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; font: 700 22px var(--font); cursor: pointer }
+  .bar button:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink) }
+  .bar button svg { width: 24px; height: 24px }
+
+  /* Each sheet is an A4 page measured in its own width, so the screen and the paper look the same */
+  .sheet { container-type: inline-size; width: min(100%, 210mm); aspect-ratio: 210 / 297; overflow: hidden; margin: 0 auto 24px; padding: 5.5cqw; background: #fff; border: 3px solid var(--ink); border-radius: 2cqw; box-shadow: 0 8px 0 rgba(47, 42, 74, .25); display: flex; flex-direction: column; gap: 2.2cqw }
+  .head { display: flex; align-items: center; gap: 2.6cqw }
+  .head .n { display: grid; place-items: center; width: 10cqw; height: 10cqw; flex: none; background: var(--c); border: .7cqw solid var(--ink); border-radius: 50%; color: #fff; -webkit-text-stroke: .9cqw var(--ink); paint-order: stroke fill; font-size: 6cqw; font-weight: 700 }
+  .head small { display: block; color: var(--soft); font-size: 2.4cqw; font-weight: 600 }
+  .head h1 { margin: 0; font-size: 5.6cqw; font-weight: 700; line-height: 1.05 }
+  .name { display: flex; gap: 1.5cqw; align-items: flex-end; font-size: 2.6cqw; font-weight: 600 }
+  .name span { flex: 1; border-bottom: .35cqw solid var(--ink); height: 3.6cqw }
+  .task { border: .6cqw solid var(--ink); border-radius: 3.4cqw; padding: 2.6cqw 3cqw; background: linear-gradient(var(--c), var(--c)) top / 100% 1.2cqw no-repeat }
+  .task h2 { display: flex; align-items: center; gap: 1.6cqw; margin: .6cqw 0 1cqw; font-size: 3.4cqw; font-weight: 700 }
+  .task h2 i { display: grid; place-items: center; width: 5.6cqw; height: 5.6cqw; flex: none; background: var(--c); border: .45cqw solid var(--ink); border-radius: 50%; color: #fff; -webkit-text-stroke: .5cqw var(--ink); paint-order: stroke fill; font-style: normal; font-size: 3.2cqw }
+  .task p { margin: 0 0 1.6cqw; font-size: 2.4cqw; font-weight: 500; line-height: 1.35 }
+  .task p b { font-weight: 700 }
+  .say { display: inline-block; margin-bottom: 1.6cqw; padding: .8cqw 2cqw; background: #ffd6e3; border: .4cqw dashed var(--ink); border-radius: 2cqw; font-size: 2.6cqw; font-weight: 600 }
+  .grow { flex: 1 }
+  .lines { display: grid; gap: 2.6cqw }
+  .lines span { height: 3.4cqw; border-bottom: .3cqw solid var(--line) }
+  .part { display: grid; grid-template-columns: 17cqw 1fr; gap: 1.4cqw; align-items: start; margin-bottom: 1.2cqw }
+  .part b { display: flex; align-items: center; gap: 1cqw; padding: .5cqw 1.4cqw .5cqw .5cqw; background: var(--c); border: .35cqw solid var(--ink); border-radius: 999px; font-size: 2.3cqw; font-weight: 600 }
+  .part b i { display: grid; place-items: center; width: 3.6cqw; height: 3.6cqw; background: #fff; border: .3cqw solid var(--ink); border-radius: 50%; font-style: normal; font-weight: 700; font-size: 2cqw }
+  .part .lines { gap: 2.4cqw }
+  .p { --c: #4da3ff } .t { --c: #4fd6a6 } .c { --c: #ffd23f } .f { --c: #ff8a3d }
+  .boxes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.6cqw }
+  .box { min-height: 22cqw; padding: 1.4cqw; background: var(--light); border: .45cqw solid var(--ink); border-radius: 2.4cqw }
+  .box b { display: flex; align-items: center; gap: .8cqw; font-size: 2.4cqw; font-weight: 700 }
+  .box b i { display: grid; place-items: center; width: 3.8cqw; height: 3.8cqw; background: var(--c); border: .3cqw solid var(--ink); border-radius: 50%; color: #fff; -webkit-text-stroke: .4cqw var(--ink); paint-order: stroke fill; font-style: normal; font-size: 2.2cqw }
+  .box small { display: block; margin-top: .6cqw; color: var(--soft); font-size: 1.9cqw; font-weight: 500 }
+  .box.p { --light: #cfe6ff } .box.t { --light: #c9f5e3 } .box.c { --light: #fff1a8 } .box.f { --light: #ffdcc4 }
+  .yesno { width: 100%; border-collapse: collapse; font-size: 2.4cqw }
+  .yesno td { padding: 1cqw 1.2cqw; border-bottom: .3cqw dashed var(--line); font-weight: 500 }
+  .yesno td.mark { width: 14cqw; text-align: center; font-weight: 600; white-space: nowrap }
+  .yesno td.mark span { display: inline-block; width: 3.6cqw; height: 3.6cqw; margin-right: .6cqw; vertical-align: middle; border: .35cqw solid var(--ink); border-radius: .8cqw }
+  .key { margin-top: 1.4cqw; font-size: 1.9cqw; font-weight: 500; color: var(--soft) }
+  .plan { width: 100%; border-collapse: separate; border-spacing: 0 1.2cqw; font-size: 2.3cqw }
+  .plan th { padding: 0 1cqw; text-align: left; font-weight: 700 }
+  .plan td { height: 13cqw; padding: 1cqw; background: #f6f5fb; border: .35cqw solid var(--ink); vertical-align: top; font-weight: 600 }
+  .plan td:first-child { width: 14cqw; background: var(--c); border-radius: 2cqw 0 0 2cqw; text-align: center; vertical-align: middle }
+  .plan td:last-child { border-radius: 0 2cqw 2cqw 0 }
+  .checks { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4cqw 3cqw; margin: 0; padding: 0; list-style: none }
+  .checks li { display: flex; align-items: center; gap: 1.4cqw; font-size: 2.4cqw; font-weight: 500 }
+  .checks li span { width: 3.8cqw; height: 3.8cqw; flex: none; border: .35cqw solid var(--ink); border-radius: .8cqw }
+  .diary { width: 100%; border-collapse: collapse; font-size: 2.2cqw }
+  .diary th { padding: 1cqw; background: var(--c); border: .35cqw solid var(--ink); font-weight: 700 }
+  .diary td { height: 7cqw; border: .35cqw solid var(--ink) }
+  .field { display: flex; gap: 1.5cqw; align-items: flex-end; margin-bottom: 1.6cqw; font-size: 2.4cqw; font-weight: 600 }
+  .field span { flex: 1; border-bottom: .3cqw solid var(--line); height: 3.4cqw }
+  footer { margin-top: auto; text-align: center; font-size: 1.9cqw; font-weight: 500; color: var(--soft) }
+
+  @page { size: A4; margin: 0 }
+  @media print {
+    body { padding: 0; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact }
+    .bar { display: none }
+    .sheet { width: 210mm; height: 297mm; margin: 0; border: none; border-radius: 0; box-shadow: none; break-after: page; page-break-after: always }
+    .sheet:last-of-type { break-after: auto; page-break-after: auto }
+  }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <a href="index.html"><svg viewBox="0 0 24 24"><path d="M15 4.5 L7.5 12 L15 19.5" fill="none" stroke="#2f2a4a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Oficina de Prompts</a>
+  <p>Cinco folhas A4 por professor, para usar durante os 4 encontros. Podem ser impressas frente e verso.</p>
+  <button type="button" onclick="print()"><svg viewBox="0 0 24 24"><path d="M7 9 V3 H17 V9 M7 18 H4 V10 H20 V18 H17 M7 14 H17 V21 H7 Z" fill="#fff" stroke="#2f2a4a" stroke-width="2.4" stroke-linejoin="round"/></svg>Imprimir</button>
+</div>
+
+<section class="sheet">
+  <div class="head"><span class="n" style="--c: var(--blue)">1</span><div><small>Encontro 1 · Conversando com o Gemini</small><h1>Do pedido vago ao prompt completo</h1></div></div>
+  <div class="name">Nome: <span></span></div>
+
+  <div class="task" style="--c: var(--blue)">
+    <h2><i>1</i>Reescreva com as quatro partes</h2>
+    <p>Transforme o pedido vago num prompt completo. Escreva uma frase em cada parte.</p>
+    <span class="say">Faça uma história sobre plantas.</span>
+    <div class="part p"><b><i>P</i>Papel</b><div class="lines"><span></span></div></div>
+    <div class="part t"><b><i>T</i>Tarefa</b><div class="lines"><span></span></div></div>
+    <div class="part c"><b><i>C</i>Contexto</b><div class="lines"><span></span><span></span></div></div>
+    <div class="part f"><b><i>F</i>Formato</b><div class="lines"><span></span><span></span></div></div>
+  </div>
+
+  <div class="task grow" style="--c: var(--mint)">
+    <h2><i>2</i>Meu primeiro prompt</h2>
+    <p>Escolha um conteúdo da próxima semana e escreva o pedido para a sua turma. Depois cole no Gemini.</p>
+    <div class="boxes">
+      <div class="box p"><b><i>P</i>Papel</b><small>Quem o Gemini deve ser</small></div>
+      <div class="box t"><b><i>T</i>Tarefa</b><small>O que ele deve fazer</small></div>
+      <div class="box c"><b><i>C</i>Contexto</b><small>Para quem e com quais limites</small></div>
+      <div class="box f"><b><i>F</i>Formato</b><small>Como deve sair</small></div>
+    </div>
+    <p style="margin-top: 2cqw"><b>O que mudou em relação ao pedido vago?</b></p>
+    <div class="lines"><span></span><span></span></div>
+  </div>
+
+  <footer>Oficina de Prompts para Professores · Engenharia de Software · UNIPAMPA</footer>
+</section>
+
+<section class="sheet">
+  <div class="head"><span class="n" style="--c: var(--blue)">1</span><div><small>Encontro 1 · Conversando com o Gemini</small><h1>Conversar e cuidar</h1></div></div>
+
+  <div class="task" style="--c: var(--purple)">
+    <h2><i>3</i>Converse para melhorar</h2>
+    <p>Escreva 3 pedidos de ajuste que você fez (ou faria) na mesma conversa. Lembre: <b>uma mudança de cada vez</b>.</p>
+    <div class="field">1. <span></span></div>
+    <div class="field">2. <span></span></div>
+    <div class="field">3. <span></span></div>
+  </div>
+
+  <div class="task grow" style="--c: var(--pink)">
+    <h2><i>4</i>Pode ou não pode?</h2>
+    <p>Marque o que pode ir para o Gemini e o que nunca deve ir.</p>
+    <table class="yesno">
+      <tr><td>A idade e o ano da turma</td><td class="mark"><span></span>Pode</td><td class="mark"><span></span>Não pode</td></tr>
+      <tr><td>O nome completo de um aluno</td><td class="mark"><span></span>Pode</td><td class="mark"><span></span>Não pode</td></tr>
+      <tr><td>O tema e o conteúdo da aula</td><td class="mark"><span></span>Pode</td><td class="mark"><span></span>Não pode</td></tr>
+      <tr><td>Uma foto da turma no pátio</td><td class="mark"><span></span>Pode</td><td class="mark"><span></span>Não pode</td></tr>
+      <tr><td>“Dois alunos com TEA”, sem dizer quem são</td><td class="mark"><span></span>Pode</td><td class="mark"><span></span>Não pode</td></tr>
+      <tr><td>O laudo médico de uma criança</td><td class="mark"><span></span>Pode</td><td class="mark"><span></span>Não pode</td></tr>
+      <tr><td>As notas da turma com os nomes</td><td class="mark"><span></span>Pode</td><td class="mark"><span></span>Não pode</td></tr>
+      <tr><td>Um texto do livro didático para adaptar</td><td class="mark"><span></span>Pode</td><td class="mark"><span></span>Não pode</td></tr>
+    </table>
+    <p class="key">Respostas: pode a idade, o tema, a necessidade sem identificar e o texto do livro. Nunca nomes, fotos, laudos ou notas com nomes.</p>
+  </div>
+
+  <footer>Use a conta da escola no Gemini e revise tudo antes de usar com a turma.</footer>
+</section>
+
+<section class="sheet">
+  <div class="head"><span class="n" style="--c: var(--pink)">2</span><div><small>Encontro 2 · Conteúdo para a turma</small><h1>Minha sequência didática</h1></div></div>
+  <div class="name">Tema: <span></span> Turma: <span style="flex: 0 0 20cqw"></span></div>
+
+  <div class="task" style="--c: var(--pink)">
+    <h2><i>1</i>Três aulas, três pedidos</h2>
+    <p>Na mesma conversa, peça o plano da aula 1, a atividade da aula 2 e o quiz da aula 3. Anote o que pediu e o que ajustou.</p>
+    <table class="plan">
+      <tr><th></th><th>O que eu pedi</th><th>O que eu ajustei</th></tr>
+      <tr><td style="--c: #cfe6ff">Aula 1<br>Plano</td><td></td><td></td></tr>
+      <tr><td style="--c: #c9f5e3">Aula 2<br>Atividade</td><td></td><td></td></tr>
+      <tr><td style="--c: #fff1a8">Aula 3<br>Quiz</td><td></td><td></td></tr>
+    </table>
+  </div>
+
+  <div class="task grow" style="--c: var(--mint)">
+    <h2><i>2</i>Checklist de revisão</h2>
+    <p>Revise o material de um colega. Marque o que está certo e converse sobre o resto.</p>
+    <ul class="checks">
+      <li><span></span>O conteúdo está certo</li>
+      <li><span></span>As palavras servem para a idade</li>
+      <li><span></span>Todas as crianças participam</li>
+      <li><span></span>Não tem dados das crianças</li>
+      <li><span></span>A BNCC não tem código inventado</li>
+      <li><span></span>Dá para usar na próxima aula</li>
+    </ul>
+    <p style="margin-top: 2cqw"><b>O que eu vou mudar antes de usar:</b></p>
+    <div class="lines"><span></span><span></span></div>
+  </div>
+
+  <footer>Truques: dê um exemplo, peça perguntas antes, peça níveis fácil, médio e desafio.</footer>
+</section>
+
+<section class="sheet">
+  <div class="head"><span class="n" style="--c: var(--mint)">3</span><div><small>Encontro 3 · Criando jogos com o Canvas</small><h1>Meu jogo</h1></div></div>
+
+  <div class="task" style="--c: var(--mint)">
+    <h2><i>1</i>A ideia do jogo</h2>
+    <div class="field">Conteúdo: <span></span></div>
+    <div class="field">Idade da turma: <span></span> Onde vão jogar: <span></span></div>
+    <div class="field">Como se joga: <span></span></div>
+    <div class="lines"><span></span></div>
+  </div>
+
+  <div class="task" style="--c: var(--blue)">
+    <h2><i>2</i>O pedido em quatro partes</h2>
+    <div class="part p"><b><i>P</i>Papel</b><div class="lines"><span></span></div></div>
+    <div class="part t"><b><i>T</i>Tarefa</b><div class="lines"><span></span></div></div>
+    <div class="part c"><b><i>C</i>Contexto</b><div class="lines"><span></span></div></div>
+    <div class="part f"><b><i>F</i>Formato</b><div class="lines"><span></span></div></div>
+  </div>
+
+  <div class="task grow" style="--c: var(--orange)">
+    <h2><i>3</i>Diário de testes</h2>
+    <p>Jogue como se fosse uma criança. Para cada problema, peça ao Gemini para consertar <b>só aquilo</b>.</p>
+    <table class="diary" style="--c: #ffdcc4">
+      <tr><th>Quando eu…</th><th>acontece…</th><th>mas deveria…</th></tr>
+      <tr><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td></tr>
+    </table>
+    <div class="field" style="margin-top: 2cqw">Link do meu jogo: <span></span></div>
+  </div>
+
+  <footer>Antes de mandar para a turma, teste o link no celular numa janela anônima.</footer>
+</section>
+
+<section class="sheet">
+  <div class="head"><span class="n" style="--c: var(--purple)">4</span><div><small>Encontro 4 · Seu assistente e o projeto final</small><h1>Meu Gem e meu projeto</h1></div></div>
+
+  <div class="task" style="--c: var(--purple)">
+    <h2><i>1</i>Meu Gem</h2>
+    <div class="field">Nome do Gem: <span></span></div>
+    <div class="field">Para que ele serve: <span></span></div>
+    <p><b>Instruções</b> (etapa, jeito da turma, formato preferido; nunca dados das crianças):</p>
+    <div class="lines"><span></span><span></span><span></span><span></span></div>
+  </div>
+
+  <div class="task" style="--c: var(--yellow)">
+    <h2><i>2</i>Meu projeto final</h2>
+    <div class="field">O que eu criei: <span></span></div>
+    <div class="field">Para qual turma: <span></span> Quando vou usar: <span></span></div>
+    <div class="field">O que eu aprendi fazendo: <span></span></div>
+    <div class="lines"><span></span></div>
+  </div>
+
+  <div class="task grow" style="--c: var(--pink)">
+    <h2><i>3</i>O que eu levo da oficina</h2>
+    <p>Escreva uma coisa que você vai continuar fazendo e uma que vai ensinar a um colega.</p>
+    <div class="lines"><span></span><span></span><span></span></div>
+  </div>
+
+  <footer>Continue usando: Construtor de prompts, Biblioteca de prompts, Gems prontos e Guia do professor.</footer>
+</section>
+
+</body>
+</html>

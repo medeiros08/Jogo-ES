@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guia do professor · Oficina de Prompts</title>
+<meta name="description" content="O método da Oficina de Prompts num guia para consultar e imprimir: as quatro partes de um bom prompt, exemplos, jogos no Canvas, Gems, BNCC, inclusão, privacidade e checklist.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='20' width='72' height='60' rx='16' fill='%234da3ff' stroke='%231d2a44' stroke-width='6'/><circle cx='36' cy='48' r='9' fill='%23fff'/><circle cx='64' cy='48' r='9' fill='%23fff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky1: #5fbcff; --sky2: #cdeeff; --line: #cfcbe6;
+    --ink: #2f2a4a; --soft: #5d5880;
+    --blue: #4da3ff; --pink: #ff5f8f; --mint: #4fd6a6; --orange: #ff8a3d; --purple: #8c73ff; --yellow: #ffd23f;
+    --font: "Fredoka", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box }
+  body { margin: 0; padding: 24px 16px 40px; background: linear-gradient(180deg, var(--sky1) 0, var(--sky2) 520px) no-repeat var(--sky2); color: var(--ink); font-family: var(--font); font-size: 16.5px; line-height: 1.5 }
+  .doc { max-width: 210mm; margin: 0 auto }
+  .bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; margin-bottom: 16px }
+  .bar a { display: inline-flex; align-items: center; gap: 4px; padding: 3px 14px 3px 8px; background: #fff; border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink); color: var(--ink); font-size: 15px; font-weight: 600; text-decoration: none }
+  .bar a svg { width: 18px; height: 18px }
+  .bar button { display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; background: var(--mint); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 5px 0 var(--ink); color: #fff; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; font: 700 22px var(--font); cursor: pointer }
+  .bar button:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink) }
+  .bar button svg { width: 24px; height: 24px }
+  .cover { display: flex; align-items: center; gap: 20px; margin-bottom: 22px }
+  .cover svg { width: 110px; height: 120px; flex: none }
+  h1 { margin: 0 0 10px; font-size: 54px; font-weight: 700; line-height: 1; color: #fff; -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; text-shadow: 0 5px 0 var(--ink) }
+  h1 .y { color: var(--yellow) } h1 .p { color: var(--pink) }
+  .cover p { margin: 0; font-size: 18px; font-weight: 600 }
+  .toc { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; margin: 0; padding: 0; list-style: none; counter-reset: toc }
+  .toc li { display: flex; align-items: center; gap: 10px; font-weight: 600 }
+  .toc li::before { counter-increment: toc; content: counter(toc); display: grid; place-items: center; width: 28px; height: 28px; flex: none; background: var(--yellow); border: 3px solid var(--ink); border-radius: 50%; font-size: 14px; font-weight: 700 }
+  .card { margin-bottom: 20px; padding: 20px 22px; background: #fff; border: 4px solid var(--ink); border-radius: 24px; box-shadow: 0 6px 0 rgba(47, 42, 74, .25); break-inside: avoid; page-break-inside: avoid }
+  .card.flow { break-inside: auto; page-break-inside: auto }
+  h2 { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 14px; padding: 3px 18px 3px 4px; background: var(--c, var(--yellow)); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink); font-size: 23px; font-weight: 700 }
+  h2 i { display: grid; place-items: center; width: 34px; height: 34px; background: #fff; border: 3px solid var(--ink); border-radius: 50%; font-style: normal; font-size: 18px }
+  h3 { margin: 14px 0 6px; font-size: 19px; font-weight: 700 }
+  p { margin: 0 0 10px; font-weight: 500 }
+  p b, li b { font-weight: 700 }
+  ul { margin: 0 0 10px; padding-left: 22px; font-weight: 500 }
+  li { margin-bottom: 5px }
+  .parts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px }
+  .part { padding: 12px 14px; background: var(--light); border: 3px solid var(--ink); border-radius: 18px; break-inside: avoid }
+  .part strong { display: flex; align-items: center; gap: 8px; font-size: 19px }
+  .part strong i { display: grid; place-items: center; width: 30px; height: 30px; background: var(--c); border: 3px solid var(--ink); border-radius: 10px; color: #fff; -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; font-style: normal }
+  .part p { margin: 6px 0 0 }
+  .part em { display: block; margin-top: 6px; padding: 6px 10px; background: #fff; border: 2px solid var(--ink); border-radius: 10px; font-style: normal; font-weight: 600; font-size: 15px }
+  .compare { display: grid; grid-template-columns: 1fr 1.6fr; gap: 12px; margin-bottom: 12px; break-inside: avoid }
+  .compare div { padding: 10px 14px; border: 3px solid var(--ink); border-radius: 16px; font-weight: 500; font-size: 15px }
+  .compare .bad { background: #ffd6e3 } .compare .good { background: #c9f5e3 }
+  .compare small { display: block; margin-bottom: 4px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px }
+  .phrases { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 10px; padding: 0; list-style: none }
+  .phrases li { margin: 0; padding: 8px 12px; background: var(--sky2); border: 2px solid var(--ink); border-radius: 14px; font-weight: 600; font-size: 15px }
+  .say { margin: 8px 0 12px; padding: 12px 16px; background: #fff1a8; border: 3px dashed var(--ink); border-radius: 16px; font-weight: 600 }
+  .steps { margin: 0 0 10px; padding: 0; list-style: none; counter-reset: step }
+  .steps li { position: relative; min-height: 26px; padding-left: 36px; margin-bottom: 6px }
+  .steps li::before { counter-increment: step; content: counter(step); position: absolute; left: 0; top: -2px; display: grid; place-items: center; width: 26px; height: 26px; flex: none; background: var(--blue); border: 2px solid var(--ink); border-radius: 50%; color: #fff; font-size: 14px; font-weight: 700 }
+  .never { display: grid; grid-template-columns: 1fr 1fr; gap: 12px }
+  .never div { padding: 12px 14px; border: 3px solid var(--ink); border-radius: 16px }
+  .never .no { background: #ffd6e3 } .never .yes { background: #c9f5e3 }
+  .never h3 { margin-top: 0 }
+  .checklist { margin: 0; padding: 0; list-style: none }
+  .checklist li { position: relative; padding-left: 36px; margin-bottom: 9px; font-weight: 500 }
+  .checklist li::before { content: ""; position: absolute; left: 0; top: 1px; width: 22px; height: 22px; background: #c9f5e3; border: 3px solid var(--ink); border-radius: 7px }
+  dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 8px 16px }
+  dt { font-weight: 700 }
+  dd { margin: 0; font-weight: 500 }
+  .links { display: grid; grid-template-columns: 1fr 1fr; gap: 8px }
+  .links div { padding: 8px 12px; background: var(--sky2); border-radius: 12px; font-weight: 500 }
+  .links b { display: block; font-weight: 700 }
+  .new-page { break-before: page; page-break-before: always }
+
+  @page { size: A4; margin: 12mm }
+  @media print {
+    body { padding: 0; background: #fff; font-size: 13px; -webkit-print-color-adjust: exact; print-color-adjust: exact }
+    .bar { display: none }
+    .card { border-width: 3px; padding: 14px 18px; margin-bottom: 12px; box-shadow: none }
+    h1 { font-size: 44px }
+    h2 { font-size: 18px; margin-bottom: 10px }
+    .cover svg { width: 84px; height: 92px }
+    .toc { grid-template-columns: repeat(4, 1fr); gap: 4px 10px; font-size: 12px }
+    .toc li::before { width: 22px; height: 22px; font-size: 12px; border-width: 2px }
+    .parts { grid-template-columns: repeat(4, 1fr) }
+  }
+  @media (max-width: 640px) {
+    .parts, .compare, .phrases, .never, .links, .toc { grid-template-columns: 1fr }
+    h1 { font-size: 42px }
+    .cover svg { width: 80px }
+  }
+</style>
+</head>
+<body>
+<div class="doc">
+
+<div class="bar">
+  <a href="index.html"><svg viewBox="0 0 24 24"><path d="M15 4.5 L7.5 12 L15 19.5" fill="none" stroke="#2f2a4a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Oficina de Prompts</a>
+  <button type="button" onclick="print()"><svg viewBox="0 0 24 24"><path d="M7 9 V3 H17 V9 M7 18 H4 V10 H20 V18 H17 M7 14 H17 V21 H7 Z" fill="#fff" stroke="#2f2a4a" stroke-width="2.4" stroke-linejoin="round"/></svg>Imprimir</button>
+</div>
+
+<div class="cover">
+  <svg viewBox="0 0 100 110" aria-hidden="true">
+    <g transform="translate(0 10)">
+      <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+      <circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/>
+      <circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/>
+      <circle cx="27" cy="57" r="4" fill="#ff8fb0"/><circle cx="73" cy="57" r="4" fill="#ff8fb0"/>
+      <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+    </g>
+    <path d="M12 22 L50 6 L88 22 L50 38 Z" fill="#2f2a4a"/><path d="M30 28 V38 Q50 47 70 38 V28" fill="#2f2a4a"/>
+    <path d="M80 25 V44" stroke="#ffd23f" stroke-width="4" stroke-linecap="round"/><circle cx="80" cy="46" r="5" fill="#ffd23f"/>
+  </svg>
+  <div>
+    <h1><span class="y">Guia</span> do <span class="p">professor</span></h1>
+    <p>Tudo o que vimos na Oficina de Prompts, para consultar quando for pedir alguma coisa ao Gemini.</p>
+  </div>
+</div>
+
+<section class="card">
+  <h2 style="--c: var(--yellow)"><i>&#8226;</i>Neste guia</h2>
+  <ol class="toc">
+    <li>O que é um prompt</li><li>As quatro partes</li><li>Antes e depois</li><li>Conversar para melhorar</li>
+    <li>Três truques</li><li>Jogos no Canvas</li><li>Gems</li><li>BNCC sem inventar</li>
+    <li>Adaptar para incluir</li><li>Privacidade</li><li>Checklist de revisão</li><li>Palavras e endereços</li>
+  </ol>
+</section>
+
+<section class="card">
+  <h2 style="--c: #cfe6ff"><i>1</i>O que é um prompt</h2>
+  <p>Um prompt é o pedido que você escreve para o Gemini. Ele funciona como uma <b>receita</b>: passos claros, na ordem certa. E, como em qualquer receita nova, a gente prova, ajusta e tenta de novo.</p>
+  <p>O Gemini é uma IA generativa: ele cria textos, imagens e até jogos prevendo as palavras mais prováveis. Por isso ele é ótimo para rascunhos e ideias, mas <b>pode errar</b> fatos, datas, contas, referências e códigos da BNCC. Quem decide o que vai para a turma é sempre você.</p>
+</section>
+
+<section class="card">
+  <h2 style="--c: #c9f5e3"><i>2</i>As quatro partes de um bom prompt</h2>
+  <p>É o método do próprio Google para o Gemini. Nem todo pedido precisa das quatro partes, mas quanto mais você der, melhor o resultado.</p>
+  <div class="parts">
+    <div class="part" style="--c: #4da3ff; --light: #cfe6ff"><strong><i>P</i>Papel</strong><p>Quem o Gemini deve ser.</p><em>Você é professor(a) de Matemática do 2º ano.</em></div>
+    <div class="part" style="--c: #4fd6a6; --light: #c9f5e3"><strong><i>T</i>Tarefa</strong><p>O que ele deve fazer, com um verbo.</p><em>Crie um jogo de somas até 20.</em></div>
+    <div class="part" style="--c: #ffd23f; --light: #fff1a8"><strong><i>C</i>Contexto</strong><p>Para quem, para quê e com quais limites.</p><em>Para crianças de 7 anos que estão começando a ler, no celular.</em></div>
+    <div class="part" style="--c: #ff8a3d; --light: #ffdcc4"><strong><i>F</i>Formato</strong><p>Como o resultado deve sair.</p><em>Botões grandes, 3 fases, som no acerto e estrelas no final.</em></div>
+  </div>
+</section>
+
+<section class="card">
+  <h2 style="--c: #fff1a8"><i>3</i>Antes e depois</h2>
+  <div class="compare"><div class="bad"><small>Vago</small>Faça uma atividade de frações.</div><div class="good"><small>Completo</small>Você é professor(a) de Matemática do 5º ano. Crie uma atividade para imprimir sobre frações do dia a dia, para uma turma de 10 anos, numa aula de 50 minutos. Uma folha A4, 5 exercícios do fácil ao difícil e o gabarito separado no fim.</div></div>
+  <div class="compare"><div class="bad"><small>Vago</small>Escreva uma história sobre animais.</div><div class="good"><small>Completo</small>Você é professor(a) de Educação Infantil. Escreva uma história curta sobre um quero-quero que perde o ninho, para crianças de 4 anos que ainda não leem. Vou ler em voz alta na roda. Até 6 parágrafos curtos e 3 perguntas para conversar no fim.</div></div>
+  <div class="compare"><div class="bad"><small>Vago</small>Faça um jogo de matemática.</div><div class="good"><small>Completo</small>Você é professor(a) de Matemática do 2º ano. Crie um jogo de somas até 20 para jogar no navegador, para crianças de 7 anos, no celular. Botões grandes, 3 fases, som no acerto e estrelas no final.</div></div>
+</section>
+
+<section class="card">
+  <h2 style="--c: #e2dbff"><i>4</i>Conversar para melhorar</h2>
+  <p>Um bom resultado quase nunca vem no primeiro pedido. Continue a conversa e peça <b>uma mudança de cada vez</b>:</p>
+  <ul class="phrases">
+    <li>Deixe mais simples, para crianças de 7 anos.</li>
+    <li>Crie mais 3 exercícios no mesmo estilo.</li>
+    <li>Troque o tema para futebol.</li>
+    <li>Faça uma versão com letras maiores.</li>
+    <li>Resuma em uma página.</li>
+    <li>Revise: tem algum erro de conteúdo ou palavra difícil para essa idade?</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2 style="--c: #ffdcc4"><i>5</i>Três truques</h2>
+  <h3>Dê um exemplo</h3>
+  <p>Cole um exercício que você já usa e peça: “Faça no mesmo estilo deste”. É o jeito mais rápido de o Gemini entender o que você quer.</p>
+  <h3>Peça perguntas antes</h3>
+  <p>Termine o pedido com: “Antes de criar, me faça até 3 perguntas para entender melhor o que eu preciso”.</p>
+  <h3>Peça níveis</h3>
+  <p>“Crie uma versão fácil, uma média e uma desafio.” Ajuda a atender todas as crianças da turma.</p>
+</section>
+
+<section class="card">
+  <h2 style="--c: #c9f5e3"><i>6</i>Jogos no Canvas</h2>
+  <p>O Canvas é um espaço ao lado da conversa onde o Gemini cria o jogo e mostra pronto para testar.</p>
+  <ol class="steps">
+    <li>Na caixa de mensagem, abra as ferramentas e escolha <b>Canvas</b>.</li>
+    <li>Escreva o pedido com as quatro partes. No Construtor de prompts, o tipo <b>Jogo interativo</b> já traz o formato certo.</li>
+    <li>Jogue como se fosse uma criança e anote o que não funcionou.</li>
+    <li>Para cada problema, use a frase abaixo. Se um ajuste piorar, peça “volte para a versão anterior”.</li>
+  </ol>
+  <div class="say">Quando eu [o que você fez], acontece [o que aconteceu], mas deveria [o que você esperava]. Conserte só isso.</div>
+  <h3>Para compartilhar com a turma</h3>
+  <ul>
+    <li>Use <b>Compartilhar</b> para criar um link público.</li>
+    <li>Abra o link no celular, numa janela anônima, para ter certeza de que abre para todos.</li>
+    <li>Mande pelo Google Classroom ou mostre um QR code.</li>
+    <li>O link fica público: nada de nomes ou fotos das crianças dentro do jogo.</li>
+  </ul>
+  <p>Se o Canvas não aparecer, a conta da escola pode estar com essa função desligada. Fale com quem cuida das contas.</p>
+</section>
+
+<section class="card">
+  <h2 style="--c: #e2dbff"><i>7</i>Gems</h2>
+  <p>Um Gem é um Gemini com as suas <b>instruções fixas</b>. Você explica uma vez como é a sua turma e o que precisa, e usa o ano todo. A página <b>Gems prontos</b> tem instruções para copiar: planos de aula, atividades, jogos, histórias, inclusão e revisão.</p>
+  <ol class="steps">
+    <li>No Gemini, abra o menu lateral, toque em <b>Gems</b> e depois em <b>Novo Gem</b>.</li>
+    <li>Dê um nome, cole as instruções e troque o que está entre [colchetes].</li>
+    <li>Teste com um pedido, ajuste e salve.</li>
+  </ol>
+  <p>Nas instruções vão a etapa, o jeito da turma e o formato que você prefere. Nunca dados das crianças.</p>
+</section>
+
+<section class="card">
+  <h2 style="--c: #fff1a8"><i>8</i>BNCC sem inventar</h2>
+  <p>O Gemini pode inventar códigos de habilidades que não existem. Inclua sempre esta frase nos planos e atividades:</p>
+  <div class="say">Relacione com a BNCC. Se não tiver certeza do código da habilidade, escreva só a descrição, sem inventar o código.</div>
+  <p>Depois confira os códigos no site oficial da BNCC: <b>basenacionalcomum.mec.gov.br</b>.</p>
+</section>
+
+<section class="card">
+  <h2 style="--c: #c9f5e3"><i>9</i>Adaptar para incluir</h2>
+  <p>Descreva a <b>necessidade</b>, nunca a criança. Por exemplo: “para uma criança de 8 anos com TEA que lê frases curtas”.</p>
+  <ul>
+    <li><b>TEA:</b> rotina clara, frases curtas, apoio visual, uma instrução de cada vez.</li>
+    <li><b>TDAH:</b> partes curtas, instruções numeradas, pausas e movimento.</li>
+    <li><b>Dificuldade de leitura:</b> menos texto, letra maior, mais imagens.</li>
+    <li><b>Baixa visão:</b> alto contraste, letra grande, descrição das imagens.</li>
+  </ul>
+  <p>Peça sempre: “mantenha o conteúdo e os objetivos” e “no fim, liste o que você mudou”.</p>
+</section>
+
+<section class="card">
+  <h2 style="--c: #ffd6e3"><i>10</i>Privacidade</h2>
+  <p>A Lei Geral de Proteção de Dados (LGPD) pede cuidado especial com os dados de crianças e adolescentes. Na prática, a regra é simples:</p>
+  <div class="never">
+    <div class="no"><h3>Nunca vai para o Gemini</h3><ul><li>Nomes das crianças</li><li>Fotos e vídeos da turma</li><li>Laudos e informações de saúde</li><li>Notas, endereços e telefones</li></ul></div>
+    <div class="yes"><h3>Pode ir</h3><ul><li>A etapa, o ano e a idade da turma</li><li>O tema e o conteúdo</li><li>Necessidades, sem identificar ninguém</li><li>Textos e atividades para adaptar</li></ul></div>
+  </div>
+  <p style="margin-top: 12px">Use a <b>conta da escola</b> (Google for Education), se ela tiver: nessas contas, as conversas ficam protegidas e não são usadas para treinar a IA. Se alguém escrever um nome por engano, apague a conversa.</p>
+</section>
+
+<section class="card">
+  <h2 style="--c: #c9f5e3"><i>11</i>Checklist de revisão</h2>
+  <p>Antes de usar qualquer material ou jogo com a turma:</p>
+  <ul class="checklist">
+    <li>O conteúdo está certo e confere com o livro ou com outra fonte?</li>
+    <li>As palavras e as frases servem para a idade?</li>
+    <li>Todas as crianças conseguem participar?</li>
+    <li>Não tem nomes, fotos ou dados das crianças?</li>
+    <li>A BNCC está sem código inventado?</li>
+    <li>Eu testei antes, do jeito que a turma vai usar?</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2 style="--c: #cfe6ff"><i>12</i>Palavras e endereços</h2>
+  <dl>
+    <dt>Prompt</dt><dd>O pedido que você escreve para a IA.</dd>
+    <dt>IA generativa</dt><dd>Uma inteligência artificial que cria textos, imagens e programas.</dd>
+    <dt>Canvas</dt><dd>O espaço do Gemini onde o jogo ou o documento aparece pronto, ao lado da conversa.</dd>
+    <dt>Gem</dt><dd>Um Gemini com instruções fixas, criado por você.</dd>
+    <dt>Alucinação</dt><dd>Quando a IA inventa uma informação com cara de verdade.</dd>
+  </dl>
+  <h3>Para continuar usando</h3>
+  <div class="links">
+    <div><b>Construtor de prompts</b>medeiros08.github.io/Jogo-ES/prompt</div>
+    <div><b>Biblioteca de prompts</b>medeiros08.github.io/Jogo-ES/biblioteca</div>
+    <div><b>Gems prontos</b>medeiros08.github.io/Jogo-ES/gems</div>
+    <div><b>Jogo do Prompt</b>medeiros08.github.io/Jogo-ES/jogo-do-prompt</div>
+    <div><b>Galeria da oficina</b>medeiros08.github.io/Jogo-ES/galeria</div>
+    <div><b>Tudo num lugar só</b>medeiros08.github.io/Jogo-ES</div>
+  </div>
+</section>
+
+</div>
+</body>
+</html>

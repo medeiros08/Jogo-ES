@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Certificado da Oficina de Prompts</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,6 62,38 96,38 68,58 79,92 50,72 21,92 32,58 4,38 38,38' fill='%23ffd84d' stroke='%23e0a800' stroke-width='5'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky1: #5fbcff;
+    --sky2: #cdeeff;
+    --ink: #2f2a4a;
+    --line: #cfcbe6;
+    --blue: #4da3ff;
+    --pink: #ff5f8f;
+    --mint: #4fd6a6;
+    --orange: #ff8a3d;
+    --purple: #8c73ff;
+    --yellow: #ffd23f;
+    --font: "Fredoka", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box }
+  body {
+    margin: 0;
+    padding: 24px 16px 40px;
+    background: linear-gradient(180deg, var(--sky1) 0, var(--sky2) 520px) no-repeat var(--sky2);
+    color: var(--ink);
+    font-family: var(--font);
+  }
+
+  /* Form for the facilitator, shown only on screen */
+  .form { position: relative; max-width: 900px; margin: 0 auto 32px; padding: 22px 24px; background: #fff; border: 4px solid var(--ink); border-radius: 28px; box-shadow: 0 7px 0 rgba(47, 42, 74, .25) }
+  .back { display: inline-flex; align-items: center; gap: 4px; margin-bottom: 12px; padding: 3px 14px 3px 8px; background: #fff; border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink); color: inherit; font-size: 15px; font-weight: 600; text-decoration: none }
+  .back svg { width: 18px; height: 18px }
+  .back:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink) }
+  .form h1 { display: flex; align-items: center; gap: 14px; margin: 0 0 10px; font-size: min(40px, 8vw); font-weight: 700; line-height: 1.05; color: #fff; -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; text-shadow: 0 4px 0 var(--ink) }
+  .form h1 svg { width: min(70px, 14vw); height: min(70px, 14vw); flex: none; animation: swing 2.6s ease-in-out infinite; transform-origin: 50% 0 }
+  @keyframes swing { 50% { transform: rotate(8deg) } }
+  .form h1 .y { color: var(--yellow) }
+  .form p { margin: 0 0 18px; font-size: 17px; font-weight: 500; line-height: 1.45 }
+  .form label { display: block; margin-bottom: 14px; font-size: 17px; font-weight: 600 }
+  .form textarea, .form input { display: block; width: 100%; margin-top: 6px; padding: 10px 14px; border: 3px solid var(--line); border-radius: 14px; font: 500 18px var(--font); color: var(--ink) }
+  .form textarea:focus, .form input:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 4px rgba(77, 163, 255, .35) }
+  .form textarea { height: 150px; resize: vertical }
+  .form .row { display: flex; gap: 0 14px; flex-wrap: wrap }
+  .form .row label { flex: 1; min-width: 200px }
+  .actions { display: flex; flex-wrap: wrap; gap: 14px; align-items: center }
+  .form button { display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; background: var(--mint); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 5px 0 var(--ink); color: #fff; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; font: 700 22px var(--font); cursor: pointer }
+  .form button svg { width: 24px; height: 24px }
+  .form button:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink) }
+  .form button:disabled { opacity: .6; cursor: wait }
+  #pdf { background: var(--blue) }
+  #count { font-size: 17px; font-weight: 600 }
+
+  /* Showing each certificate as one picture, the same one that is printed and put in the PDF */
+  .cert { display: block; width: min(100%, 297mm); margin: 0 auto 28px; border: 4px solid var(--ink); border-radius: 12px; box-shadow: 0 8px 0 rgba(47, 42, 74, .25) }
+
+  /* Printing one certificate per A4 sheet, landscape, without the form */
+  @page { size: A4 landscape; margin: 0 }
+  @media print {
+    body { padding: 0; background: #fff }
+    .form { display: none }
+    .cert { width: 297mm; height: 210mm; margin: 0; border: none; border-radius: 0; box-shadow: none; break-after: page; page-break-after: always }
+    .cert:last-child { break-after: auto; page-break-after: auto }
+  }
+</style>
+</head>
+<body>
+
+<section class="form">
+  <a class="back" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4.5 L7.5 12 L15 19.5" fill="none" stroke="#2f2a4a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Oficina de Prompts</a>
+  <h1><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M30 4 H48 L58 40 H40 Z" fill="#4da3ff" stroke="#2f2a4a" stroke-width="5" stroke-linejoin="round"/><path d="M70 4 H52 L42 40 H60 Z" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="5" stroke-linejoin="round"/><circle cx="50" cy="66" r="28" fill="#ffd23f" stroke="#2f2a4a" stroke-width="5"/><polygon points="50,50 55,61 67,62 58,70 61,82 50,75 39,82 42,70 33,62 45,61" fill="#e0a800"/></svg><span>Certificado da <span class="y">Oficina de Prompts</span></span></h1>
+  <p>Escreva o nome dos professores, um por linha, e preencha o local, a data, a carga horária e quem ministrou. Depois imprima, ou baixe um PDF com um certificado por pessoa, cada um numa folha A4 deitada. Sem nomes, sai um certificado com a linha vazia, para preencher à mão.</p>
+  <label>Nomes dos participantes
+    <textarea id="names" placeholder="Ana Paula&#10;Carlos&#10;Maria Eduarda"></textarea>
+  </label>
+  <div class="row">
+    <label>Local <input id="place" placeholder="Escola ou município"></label>
+    <label>Data ou período <input id="date" placeholder="outubro de 2026"></label>
+  </div>
+  <div class="row">
+    <label>Carga horária (horas) <input id="hours" value="8" inputmode="decimal" placeholder="8"></label>
+    <label>Quem ministrou <input id="presenter" placeholder="Seu nome"></label>
+  </div>
+  <div class="actions">
+    <button type="button" onclick="print()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9 V3 H17 V9 M7 18 H4 V10 H20 V18 H17 M7 14 H17 V21 H7 Z" fill="#fff" stroke="#2f2a4a" stroke-width="2.4" stroke-linejoin="round"/></svg>Imprimir</button>
+    <button type="button" id="pdf"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3 H14 L19 8 V21 H6 Z M14 3 V8 H19" fill="#fff" stroke="#2f2a4a" stroke-width="2.4" stroke-linejoin="round"/></svg><span id="pdf-label">Baixar PDF</span></button>
+    <span id="count"></span>
+  </div>
+</section>
+
+<main id="certificates"></main>
+
+<script>
+// Measuring the certificate in tenths of a millimetre, the size of a landscape A4 sheet
+const WIDTH = 2970, HEIGHT = 2100
+
+// Sizing the PDF pages at 200 dots per inch, sharp on paper and light enough for a whole group
+const PIXELS = [2339, 1654]
+
+const SYMBOLS = `
+  <symbol id="bot" viewBox="0 0 100 100">
+    <line x1="50" y1="8" x2="50" y2="22" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="50" cy="8" r="6" fill="#ff4d4d"/>
+    <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/>
+    <circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/>
+    <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+  </symbol>
+  <symbol id="capbot" viewBox="0 0 100 106">
+    <rect x="18" y="32" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="38" cy="54" r="9" fill="#fff"/><circle cx="62" cy="54" r="9" fill="#fff"/>
+    <circle cx="40" cy="55" r="4" fill="#1d2a44"/><circle cx="64" cy="55" r="4" fill="#1d2a44"/>
+    <circle cx="27" cy="67" r="4" fill="#ff8fb0"/><circle cx="73" cy="67" r="4" fill="#ff8fb0"/>
+    <path d="M40 70 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <rect x="30" y="82" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+    <path d="M12 22 L50 6 L88 22 L50 38 Z" fill="#1d2a44"/>
+    <path d="M30 28 V38 Q50 47 70 38 V28" fill="#1d2a44"/>
+    <path d="M80 25 V44" stroke="#ffd84d" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="80" cy="46" r="5" fill="#ffd84d"/>
+  </symbol>
+  <symbol id="star" viewBox="0 0 100 100">
+    <polygon points="50,6 62,38 96,38 68,58 79,92 50,72 21,92 32,58 4,38 38,38" fill="#ffd84d" stroke="#e0a800" stroke-width="5" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="medal" viewBox="0 0 100 100">
+    <path d="M30 4 H48 L58 40 H40 Z" fill="#4da3ff" stroke="#1d2a44" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M70 4 H52 L42 40 H60 Z" fill="#ff4d4d" stroke="#1d2a44" stroke-width="5" stroke-linejoin="round"/>
+    <circle cx="50" cy="66" r="28" fill="#ffd84d" stroke="#1d2a44" stroke-width="5"/>
+    <polygon points="50,50 55,61 67,62 58,70 61,82 50,75 39,82 42,70 33,62 45,61" fill="#e0a800"/>
+  </symbol>
+  <symbol id="chat" viewBox="0 0 100 100">
+    <path d="M50 40 H84 Q96 40 96 52 V68 Q96 80 84 80 H82 L88 94 L70 80 H50 Q38 80 38 68 V52 Q38 40 50 40 Z" fill="#4da3ff" stroke="#1d2a44" stroke-width="5" stroke-linejoin="round"/>
+    <circle cx="54" cy="61" r="5" fill="#fff"/><circle cx="67" cy="61" r="5" fill="#fff"/><circle cx="80" cy="61" r="5" fill="#fff"/>
+    <path d="M16 6 H60 Q72 6 72 18 V36 Q72 48 60 48 H30 L14 62 L18 48 H16 Q4 48 4 36 V18 Q4 6 16 6 Z" fill="#fff" stroke="#1d2a44" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M16 21 H58 M16 33 H44" stroke="#ff5f8f" stroke-width="5" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="sheet" viewBox="0 0 100 100">
+    <path d="M18 6 H62 L82 26 V94 H18 Z" fill="#fff" stroke="#1d2a44" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M62 6 V26 H82" fill="#e8f4ff" stroke="#1d2a44" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M30 28 H50" stroke="#ff5f8f" stroke-width="6" stroke-linecap="round"/>
+    <path d="M30 44 H70 M30 58 H70 M30 72 H56" stroke="#4da3ff" stroke-width="5" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="pencil" viewBox="0 0 100 100">
+    <g transform="rotate(35 50 50)" stroke="#1d2a44" stroke-width="5" stroke-linejoin="round">
+      <rect x="40" y="6" width="20" height="16" rx="5" fill="#ff8fb0"/>
+      <rect x="40" y="22" width="20" height="50" fill="#ffd84d"/>
+      <polygon points="40,72 60,72 50,94" fill="#ffe2b8"/>
+      <polygon points="46.4,86 53.6,86 50,94" fill="#1d2a44"/>
+    </g>
+  </symbol>
+  <symbol id="gamepad" viewBox="0 0 100 100">
+    <path d="M30 28 H70 Q92 28 95 54 Q98 80 82 82 Q72 83 64 68 H36 Q28 83 18 82 Q2 80 5 54 Q8 28 30 28 Z" fill="#8c73ff" stroke="#1d2a44" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M20 50 H40 M30 40 V60" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="67" cy="45" r="6.5" fill="#ffd84d" stroke="#1d2a44" stroke-width="3.5"/>
+    <circle cx="79" cy="56" r="6.5" fill="#4fd6a6" stroke="#1d2a44" stroke-width="3.5"/>
+  </symbol>
+  <symbol id="gem" viewBox="0 0 100 100">
+    <polygon points="14,38 32,14 68,14 86,38 50,88" fill="#4fd6a6" stroke="#1d2a44" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M14 38 H86 M32 14 L40 38 L50 88 L60 38 L68 14" fill="none" stroke="#1d2a44" stroke-width="3.5" stroke-linejoin="round"/>
+    <polygon points="36,20 46,20 41,32" fill="#c9f5e3"/>
+  </symbol>`
+
+// Pairing each thing learned with its drawing, the colour of its meeting and the light colour behind it
+const SKILLS = [
+  [["conversar com", "o Gemini"], "#4da3ff", "#cfe6ff", '<use href="#chat" x="4" y="4" width="92" height="92"/>'],
+  [["criar conteúdo", "para a turma"], "#ff5f8f", "#ffd6e3", '<use href="#sheet" x="0" y="4" width="84" height="84"/><use href="#pencil" x="44" y="40" width="56" height="56"/>'],
+  [["criar jogos", "com o Canvas"], "#4fd6a6", "#c9f5e3", '<use href="#gamepad" x="0" y="18" width="84" height="84"/><use href="#star" x="60" y="4" width="38" height="38"/>'],
+  [["montar o seu", "assistente (Gem)"], "#8c73ff", "#e2dbff", '<use href="#bot" x="0" y="8" width="76" height="76"/><use href="#gem" x="58" y="54" width="42" height="42"/>'],
+]
+
+const FONT = "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+const fields = ["names", "place", "date", "hours", "presenter"].map(id => document.getElementById(id))
+const escape = text => text.replace(/[&<>"]/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[character])
+
+// Measuring texts with the same font the certificate uses, so long names and places shrink just enough
+const ruler = document.createElement("canvas").getContext("2d")
+function measure(text, size, weight) {
+  ruler.font = `${weight} ${size}px ${FONT}`
+  return ruler.measureText(text).width
+}
+const fit = (text, size, width, weight) => Math.min(size, size * width / Math.max(1, measure(text, size, weight)))
+
+// Splitting the sentence into words, with typed values in bold and a line to fill by hand for each empty field
+function sentenceWords(place, date, hours) {
+  const words = [], space = { text: " " }
+  const say = (text, bold = false) => text.split(/\s+/).filter(Boolean).forEach(word => words.push([{ text: word, bold }]))
+  // Gluing each value to the words around it, so "em" and its line never end up on different lines
+  const value = (text, blank, before, after) => {
+    const parts = text ? text.split(/\s+/).map(word => [{ text: word, bold: true }]) : [[{ blank }]]
+    if (before) parts[0].unshift({ text: before }, space)
+    parts[parts.length - 1].push(...after)
+    words.push(...parts)
+  }
+  // Skipping our "em" when the typed value already starts with a word like "na", "no" or "de"
+  const lead = text => /^(em|no|na|nos|nas|de|do|da|entre|durante)\s/i.test(text) ? "" : "em"
+  say("participou da")
+  say("Oficina de Prompts para Professores,", true)
+  value(place, 10, lead(place), [{ text: "," }])
+  value(date, 6.5, lead(date), [{ text: "," }])
+  say("com carga horária")
+  value(hours, 1.6, "de", [space, { text: hours === "1" ? "hora," : "horas," }])
+  say("e aprendeu a:")
+  return words
+}
+
+// Breaking the sentence into centred lines, shrinking the letters until it fits in two lines
+function layoutSentence(words, width) {
+  const weightOf = piece => piece.bold ? 900 : 700
+  const lineUp = size => {
+    const space = measure(" ", size, 700), lines = [{ words: [], width: 0 }]
+    for (const pieces of words) {
+      const sized = pieces.map(piece => ({ ...piece, width: piece.blank ? piece.blank * size : measure(piece.text, size, weightOf(piece)) }))
+      const wordWidth = sized.reduce((sum, piece) => sum + piece.width, 0)
+      let line = lines[lines.length - 1]
+      if (line.words.length && line.width + space + wordWidth > width) lines.push(line = { words: [], width: 0 })
+      line.width += (line.words.length ? space : 0) + wordWidth
+      line.words.push(sized)
+    }
+    return { size, space, lines }
+  }
+  let layout
+  for (let size = 58; size >= 30; size -= 2) {
+    layout = lineUp(size)
+    if (layout.lines.length <= 2 && layout.lines.every(line => line.width <= width)) break
+  }
+  return layout
+}
+
+// Drawing the round seal of the four meetings, one colour for each
+function seal(x, y) {
+  const colours = ["#4da3ff", "#ff5f8f", "#4fd6a6", "#8c73ff"], quarter = Math.PI * 2 * 125 / 4
+  const ring = colours.map((colour, index) => `<circle cx="${x}" cy="${y}" r="125" fill="none" stroke="${colour}" stroke-width="36"
+    stroke-dasharray="${quarter} ${quarter * 3}" stroke-dashoffset="${-index * quarter}" transform="rotate(-90 ${x} ${y})"/>`).join("")
+  return `<path d="M${x - 75} ${y + 70} L${x - 15} ${y + 95} L${x - 50} ${y + 205} L${x - 72} ${y + 178} L${x - 105} ${y + 190} Z" fill="#ff5f8f" stroke="#1d2a44" stroke-width="9" stroke-linejoin="round"/>
+    <path d="M${x + 75} ${y + 70} L${x + 15} ${y + 95} L${x + 50} ${y + 205} L${x + 72} ${y + 178} L${x + 105} ${y + 190} Z" fill="#4da3ff" stroke="#1d2a44" stroke-width="9" stroke-linejoin="round"/>
+    <circle cx="${x}" cy="${y}" r="107" fill="#fff"/>
+    ${ring}
+    <circle cx="${x}" cy="${y}" r="143" fill="none" stroke="#1d2a44" stroke-width="10"/>
+    <circle cx="${x}" cy="${y}" r="107" fill="none" stroke="#1d2a44" stroke-width="8"/>
+    <text x="${x}" y="${y + 24}" font-size="112" font-weight="900">4</text>
+    <text x="${x}" y="${y + 62}" font-size="30" font-weight="800">encontros</text>`
+}
+
+// Drawing a whole certificate as one SVG, used for the preview, for printing and for the PDF
+function certificate(name, place, date, hours, presenter) {
+  const text = (x, y, size, content, extra = "") => `<text x="${x}" y="${y}" font-size="${size}" ${extra}>${escape(content)}</text>`
+  const skills = SKILLS.map(([label, colour, light, drawing], index) => {
+    const x = 645 + index * 560
+    return `<circle cx="${x}" cy="1305" r="125" fill="${light}" stroke="#1d2a44" stroke-width="10"/>
+      <svg x="${x - 98}" y="1207" width="196" height="196" viewBox="0 0 100 100">${drawing}</svg>
+      <circle cx="${x - 98}" cy="1205" r="40" fill="${colour}" stroke="#1d2a44" stroke-width="8"/>
+      ${text(x - 98, 1223, 50, String(index + 1), 'font-weight="900" fill="#fff" stroke="#1d2a44" stroke-width="7" paint-order="stroke" stroke-linejoin="round"')}
+      ${text(x, 1497, 46, label[0], 'font-weight="800"')}
+      ${text(x, 1553, 46, label[1], 'font-weight="800"')}`
+  }).join("")
+
+  // Writing the sentence word by word, so the typed values can be bold and the empty ones become lines
+  const sentence = layoutSentence(sentenceWords(place, date, hours), 2400)
+  const gap = sentence.size * 1.36, top = sentence.lines.length > 1 ? 1000 : 1040
+  const sentenceSvg = sentence.lines.map((line, row) => {
+    const y = top + row * gap
+    let x = (WIDTH - line.width) / 2
+    return line.words.map(pieces => {
+      const drawn = pieces.map(piece => {
+        const out = piece.blank
+          ? `<line x1="${x}" y1="${y + sentence.size * 0.16}" x2="${x + piece.width}" y2="${y + sentence.size * 0.16}" stroke="#1d2a44" stroke-width="6"/>`
+          : !piece.text.trim() ? ""
+          : text(x, y, sentence.size, piece.text, `text-anchor="start"${piece.bold ? ' font-weight="900"' : ""}`)
+        x += piece.width
+        return out
+      }).join("")
+      x += sentence.space
+      return drawn
+    }).join("")
+  }).join("")
+
+  // Sizing the yellow band around the medal and the subtitle, centred on the page
+  const subtitle = "de participação", band = 60 + 110 + 30 + measure(subtitle, 82, 900) + 60, left = (WIDTH - band) / 2
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${WIDTH} ${HEIGHT}" width="${WIDTH}" height="${HEIGHT}"
+    font-family="${FONT}" font-weight="700" fill="#1d2a44" text-anchor="middle">
+    <defs>${SYMBOLS}</defs>
+    <rect width="${WIDTH}" height="${HEIGHT}" fill="#4da3ff"/>
+    <rect x="65" y="65" width="2840" height="1970" rx="90" fill="#fff" stroke="#1d2a44" stroke-width="21"/>
+    <use href="#star" x="110" y="110" width="210" height="210" transform="rotate(-14 215 215)"/>
+    <use href="#star" x="2650" y="110" width="210" height="210" transform="rotate(14 2755 215)"/>
+    ${text(1485, 400, 205, "CERTIFICADO", 'font-weight="900" letter-spacing="13"')}
+    <rect x="${left}" y="450" width="${band}" height="136" rx="68" fill="#ffd84d"/>
+    <use href="#medal" x="${left + 60}" y="463" width="110" height="110"/>
+    ${text(left + 200, 547, 82, subtitle, 'font-weight="900" text-anchor="start"')}
+    ${text(1485, 705, 62, "Certificamos que")}
+    ${text(1485, 865, fit(name, 140, 1850, 900), name, 'font-weight="900"')}
+    <line x1="535" y1="910" x2="2435" y2="910" stroke="#1d2a44" stroke-width="12" stroke-dasharray="34 22"/>
+    ${sentenceSvg}
+    ${skills}
+    ${seal(345, 1715)}
+    <use href="#capbot" x="2480" y="1600" width="320" height="340"/>
+    <line x1="985" y1="1745" x2="1985" y2="1745" stroke="#1d2a44" stroke-width="7"/>
+    ${text(1485, 1722, fit(presenter, 56, 960, 800), presenter, 'font-weight="800"')}
+    ${text(1485, 1815, 50, "Quem ministrou")}
+    ${text(1485, 1995, 43, "Curso de Engenharia de Software · UNIPAMPA · Campus Alegrete", 'fill="#4a5a78"')}
+  </svg>`
+}
+
+const pictureOf = svg => "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg)
+const typedNames = () => fields[0].value.split("\n").map(name => name.trim()).filter(Boolean)
+
+// Reading the hours without a repeated word, in case someone types "8 horas" or "8h"
+const hoursOf = text => text.replace(/\s*(horas?|h)\.?$/i, "").trim()
+
+// Drawing one certificate per name, or a single blank one when no name was typed
+function render() {
+  const names = typedNames()
+  const [place, date, hours, presenter] = fields.slice(1).map(field => field.value.trim())
+  document.getElementById("certificates").replaceChildren(...(names.length ? names : [""]).map(name => {
+    const image = new Image()
+    image.className = "cert"
+    image.alt = name ? `Certificado de ${name}` : "Certificado em branco"
+    image.src = pictureOf(certificate(name, place, date, hoursOf(hours), presenter))
+    return image
+  }))
+  document.getElementById("count").textContent = names.length
+    ? `${names.length} ${names.length === 1 ? "certificado" : "certificados"}`
+    : "1 certificado em branco"
+}
+
+// Writing a PDF by hand with one JPEG per page, so the file downloads without any library or internet
+function buildPdf(pages, [width, height]) {
+  const encoder = new TextEncoder(), parts = [], offsets = []
+  let size = 0
+  const add = part => {
+    const bytes = typeof part === "string" ? encoder.encode(part) : part
+    parts.push(bytes)
+    size += bytes.length
+  }
+  const open = id => {
+    offsets[id] = size
+    add(`${id} 0 obj\n`)
+  }
+  const draw = "q 841.89 0 0 595.28 0 0 cm /Im0 Do Q"
+  const pageIds = pages.map((_, index) => 3 + index * 3)
+  add("%PDF-1.4\n%\xe2\xe3\xcf\xd3\n")
+  open(1)
+  add("<< /Type /Catalog /Pages 2 0 R >>\nendobj\n")
+  open(2)
+  add(`<< /Type /Pages /Kids [${pageIds.map(id => `${id} 0 R`).join(" ")}] /Count ${pages.length} >>\nendobj\n`)
+  pages.forEach((jpeg, index) => {
+    const page = pageIds[index]
+    open(page)
+    add(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 841.89 595.28] /Resources << /XObject << /Im0 ${page + 2} 0 R >> >> /Contents ${page + 1} 0 R >>\nendobj\n`)
+    open(page + 1)
+    add(`<< /Length ${draw.length} >>\nstream\n${draw}\nendstream\nendobj\n`)
+    open(page + 2)
+    add(`<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`)
+    add(jpeg)
+    add("\nendstream\nendobj\n")
+  })
+  const table = size, count = offsets.length
+  add(`xref\n0 ${count}\n0000000000 65535 f \n${offsets.slice(1).map(offset => `${String(offset).padStart(10, "0")} 00000 n \n`).join("")}`)
+  add(`trailer\n<< /Size ${count} /Root 1 0 R >>\nstartxref\n${table}\n%%EOF\n`)
+  return new Blob(parts, { type: "application/pdf" })
+}
+
+// Painting every certificate on a canvas and turning it into a JPEG page
+async function makePdf() {
+  const canvas = document.createElement("canvas")
+  ;[canvas.width, canvas.height] = PIXELS
+  const context = canvas.getContext("2d")
+  const pages = []
+  for (const image of document.querySelectorAll("#certificates .cert")) {
+    await image.decode()
+    context.fillStyle = "#fff"
+    context.fillRect(0, 0, canvas.width, canvas.height)
+    context.drawImage(image, 0, 0, canvas.width, canvas.height)
+    const jpeg = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", 0.9))
+    pages.push(new Uint8Array(await jpeg.arrayBuffer()))
+  }
+  return buildPdf(pages, PIXELS)
+}
+
+// Naming the file after the participant when there is only one certificate
+function fileName() {
+  const names = typedNames()
+  if (names.length !== 1) return names.length ? "certificados-oficina.pdf" : "certificado-oficina-em-branco.pdf"
+  return "certificado-oficina-" + names[0].normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() + ".pdf"
+}
+
+async function downloadPdf() {
+  const button = document.getElementById("pdf"), label = document.getElementById("pdf-label")
+  button.disabled = true
+  label.textContent = "Gerando..."
+  try {
+    const link = document.createElement("a")
+    link.href = URL.createObjectURL(await makePdf())
+    link.download = fileName()
+    link.click()
+    setTimeout(() => URL.revokeObjectURL(link.href), 60000)
+  } finally {
+    button.disabled = false
+    label.textContent = "Baixar PDF"
+  }
+}
+
+fields.forEach(field => field.addEventListener("input", render))
+document.getElementById("pdf").addEventListener("click", downloadPdf)
+render()
+</script>
+</body>
+</html>

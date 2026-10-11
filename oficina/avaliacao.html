@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Avaliação do encontro</title>
+<meta name="description" content="Folha A4 anônima para os professores avaliarem cada encontro da Oficina de Prompts, para imprimir ou passar para o Google Forms.">
+<meta name="theme-color" content="#5fbcff">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='20' width='72' height='60' rx='16' fill='%234da3ff' stroke='%231d2a44' stroke-width='6'/><circle cx='36' cy='48' r='9' fill='%23fff'/><circle cx='64' cy='48' r='9' fill='%23fff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky1: #5fbcff; --sky2: #cdeeff; --hill: #8ddf6a; --hill2: #6cc653; --line: #9fb7d6;
+    --ink: #2f2a4a; --soft: #5d5880;
+    --blue: #4da3ff; --pink: #ff5f8f; --mint: #4fd6a6; --orange: #ff8a3d; --purple: #8c73ff; --yellow: #ffd23f;
+    --font: "Fredoka", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent }
+  body { margin: 0; min-height: 100vh; padding: max(20px, env(safe-area-inset-top)) 16px 40px; background: var(--sky2); color: var(--ink); font-family: var(--font) }
+  .i { width: 1.15em; height: 1.15em; flex: none; overflow: visible }
+  .g { transform-box: fill-box; transform-origin: center }
+
+  /* The scenery behind the screen view: sky, drifting clouds and two hills */
+  .sky { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 78%) }
+  .cloud { position: absolute; background: #fff; border-radius: 999px; opacity: .92; animation: drift 46s linear infinite }
+  .cloud::before, .cloud::after { content: ""; position: absolute; background: #fff; border-radius: 50% }
+  .cloud::before { width: 55%; height: 160%; left: 15%; bottom: 20% }
+  .cloud::after { width: 40%; height: 130%; right: 12%; bottom: 25% }
+  .c1 { width: 130px; height: 36px; top: 9%; animation-delay: -8s }
+  .c2 { width: 92px; height: 26px; top: 40%; animation-duration: 60s; animation-delay: -30s }
+  @keyframes drift { from { transform: translateX(-30vw) } to { transform: translateX(130vw) } }
+  .hills { position: absolute; left: 0; right: 0; bottom: 0; height: 17vh }
+  .hills::before, .hills::after { content: ""; position: absolute; bottom: -40%; border-radius: 50% }
+  .hills::before { left: -20%; width: 90%; height: 140%; background: var(--hill) }
+  .hills::after { right: -25%; width: 95%; height: 120%; background: var(--hill2) }
+
+  /* What only shows on the screen: the way back, the print button and the digital version */
+  .screen { position: relative; z-index: 1; max-width: 210mm; margin: 0 auto 22px; display: grid; gap: 16px }
+  .back { justify-self: start; display: inline-flex; align-items: center; gap: 4px; padding: 3px 14px 3px 8px; background: #fff; border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink); color: var(--ink); font-size: 15px; font-weight: 600; text-decoration: none }
+  .back .i { width: 18px; height: 18px }
+  .bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between }
+  .bar p { margin: 0; flex: 1 1 300px; padding: 10px 16px; background: #fff; border: 3px solid var(--ink); border-radius: 18px; font-size: 17px; font-weight: 500 }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 8px 22px; background: var(--c, #fff); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 5px 0 var(--ink); color: var(--ink); font: 700 20px var(--font); text-decoration: none; white-space: nowrap; cursor: pointer; transition: transform .1s, box-shadow .1s }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--ink) }
+  .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink) }
+  .btn.small { min-height: 44px; padding: 5px 16px; font-size: 17px; box-shadow: 0 4px 0 var(--ink) }
+  .loud { color: #fff; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill }
+  .loud svg { filter: drop-shadow(1.5px 0 0 var(--ink)) drop-shadow(-1.5px 0 0 var(--ink)) drop-shadow(0 1.5px 0 var(--ink)) drop-shadow(0 -1.5px 0 var(--ink)) }
+  .digital { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 14px 16px; background: #fff1a8; border: 3px dashed var(--ink); border-radius: 18px; font-size: 17px; font-weight: 500 }
+  .digital > svg { width: 52px; height: 52px; flex: none }
+  .digital p { flex: 1 1 260px; margin: 0 }
+  .digital b { font-weight: 700 }
+  .digital .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px }
+  #copied { flex-basis: 100%; margin: 0; font-weight: 700; color: #1f8a60 }
+  #copied:empty { display: none }
+
+  /* The sheet is an A4 page measured in its own width, so the screen and the paper look the same */
+  .sheet { position: relative; z-index: 1; container-type: inline-size; display: flex; width: min(100%, 210mm); aspect-ratio: 210 / 297; margin: 0 auto; background: #fff; border: 3px solid var(--ink); border-radius: 12px; box-shadow: 0 8px 0 rgba(47, 42, 74, .25) }
+  .inner { flex: 1; display: flex; flex-direction: column; gap: 1.5cqw; padding: 4.6cqw 5.2cqw 3.6cqw }
+  header { display: flex; align-items: center; gap: 2.6cqw }
+  header svg { width: 11cqw; height: 11cqw; flex: none }
+  h1 { margin: 0; font-size: 6.2cqw; font-weight: 700; line-height: 1; white-space: nowrap; color: #fff; -webkit-text-stroke: .65cqw var(--ink); paint-order: stroke fill; text-shadow: 0 .6cqw 0 var(--ink) }
+  h1 .y { color: var(--yellow) } h1 .p { color: var(--pink) }
+  .pills { display: flex; flex-wrap: wrap; gap: 1.2cqw; margin-top: 1.5cqw }
+  .pill { padding: .2cqw 2cqw; background: var(--c, #fff); border: .4cqw solid var(--ink); border-radius: 999px; font-size: 2.15cqw; font-weight: 600 }
+  .box { display: inline-block; width: 3.3cqw; height: 3.3cqw; flex: none; border: .45cqw solid var(--ink); border-radius: .8cqw; background: #fff }
+  .blank { flex: 1; min-width: 12cqw; height: 3.4cqw; border-bottom: .35cqw solid var(--ink) }
+  .meta { display: grid; gap: 1.2cqw; font-size: 2.5cqw; font-weight: 600 }
+  .meta > div { display: flex; align-items: flex-end; gap: 1.4cqw }
+  .meta small { font-size: 2cqw; font-weight: 500 }
+  .marks { display: flex; gap: 2.2cqw; margin-right: 3cqw }
+  .marks span { display: flex; align-items: center; gap: .8cqw }
+
+  /* Each part is a card with a colored top edge, like the activity sheets of the kit */
+  .part { border: .5cqw solid var(--ink); border-radius: 3cqw; padding: 2.2cqw 2.6cqw 2cqw; background: linear-gradient(var(--c), var(--c)) top / 100% 1.2cqw no-repeat }
+  .n { display: grid; place-items: center; width: 3.9cqw; height: 3.9cqw; flex: none; background: var(--c); border: .4cqw solid var(--ink); border-radius: 50%; color: #fff; -webkit-text-stroke: .38cqw var(--ink); paint-order: stroke fill; font-size: 2.3cqw; font-weight: 700; line-height: 1 }
+  .q { display: flex; align-items: center; gap: 1.4cqw; font-size: 2.45cqw; font-weight: 600; line-height: 1.15 }
+  .q small { font-size: 1.95cqw; font-weight: 500 }
+
+  /* The faces: one column per face, from very sad to very happy */
+  .scale { display: grid; grid-template-columns: 1fr repeat(5, 9.2cqw); align-items: center; margin-top: .4cqw }
+  .scale .hint { font-size: 2.05cqw; font-weight: 600; line-height: 1.15; padding-right: 2cqw }
+  .scale .label { padding: 0 .4cqw .6cqw; text-align: center; font-size: 1.7cqw; font-weight: 600; line-height: 1.1; align-self: end }
+  .scale .q, .scale .face { min-height: 5.8cqw; border-top: .3cqw dashed #cfcbe6 }
+  .scale .q { padding-right: 1.5cqw }
+  .face { display: grid; place-items: center }
+  .face svg { width: 4.9cqw; height: 4.9cqw }
+  .choices { display: grid; gap: 1.2cqw }
+  .options { display: flex; flex-wrap: wrap; gap: .8cqw 3cqw; padding-left: 5.3cqw; font-size: 2.35cqw; font-weight: 500 }
+  .options span { display: flex; align-items: center; gap: 1cqw }
+  .options .other { flex: 1; min-width: 26cqw }
+  .options .other .blank { height: 2.8cqw }
+  .q.inline { flex-wrap: wrap; row-gap: .8cqw }
+  .q.inline .options { padding-left: 1.6cqw }
+
+  /* The open questions share whatever space is left, with lines to write on */
+  .open { flex: 1; display: flex; flex-direction: column; gap: 2.2cqw; min-height: 0 }
+  .write-q { flex: 1; display: flex; flex-direction: column; gap: .4cqw; min-height: 0 }
+  .write { flex: 1; display: flex; flex-direction: column; margin-left: 5.3cqw }
+  .write i { flex: 1; min-height: 3.4cqw; border-bottom: .3cqw solid var(--line) }
+  footer { text-align: center; font-size: 1.95cqw; font-weight: 500; color: var(--soft) }
+  footer b { color: var(--ink); font-weight: 700 }
+
+  #toast { position: fixed; left: 50%; bottom: 26px; z-index: 10; padding: 10px 22px; background: var(--ink); color: #fff; border-radius: 999px; font-weight: 600; opacity: 0; transform: translate(-50%, 20px); transition: .25s cubic-bezier(.3, 1.5, .6, 1); pointer-events: none }
+  #toast.show { opacity: 1; transform: translate(-50%, 0) }
+
+  @media (max-width: 480px) {
+    .btn { font-size: 18px; padding: 8px 18px }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important }
+  }
+
+  /* Printing only the sheet, on one A4 page, keeping the colors */
+  @page { size: A4; margin: 0 }
+  @media print {
+    body { min-height: 0; padding: 0; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact }
+    .sky, .screen, #toast { display: none !important }
+    .sheet { width: 210mm; height: 297mm; aspect-ratio: auto; margin: 0; border: none; border-radius: 0; box-shadow: none; break-inside: avoid }
+  }
+</style>
+</head>
+<body>
+
+<div class="sky" aria-hidden="true"><div class="cloud c1"></div><div class="cloud c2"></div><div class="hills"></div></div>
+
+<div class="screen">
+  <a class="back" href="index.html"><svg class="i"><use href="#i-left"/></svg>Oficina de Prompts</a>
+  <div class="bar">
+    <p>Uma folha A4 por professor, para responder no fim de cada encontro. Ela é anônima: não tem lugar para o nome.</p>
+    <button class="btn loud" type="button" id="print" style="--c: var(--mint)"><svg class="i" viewBox="0 0 24 24"><path d="M7 9 V3 H17 V9 M7 18 H4 V10 H20 V18 H17 M7 14 H17 V21 H7 Z" fill="#fff" stroke="#2f2a4a" stroke-width="2.4" stroke-linejoin="round"/></svg>Imprimir</button>
+  </div>
+  <div class="digital">
+    <svg viewBox="0 0 52 52" aria-hidden="true"><rect x="8" y="4" width="36" height="44" rx="5" fill="#8c73ff" stroke="#2f2a4a" stroke-width="3.5"/><circle cx="17" cy="17" r="3" fill="#fff"/><path d="M24 17 H36" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/><circle cx="17" cy="27" r="3" fill="#fff"/><path d="M24 27 H36" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/><circle cx="17" cy="37" r="3" fill="#fff"/><path d="M24 37 H32" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/></svg>
+    <p><b>Prefere digital?</b> Crie um formulário no Google Forms com estas perguntas. Para ficar anônimo, não colete os e-mails.</p>
+    <div class="actions">
+      <button class="btn small" type="button" id="copy" style="--c: #fff"><svg class="i"><use href="#i-copy"/></svg>Copiar as perguntas</button>
+      <a class="btn small" href="https://docs.google.com/forms/" target="_blank" rel="noopener" style="--c: #fff"><svg class="i"><use href="#i-out"/></svg>Abrir o Google Forms</a>
+    </div>
+    <p id="copied" role="status"></p>
+  </div>
+</div>
+
+<section class="sheet" aria-label="Folha de avaliação para imprimir">
+  <div class="inner">
+    <header>
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <rect x="9" y="8" width="46" height="53" rx="7" fill="#ffd23f" stroke="#2f2a4a" stroke-width="3.5"/>
+        <rect x="15" y="15" width="34" height="40" rx="3" fill="#fff" stroke="#2f2a4a" stroke-width="3"/>
+        <rect x="22" y="3" width="20" height="11" rx="3" fill="#8c73ff" stroke="#2f2a4a" stroke-width="3"/>
+        <circle cx="32" cy="30" r="9" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="2.6"/>
+        <circle cx="28.8" cy="28" r="1.5" fill="#2f2a4a"/><circle cx="35.2" cy="28" r="1.5" fill="#2f2a4a"/>
+        <path d="M28 32 Q32 36 36 32" fill="none" stroke="#2f2a4a" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M21 45 H43 M21 50 H36" stroke="#9fb7d6" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h1><span class="y">Avaliação</span> do <span class="p">encontro</span></h1>
+        <div class="pills"><span class="pill" style="--c: var(--yellow)">Oficina de Prompts</span><span class="pill">Anônima: não escreva o seu nome</span></div>
+      </div>
+    </header>
+
+    <div class="meta">
+      <div>Encontro nº <span class="marks"><span><i class="box"></i>1</span><span><i class="box"></i>2</span><span><i class="box"></i>3</span><span><i class="box"></i>4</span></span> Data: <span class="blank"></span></div>
+      <div><span>Escola <small>(opcional)</small>:</span><span class="blank"></span></div>
+    </div>
+
+    <div class="part" style="--c: var(--blue)">
+      <div class="scale" id="scale"></div>
+    </div>
+
+    <div class="part choices" style="--c: var(--yellow)" id="choices"></div>
+
+    <div class="part open" style="--c: var(--pink)" id="open"></div>
+
+    <footer><b>Obrigado!</b> Sua opinião ajuda a melhorar a oficina. · Engenharia de Software · UNIPAMPA</footer>
+  </div>
+</section>
+
+<div id="toast" role="status"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- The five faces, from very sad (pink) to very happy (mint) -->
+  <symbol id="face-1" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="3"/><path d="M10 13.5 L16 10.5 M30 13.5 L24 10.5" stroke="#2f2a4a" stroke-width="2.6" stroke-linecap="round"/><circle cx="14" cy="17.5" r="2.4" fill="#2f2a4a"/><circle cx="26" cy="17.5" r="2.4" fill="#2f2a4a"/><path d="M12.5 30 Q20 21.5 27.5 30" fill="none" stroke="#2f2a4a" stroke-width="3" stroke-linecap="round"/></symbol>
+  <symbol id="face-2" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#ff8a3d" stroke="#2f2a4a" stroke-width="3"/><circle cx="14" cy="16.5" r="2.4" fill="#2f2a4a"/><circle cx="26" cy="16.5" r="2.4" fill="#2f2a4a"/><path d="M13.5 28.5 Q20 24 26.5 28.5" fill="none" stroke="#2f2a4a" stroke-width="3" stroke-linecap="round"/></symbol>
+  <symbol id="face-3" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#ffd23f" stroke="#2f2a4a" stroke-width="3"/><circle cx="14" cy="16.5" r="2.4" fill="#2f2a4a"/><circle cx="26" cy="16.5" r="2.4" fill="#2f2a4a"/><path d="M13.5 26.5 H26.5" fill="none" stroke="#2f2a4a" stroke-width="3" stroke-linecap="round"/></symbol>
+  <symbol id="face-4" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#9be27a" stroke="#2f2a4a" stroke-width="3"/><circle cx="14" cy="16.5" r="2.4" fill="#2f2a4a"/><circle cx="26" cy="16.5" r="2.4" fill="#2f2a4a"/><path d="M13 24.5 Q20 30.5 27 24.5" fill="none" stroke="#2f2a4a" stroke-width="3" stroke-linecap="round"/></symbol>
+  <symbol id="face-5" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="3"/><path d="M10.5 17.5 Q14 13 17.5 17.5 M22.5 17.5 Q26 13 29.5 17.5" fill="none" stroke="#2f2a4a" stroke-width="2.6" stroke-linecap="round"/><path d="M11.5 22.5 Q20 35 28.5 22.5 Z" fill="#2f2a4a" stroke="#2f2a4a" stroke-width="2.4" stroke-linejoin="round"/><path d="M15.5 27.5 Q20 25 24.5 27.5 Q20 31.5 15.5 27.5 Z" fill="#ff8fb0"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><path d="M9 8 H19 A1.5 1.5 0 0 1 20.5 9.5 V19.5 A1.5 1.5 0 0 1 19 21 H9 A1.5 1.5 0 0 1 7.5 19.5 V9.5 A1.5 1.5 0 0 1 9 8 Z M16 8 V4.5 A1.5 1.5 0 0 0 14.5 3 H5 A1.5 1.5 0 0 0 3.5 4.5 V14.5 A1.5 1.5 0 0 0 5 16 H7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M14 3.5 H20.5 V10 M20.5 3.5 L11 13 M18 14 V20.5 H3.5 V6 H10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 4.5 L7.5 12 L15 19.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<script>
+// Writing every question once: the printed sheet and the text for Google Forms both come from here
+const SCALE = ["Não", "Pouco", "Mais ou menos", "Sim", "Muito"]
+const RATINGS = [
+  "O encontro foi claro?",
+  "O que aprendi vai ser útil na minha turma?",
+  "O ritmo foi bom?",
+  "Eu me sinto capaz de usar o Gemini sozinho(a)?",
+]
+const CHOICES = [
+  { question: "Em que etapa você dá aula?", hint: "pode marcar mais de uma", many: true, options: ["Educação Infantil", "Anos iniciais", "Anos finais", "Outra"] },
+  { question: "Usou a conta da escola no Gemini?", many: false, options: ["Sim", "Não", "Não sei"] },
+]
+const OPEN = [
+  "O que você vai usar com a sua turma?",
+  "O que podemos melhorar?",
+  "Que tema você quer no próximo encontro?",
+]
+
+const $ = id => document.getElementById(id)
+const number = n => `<span class="n">${n}</span>`
+const box = '<i class="box"></i>'
+
+// Drawing the sheet: the faces table, the boxes to mark and three lines to write on for each open question
+$("scale").innerHTML = `<div class="hint">Marque um X na carinha que combina com você:</div>` +
+  SCALE.map(label => `<div class="label">${label}</div>`).join("") +
+  RATINGS.map((question, n) => `<div class="q">${number(n + 1)}<span>${question}</span></div>` +
+    SCALE.map((label, face) => `<div class="face"><svg viewBox="0 0 40 40" role="img" aria-label="${label}"><use href="#face-${face + 1}"/></svg></div>`).join("")).join("")
+
+let next = RATINGS.length + 1
+$("choices").innerHTML = CHOICES.map(choice => {
+  const options = `<div class="options">${choice.options.map(option => option === "Outra"
+    ? `<span class="other">${box}Outra: <span class="blank"></span></span>`
+    : `<span>${box}${option}</span>`).join("")}</div>`
+  const title = `${number(next++)}<span>${choice.question}${choice.hint ? ` <small>(${choice.hint})</small>` : ""}</span>`
+  return choice.options.length > 3 ? `<div><div class="q">${title}</div>${options}</div>` : `<div class="q inline">${title}${options}</div>`
+}).join("")
+
+$("open").innerHTML = OPEN.map(question => `<div class="write-q"><div class="q">${number(next++)}<span>${question}</span></div><div class="write"><i></i><i></i><i></i></div></div>`).join("")
+
+// Writing the same questions as plain text, with the kind of question to pick in Google Forms
+function formsText() {
+  let n = 1
+  const item = (text, kind, options) => [`${n++}. ${text} [${kind}]`, ...(options || []).map(option => `   - ${option}`)].join("\n")
+  return [
+    "Avaliação do encontro - Oficina de Prompts para Professores",
+    "Descrição: Esta avaliação é anônima. Não escreva o seu nome.",
+    "",
+    item("Encontro nº", "Múltipla escolha", ["1", "2", "3", "4"]),
+    item("Data", "Data"),
+    item("Escola (opcional)", "Resposta curta"),
+    ...RATINGS.map(question => item(question, `Escala linear de 1 a 5: 1 = ${SCALE[0]}, 5 = ${SCALE.at(-1)}`)),
+    ...CHOICES.map(choice => item(`${choice.question}${choice.hint ? ` (${choice.hint})` : ""}`, choice.many ? "Caixas de seleção" : "Múltipla escolha", choice.options)),
+    ...OPEN.map(question => item(question, "Parágrafo")),
+    "",
+    "Para ficar anônimo: nas configurações do formulário, escolha não coletar os e-mails.",
+  ].join("\n")
+}
+
+let toastTimer
+function toast(text) {
+  $("toast").textContent = text
+  $("toast").classList.add("show")
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => $("toast").classList.remove("show"), 1800)
+}
+
+// Copying with the clipboard API, and falling back to a hidden text box when the page was opened from a file
+async function copy(text) {
+  try {
+    await navigator.clipboard.writeText(text)
+  } catch {
+    const area = Object.assign(document.createElement("textarea"), { value: text })
+    document.body.append(area)
+    area.select()
+    document.execCommand("copy")
+    area.remove()
+  }
+}
+
+$("copy").addEventListener("click", async () => {
+  await copy(formsText())
+  $("copied").textContent = "Copiado! Agora cole num formulário novo do Google Forms e crie as perguntas."
+  toast("Perguntas copiadas!")
+})
+$("print").addEventListener("click", () => window.print())
+</script>
+</body>
+</html>

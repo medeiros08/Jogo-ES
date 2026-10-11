@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Galeria de jogos dos professores</title>
+<meta name="description" content="Os jogos que os professores criaram com o Gemini na Oficina de Prompts. Jogue, copie o link ou envie o seu jogo.">
+<meta name="theme-color" content="#5fbcff">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='20' width='72' height='60' rx='16' fill='%234da3ff' stroke='%231d2a44' stroke-width='6'/><circle cx='36' cy='48' r='9' fill='%23fff'/><circle cx='64' cy='48' r='9' fill='%23fff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky1: #5fbcff; --sky2: #cdeeff; --hill: #8ddf6a; --hill2: #6cc653;
+    --ink: #2f2a4a; --soft: #5d5880; --line: #cfcbe6;
+    --blue: #4da3ff; --pink: #ff5f8f; --mint: #4fd6a6; --orange: #ff8a3d; --purple: #8c73ff; --yellow: #ffd23f;
+    --font: "Fredoka", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent }
+  [hidden] { display: none !important }
+  html { scroll-behavior: smooth }
+  body { margin: 0; min-height: 100vh; background: var(--sky2); color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.45 }
+  button { font: inherit; color: inherit; cursor: pointer }
+  a { color: inherit; font-weight: 600 }
+  .i { width: 1.15em; height: 1.15em; flex: none; overflow: visible }
+  .g { transform-box: fill-box; transform-origin: center }
+
+  /* The scenery behind everything: sky, drifting clouds, floating bits of code and two hills */
+  .sky { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 78%) }
+  .cloud { position: absolute; background: #fff; border-radius: 999px; opacity: .92; animation: drift 46s linear infinite }
+  .cloud::before, .cloud::after { content: ""; position: absolute; background: #fff; border-radius: 50% }
+  .cloud::before { width: 55%; height: 160%; left: 15%; bottom: 20% }
+  .cloud::after { width: 40%; height: 130%; right: 12%; bottom: 25% }
+  .c1 { width: 130px; height: 36px; top: 9%; animation-delay: -8s }
+  .c2 { width: 92px; height: 26px; top: 36%; animation-duration: 60s; animation-delay: -30s }
+  .c3 { width: 160px; height: 42px; top: 4%; animation-duration: 75s; animation-delay: -50s; opacity: .7 }
+  @keyframes drift { from { transform: translateX(-30vw) } to { transform: translateX(130vw) } }
+  .bit { position: absolute; font-weight: 700; color: rgba(255, 255, 255, .6); font-size: 24px; animation: float 9s ease-in-out infinite }
+  .b1 { left: 5%; top: 20% } .b2 { right: 7%; top: 13%; animation-delay: -2s } .b3 { left: 10%; top: 62%; animation-delay: -4s } .b4 { right: 12%; top: 48%; animation-delay: -1s }
+  @keyframes float { 50% { transform: translateY(-16px) rotate(8deg) } }
+  .hills { position: absolute; left: 0; right: 0; bottom: 0; height: 17vh }
+  .hills::before, .hills::after { content: ""; position: absolute; bottom: -40%; border-radius: 50% }
+  .hills::before { left: -20%; width: 90%; height: 140%; background: var(--hill) }
+  .hills::after { right: -25%; width: 95%; height: 120%; background: var(--hill2) }
+  .page { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: max(18px, env(safe-area-inset-top)) 16px 30px }
+
+  /* Buttons: thick outline and a hard shadow, like the buttons of the games */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; padding: 8px 20px; background: var(--c, #fff); color: var(--ink); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 5px 0 var(--ink); font-weight: 700; font-size: 19px; text-decoration: none; white-space: nowrap; transition: transform .1s, box-shadow .1s }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--ink) }
+  .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink) }
+  .btn.white { background: #fff }
+  .btn.small { min-height: 44px; padding: 5px 14px; font-size: 16px; box-shadow: 0 4px 0 var(--ink) }
+  .btn.whatsapp { --c: #6be08f }
+  .btn.off { background: rgba(255, 255, 255, .6); border-style: dashed; box-shadow: none; color: var(--soft); font-size: 16px; cursor: default; transform: none }
+  .loud { color: #fff; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; letter-spacing: .3px }
+  .loud .i { filter: drop-shadow(1.5px 0 0 var(--ink)) drop-shadow(-1.5px 0 0 var(--ink)) drop-shadow(0 1.5px 0 var(--ink)) drop-shadow(0 -1.5px 0 var(--ink)) }
+  .back { display: inline-flex; align-items: center; gap: 4px; padding: 3px 14px 3px 8px; background: #fff; border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink); font-size: 15px; text-decoration: none }
+  .back .i { width: 18px; height: 18px }
+
+  /* Top: title, Bit the robot with his graduation cap, and the shortcuts */
+  .hero { text-align: center }
+  .hero .back { margin-bottom: 4px }
+  h1 { margin: 10px 0 0; font-size: clamp(44px, 11vw, 80px); font-weight: 700; line-height: 1.02; color: #fff; -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; text-shadow: 0 6px 0 var(--ink) }
+  h1 span { display: inline-block; animation: hop 3.4s ease-in-out infinite }
+  h1 .w1 { color: var(--yellow) } h1 .w2 { animation-delay: .2s } h1 .w3 { color: var(--pink); animation-delay: .4s }
+  @keyframes hop { 0%, 78%, 100% { transform: translateY(0) } 86% { transform: translateY(-9px) rotate(-3deg) } 93% { transform: translateY(0) rotate(1deg) } }
+  .tagline { display: inline-block; margin: 14px 0 0; padding: 4px 16px; background: var(--ink); color: #fff; border-radius: 999px; font-weight: 600; font-size: clamp(15px, 4vw, 18px) }
+  .hello { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 16px auto 0; max-width: 760px }
+  .bot { width: clamp(88px, 24vw, 124px); flex: none; overflow: visible }
+  .bot-body { animation: bob 2.6s ease-in-out infinite }
+  @keyframes bob { 50% { transform: translateY(-5px) } }
+  .bot-eyes { animation: blink 4.2s infinite }
+  @keyframes blink { 0%, 91%, 97%, 100% { transform: scaleY(1) } 94% { transform: scaleY(.1) } }
+  .cap { animation: cap 3s ease-in-out infinite }
+  @keyframes cap { 50% { transform: rotate(-7deg) translateY(-2px) } }
+  .bubble { position: relative; margin: 0; padding: 12px 18px; background: #fff; border: 4px solid var(--ink); border-radius: 24px; box-shadow: 0 5px 0 rgba(47, 42, 74, .25); font-size: clamp(16px, 4.3vw, 21px); font-weight: 600; text-align: left }
+  .bubble::before { content: ""; position: absolute; left: -15px; top: 50%; margin-top: -11px; border: 11px solid transparent; border-right-color: var(--ink); border-left: 0 }
+  .bubble::after { content: ""; position: absolute; left: -8px; top: 50%; margin-top: -7px; border: 7px solid transparent; border-right-color: #fff; border-left: 0 }
+  .nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 20px 0 0 }
+  .nav a { padding: 6px 16px; background: var(--c); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 4px 0 var(--ink); font-weight: 700; text-decoration: none; transition: transform .1s }
+  .nav a:hover { transform: translateY(-3px) rotate(-2deg) }
+
+  /* Section titles drawn like the title of the page */
+  .sec { margin-top: 52px; scroll-margin-top: 16px }
+  .sec-title { margin: 0; font-size: clamp(34px, 8.5vw, 52px); font-weight: 700; line-height: 1.05; color: var(--c); -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; text-shadow: 0 5px 0 var(--ink) }
+  .sec-sub { margin: 12px 0 20px; font-size: 19px; font-weight: 600 }
+
+  /* Filters by stage: one colored pill each, with how many games it has */
+  .filters { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 22px }
+  .filters button { display: inline-flex; align-items: center; gap: 8px; padding: 5px 8px 5px 16px; background: #fff; border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 4px 0 var(--ink); font-weight: 700; transition: transform .1s, box-shadow .1s }
+  .filters button:hover { transform: translateY(-2px) }
+  .filters button[aria-pressed="true"] { background: var(--c); transform: translateY(-2px); box-shadow: 0 6px 0 var(--ink) }
+  .filters b { display: grid; place-items: center; min-width: 28px; height: 28px; padding: 0 6px; background: var(--ink); color: #fff; border-radius: 999px; font-size: 15px }
+  .note-line { display: flex; align-items: center; gap: 10px; margin: -6px 0 20px; font-weight: 500 }
+  .note-line .i { width: 26px; height: 26px }
+
+  /* Game cards: a colored stage with a little scene of the subject, then the text and the buttons */
+  .games { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 26px 24px }
+  .game { display: flex; flex-direction: column; overflow: hidden; background: #fff; border: 4px solid var(--ink); border-radius: 28px; box-shadow: 0 8px 0 rgba(47, 42, 74, .28); animation: rise .55s cubic-bezier(.3, 1.4, .6, 1) backwards; animation-delay: var(--d, 0s); transition: transform .25s cubic-bezier(.3, 1.5, .6, 1) }
+  .game:hover { transform: translateY(-6px) rotate(-1deg) }
+  .game:nth-child(even):hover { transform: translateY(-6px) rotate(1deg) }
+  @keyframes rise { from { opacity: 0; transform: translateY(30px) scale(.94) } }
+  .stage { position: relative; height: 150px; overflow: hidden; background-color: var(--c); background-image: radial-gradient(rgba(255, 255, 255, .3) 2px, transparent 2.5px); background-size: 18px 18px; border-bottom: 4px solid var(--ink) }
+  .stage svg { position: absolute; inset: 0; width: 100%; height: 100% }
+  .tag { position: absolute; left: 12px; top: 12px; padding: 1px 12px; background: #fff; border: 3px solid var(--ink); border-radius: 999px; font-size: 14px; font-weight: 700 }
+  .game .body { display: flex; flex: 1; flex-direction: column; gap: 6px; padding: 14px 18px 18px }
+  .game h3 { margin: 0; font-size: 25px; font-weight: 700; line-height: 1.1; overflow-wrap: anywhere }
+  .game p { margin: 0; font-weight: 500; color: var(--soft); overflow-wrap: anywhere }
+  .game .meta { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--ink) }
+  .dot { width: 14px; height: 14px; flex: none; background: var(--c); border: 3px solid var(--ink); border-radius: 50% }
+  .game .by { display: flex; align-items: center; gap: 8px; font-size: 15px }
+  .game .by .i { width: 16px; height: 16px; color: var(--ink) }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: auto; padding-top: 10px }
+  .row .grow { flex: 1 }
+  .none { grid-column: 1 / -1; margin: 0; padding: 16px 20px; background: rgba(255, 255, 255, .7); border: 3px dashed var(--ink); border-radius: 20px; font-weight: 600 }
+
+  /* The scenes inside the game cards */
+  .s-hop { animation: s-hop 1.8s ease-in-out infinite }
+  @keyframes s-hop { 0%, 60%, 100% { transform: translateY(0) } 30% { transform: translateY(-12px) rotate(-4deg) } }
+  .twinkle { animation: twinkle 2s ease-in-out infinite }
+  .late { animation-delay: -1s }
+  @keyframes twinkle { 50% { transform: scale(.6) rotate(30deg) } }
+  .s-pulse { animation: s-pulse 1.6s ease-in-out infinite }
+  @keyframes s-pulse { 50% { transform: scale(1.15) } }
+  .s-bubble { animation: s-bubble 2.4s ease-in infinite }
+  @keyframes s-bubble { 0% { transform: translateY(0); opacity: 0 } 15% { opacity: 1 } 100% { transform: translateY(-46px); opacity: 0 } }
+  .s-flip { animation: s-flip 4s ease-in-out infinite }
+  @keyframes s-flip { 0%, 70% { transform: rotate(0) } 90%, 100% { transform: rotate(180deg) } }
+  .s-wiggle { animation: s-wiggle 1.4s ease-in-out infinite alternate }
+  @keyframes s-wiggle { from { transform: rotate(-10deg) } to { transform: rotate(12deg) } }
+  .s-bounce { animation: s-bounce 1.1s infinite }
+  @keyframes s-bounce { 0%, 100% { transform: translateY(0); animation-timing-function: cubic-bezier(.2, .6, .4, 1) } 50% { transform: translateY(-46px); animation-timing-function: cubic-bezier(.6, 0, .8, .4) } }
+  .s-shadow { animation: s-shadow 1.1s infinite }
+  @keyframes s-shadow { 0%, 100% { transform: scale(1) } 50% { transform: scale(.55); opacity: .5 } }
+  .s-float { animation: float 3s ease-in-out infinite }
+
+  /* The empty gallery: a frame on the wall still waiting for its game */
+  .empty { display: grid; grid-template-columns: auto 1fr; gap: 10px 28px; align-items: center; padding: 24px 26px; background: #fff; border: 4px solid var(--ink); border-radius: 30px; box-shadow: 0 8px 0 rgba(47, 42, 74, .28) }
+  .empty > svg { width: 260px; overflow: visible }
+  .empty h3 { margin: 0 0 6px; font-size: clamp(26px, 6vw, 34px); line-height: 1.1 }
+  .empty p { margin: 0 0 16px; font-size: 19px; font-weight: 500 }
+  .frame-swing { transform-box: view-box; transform-origin: 120px 8px; animation: swing 4s ease-in-out infinite }
+  @keyframes swing { 0%, 100% { transform: rotate(-2.5deg) } 50% { transform: rotate(2.5deg) } }
+
+  /* Sending a game: how to get the link, the care and the form */
+  .send-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start }
+  .card { padding: 20px 22px; background: #fff; border: 4px solid var(--ink); border-radius: 26px; box-shadow: 0 7px 0 rgba(47, 42, 74, .25) }
+  .card + .card { margin-top: 22px }
+  .card h3 { margin: 0 0 14px; font-size: 25px; line-height: 1.15 }
+  .steps { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none }
+  .steps li { display: flex; align-items: center; gap: 14px; font-weight: 500 }
+  .steps b { font-weight: 700 }
+  .pic { position: relative; display: grid; place-items: center; width: 62px; height: 62px; flex: none; background: var(--c); border: 3px solid var(--ink); border-radius: 18px; box-shadow: 0 4px 0 var(--ink) }
+  .pic svg { width: 38px; height: 38px; overflow: visible }
+  .pic span { position: absolute; left: -9px; top: -9px; display: grid; place-items: center; width: 26px; height: 26px; background: var(--ink); color: #fff; border-radius: 50%; font-size: 15px; font-weight: 700 }
+  .small-print { margin: 14px 0 0; padding: 10px 14px; background: var(--sky2); border-radius: 14px; font-size: 16px; font-weight: 500 }
+  ul.care { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none }
+  ul.care li { display: flex; align-items: center; gap: 14px; font-weight: 500 }
+  ul.care b { font-weight: 700 }
+  .badge { display: grid; place-items: center; width: 50px; height: 50px; flex: none; background: var(--c); border: 3px solid var(--ink); border-radius: 50% }
+  .badge svg { width: 26px; height: 26px }
+  label { display: block; margin-bottom: 14px; font-weight: 600 }
+  label small { font-weight: 500 }
+  select, input[type=text], input[type=url], textarea { display: block; width: 100%; margin-top: 6px; padding: 10px 14px; border: 3px solid var(--line); border-radius: 14px; background: #fff; font: 500 17px var(--font); color: var(--ink) }
+  select:focus, input:focus, textarea:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 4px rgba(77, 163, 255, .35) }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px }
+  .missing { border-color: var(--pink) !important; background: #fff4f7 }
+  .preview-title { display: block; margin: 4px 0 6px; font-weight: 600 }
+  #message { height: 210px; margin: 0 0 14px; background: #f3f8ff; border: 3px dashed rgba(47, 42, 74, .3); font-size: 15px; resize: vertical }
+  .check-first { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding: 10px 14px; background: #fff1a8; border: 3px dashed var(--ink); border-radius: 16px; font-weight: 600 }
+  .check-first svg { width: 34px; height: 34px; flex: none }
+  .send { display: flex; flex-wrap: wrap; gap: 12px }
+  .send .btn { flex: 1 1 200px }
+  #form-status { margin: 14px 0 0; padding: 10px 14px; background: #ffd6e3; border: 3px solid var(--ink); border-radius: 14px; font-weight: 600; overflow-wrap: anywhere }
+
+  /* The example games made by the course team */
+  .tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 22px }
+  .tool { display: flex; gap: 16px; align-items: center; padding: 18px; background: #fff; border: 4px solid var(--ink); border-radius: 26px; box-shadow: 0 7px 0 rgba(47, 42, 74, .25); text-decoration: none; transition: transform .25s cubic-bezier(.3, 1.5, .6, 1) }
+  .tool:hover { transform: translateY(-5px) rotate(-1deg) }
+  .tool > svg { width: 72px; height: 72px; flex: none; overflow: visible; padding: 4px; background: var(--c); border: 3px solid var(--ink); border-radius: 20px }
+  .tool h3 { margin: 0 0 4px; font-size: 21px; font-weight: 700; line-height: 1.15 }
+  .tool p { margin: 0; font-weight: 500 }
+  .r-star { animation: r-star 2.6s ease-in-out infinite }
+  @keyframes r-star { 0%, 60%, 100% { transform: scale(1) rotate(0) } 75% { transform: scale(1.3) rotate(25deg) } }
+  .n-slash { stroke-dasharray: 80; animation: n-slash 2.4s infinite }
+  @keyframes n-slash { 0%, 40% { stroke-dashoffset: 80; opacity: 1 } 55% { stroke-dashoffset: 0; opacity: 1 } 75%, 100% { stroke-dashoffset: 0; opacity: 0 } }
+  .c-flow { stroke-dasharray: 3 5; animation: c-flow .7s linear infinite }
+  @keyframes c-flow { to { stroke-dashoffset: -8 } }
+
+  footer { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 40px 16px 26px; text-align: center; font-weight: 600 }
+  footer p { margin: 0 }
+
+  #toast { position: fixed; left: 50%; bottom: 26px; z-index: 10; padding: 10px 22px; background: var(--ink); color: #fff; border-radius: 999px; font-weight: 600; opacity: 0; transform: translate(-50%, 20px); transition: .25s cubic-bezier(.3, 1.5, .6, 1); pointer-events: none }
+  #toast.show { opacity: 1; transform: translate(-50%, 0) }
+
+  @media (max-width: 860px) {
+    .send-grid { grid-template-columns: 1fr }
+  }
+  @media (max-width: 600px) {
+    .empty { grid-template-columns: 1fr; padding: 20px 18px; text-align: center }
+    .empty > svg { width: 220px; margin: 0 auto }
+    .card { padding: 18px 16px }
+    .pair { grid-template-columns: 1fr }
+    .btn { font-size: 18px }
+    .stage { height: 138px }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important }
+  }
+</style>
+</head>
+<body>
+
+<div class="sky" aria-hidden="true">
+  <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+  <span class="bit b1">&lt;/&gt;</span><span class="bit b2">{ }</span><span class="bit b3">01</span><span class="bit b4">if</span>
+  <div class="hills"></div>
+</div>
+
+<div class="page">
+<header class="hero">
+  <a class="back" href="index.html"><svg class="i"><use href="#i-left"/></svg>Oficina de Prompts</a>
+  <h1><span class="w1">Galeria</span> <span class="w2">de</span> <span class="w3">jogos</span></h1>
+  <p class="tagline">feitos pelos professores na oficina</p>
+  <div class="hello">
+    <svg class="bot" viewBox="0 0 100 110" aria-hidden="true">
+      <g class="bot-body">
+        <g transform="translate(0 10)">
+          <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+          <g class="g bot-eyes"><circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/><circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/></g>
+          <circle cx="27" cy="57" r="4" fill="#ff8fb0"/><circle cx="73" cy="57" r="4" fill="#ff8fb0"/>
+          <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+        </g>
+        <g class="g cap"><path d="M12 22 L50 6 L88 22 L50 38 Z" fill="#2f2a4a"/><path d="M30 28 V38 Q50 47 70 38 V28" fill="#2f2a4a"/><path d="M80 25 V44" stroke="#ffd23f" stroke-width="4" stroke-linecap="round"/><circle cx="80" cy="46" r="5" fill="#ffd23f"/></g>
+      </g>
+    </svg>
+    <p class="bubble">Aqui ficam os jogos que os professores criaram com o Gemini. Toque em Jogar para abrir um jogo.</p>
+  </div>
+  <nav class="nav">
+    <a href="#jogos" style="--c: var(--yellow)">Jogos dos professores</a>
+    <a href="#enviar" style="--c: var(--mint)">Enviar o meu jogo</a>
+    <a href="#exemplos" style="--c: var(--pink)">Exemplos</a>
+  </nav>
+</header>
+
+<main>
+<section class="sec" id="jogos">
+  <h2 class="sec-title" style="--c: var(--yellow)">Jogos dos professores</h2>
+  <p class="sec-sub" id="count"></p>
+  <div class="filters" id="filters" role="group" aria-label="Mostrar os jogos de uma etapa"></div>
+  <p class="note-line" id="note-line"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14 L14 10 M8.5 11.5 L6 14 A3.5 3.5 0 0 0 11 19 L13.5 16.5 M15.5 12.5 L18 10 A3.5 3.5 0 0 0 13 5 L10.5 7.5" fill="none" stroke="#2f2a4a" stroke-width="2.6" stroke-linecap="round"/></svg>Os jogos abrem no site do Gemini, numa aba nova. Teste antes da aula.</p>
+  <div class="games" id="games"></div>
+
+  <div class="empty" id="empty" hidden>
+    <svg viewBox="0 0 260 170" aria-hidden="true">
+      <g class="g twinkle"><use href="#star" x="8" y="10" width="34" height="34"/></g>
+      <g class="g twinkle late"><use href="#star" x="214" y="2" width="26" height="26"/></g>
+      <g class="frame-swing">
+        <path d="M120 8 L70 40 M120 8 L170 40" stroke="#2f2a4a" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="120" cy="8" r="6" fill="#ff8a3d" stroke="#2f2a4a" stroke-width="3"/>
+        <rect x="52" y="36" width="136" height="100" rx="12" fill="#ffd23f" stroke="#2f2a4a" stroke-width="5"/>
+        <rect x="68" y="51" width="104" height="70" rx="8" fill="#fff" stroke="#b9d3ee" stroke-width="4" stroke-dasharray="8 7"/>
+        <g opacity=".45"><rect x="94" y="72" width="52" height="28" rx="14" fill="none" stroke="#8c73ff" stroke-width="4"/><path d="M106 80 V92 M100 86 H112" stroke="#8c73ff" stroke-width="4" stroke-linecap="round"/><circle cx="131" cy="81" r="3.5" fill="#8c73ff"/><circle cx="137" cy="90" r="3.5" fill="#8c73ff"/></g>
+      </g>
+      <g class="g s-hop"><use href="#bot" x="176" y="84" width="80" height="80"/></g>
+    </svg>
+    <div>
+      <h3>Ainda não tem jogos aqui.</h3>
+      <p>Os primeiros aparecem depois do Encontro 3. Fez um jogo com o Gemini? Envie o link para ele entrar na galeria.</p>
+      <a class="btn loud" href="#enviar" style="--c: var(--mint)"><svg class="i"><use href="#i-send"/></svg>Enviar o meu jogo</a>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="enviar">
+  <h2 class="sec-title" style="--c: var(--mint)">Enviar o meu jogo</h2>
+  <p class="sec-sub">Fez um jogo no Canvas do Gemini? Mande o link para quem organiza a oficina.</p>
+  <div class="send-grid">
+    <div>
+      <div class="card">
+        <h3>Como pegar o link</h3>
+        <ol class="steps">
+          <li><span class="pic" style="--c: var(--blue)"><span>1</span><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="3" y="6" width="34" height="28" rx="5" fill="#fff" stroke="#2f2a4a" stroke-width="3.5"/><path d="M3 14 H37" stroke="#2f2a4a" stroke-width="3"/><circle cx="9" cy="10" r="1.6" fill="#2f2a4a"/><circle cx="14" cy="10" r="1.6" fill="#2f2a4a"/><path d="M16 19 L26 24.5 L16 30 Z" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="2.5" stroke-linejoin="round"/></svg></span><span>No Gemini, abra a conversa do jogo e deixe o jogo aberto no <b>Canvas</b>.</span></li>
+          <li><span class="pic" style="--c: var(--yellow)"><span>2</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 V14 M7.5 7.5 L12 3 L16.5 7.5 M5 11 V20.5 H19 V11" fill="none" stroke="#2f2a4a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Toque em <b>Compartilhar</b> e crie o link público. Copie o link.</span></li>
+          <li><span class="pic" style="--c: var(--purple)"><span>3</span><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 18 L12 6 Q20 9 28 6 L32 18 Z" fill="#2f2a4a"/><path d="M3 19 H37" stroke="#2f2a4a" stroke-width="3.5" stroke-linecap="round"/><circle cx="12.5" cy="28" r="6" fill="#fff" stroke="#2f2a4a" stroke-width="3.5"/><circle cx="27.5" cy="28" r="6" fill="#fff" stroke="#2f2a4a" stroke-width="3.5"/><path d="M18.5 27 Q20 25.5 21.5 27" fill="none" stroke="#2f2a4a" stroke-width="3"/></svg></span><span>Cole o link numa <b>janela anônima</b> do navegador. Se o jogo abrir sem pedir para entrar na conta, o link está pronto.</span></li>
+          <li><span class="pic" style="--c: var(--mint)"><span>4</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3 L3 10.5 L10 13.5 L13.5 21 Z M10 13.5 L21 3" fill="#fff" stroke="#2f2a4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Preencha o formulário e envie a mensagem.</span></li>
+        </ol>
+        <p class="small-print">Janela anônima no Chrome: menu <b>⋮</b> e depois <b>Nova janela anônima</b>. Com a conta da escola, o link às vezes só abre para quem é da escola: o teste mostra isso.</p>
+      </div>
+      <div class="card">
+        <h3>Cuidados</h3>
+        <ul class="care">
+          <li><span class="badge" style="--c: var(--pink)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12 Q12 3 21.5 12 Q12 21 2.5 12 Z M4 20 L20 4" fill="none" stroke="#2f2a4a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="#2f2a4a"/></svg></span><span><b>Sem nomes nem fotos das crianças</b> no jogo.</span></li>
+          <li><span class="badge" style="--c: var(--blue)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14 L14 10 M8.5 11.5 L6 14 A3.5 3.5 0 0 0 11 19 L13.5 16.5 M15.5 12.5 L18 10 A3.5 3.5 0 0 0 13 5 L10.5 7.5" fill="none" stroke="#2f2a4a" stroke-width="2.6" stroke-linecap="round"/></svg></span><span><b>Envie só o link de compartilhar.</b> Não precisa mandar arquivo, print nem a conversa.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <form class="card" id="send-form" autocomplete="off" novalidate>
+      <h3>Dados do jogo</h3>
+      <label>Nome do jogo
+        <input type="text" id="f-titulo" maxlength="80" placeholder="Por exemplo: Caça às frações">
+      </label>
+      <div class="pair">
+        <label>Turma
+          <select id="f-turma"></select>
+        </label>
+        <label>Componente
+          <input type="text" id="f-componente" list="componentes" maxlength="60" placeholder="Por exemplo: Matemática">
+        </label>
+      </div>
+      <datalist id="componentes"></datalist>
+      <label>Link do jogo
+        <input type="url" id="f-link" inputmode="url" placeholder="https://gemini.google.com/share/...">
+      </label>
+      <label>Em uma frase, o que a criança faz no jogo? <small>(opcional)</small>
+        <input type="text" id="f-descricao" maxlength="120" placeholder="Por exemplo: toca nas pizzas que mostram a metade">
+      </label>
+      <div class="pair">
+        <label>Seu primeiro nome <small>(opcional)</small>
+          <input type="text" id="f-autor" maxlength="30" placeholder="Por exemplo: Ana">
+        </label>
+        <label>Escola <small>(opcional)</small>
+          <input type="text" id="f-escola" maxlength="80">
+        </label>
+      </div>
+      <span class="preview-title">A mensagem fica assim:</span>
+      <textarea id="message" readonly aria-label="Mensagem para quem organiza a oficina"></textarea>
+      <div class="check-first"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="3"/><path d="M11 18.5 L16 23.5 L25 13" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>Antes de enviar: o link abriu na janela anônima? O jogo não tem nomes nem fotos de crianças?</div>
+      <div class="send">
+        <a class="btn whatsapp" id="send-whatsapp" href="https://wa.me/" target="_blank" rel="noopener"><svg class="i"><use href="#i-chat"/></svg>Enviar pelo WhatsApp</a>
+        <button class="btn white" type="button" id="send-copy"><svg class="i"><use href="#i-copy"/></svg>Copiar mensagem</button>
+      </div>
+      <p id="form-status" role="status" hidden></p>
+    </form>
+  </div>
+</section>
+
+<section class="sec" id="exemplos">
+  <h2 class="sec-title" style="--c: var(--pink)">Exemplos feitos pela equipe do curso</h2>
+  <p class="sec-sub">Quatro jogos para crianças, para ter ideias do que pedir ao Gemini.</p>
+  <div class="tools">
+    <a class="tool" href="../escola/robo/index.html">
+      <svg viewBox="0 0 64 64" aria-hidden="true" style="--c: var(--blue)"><use href="#bot" x="0" y="12" width="40" height="40"/><g class="g r-star"><use href="#star" x="32" y="28" width="28" height="28"/></g></svg>
+      <div><h3>Robô pega a estrela</h3><p>Monte as setas e leve o robô até a estrela.</p></div>
+    </a>
+    <a class="tool" href="../escola/ninja/index.html">
+      <svg viewBox="0 0 64 64" aria-hidden="true" style="--c: var(--pink)"><use href="#bug" x="12" y="12" width="40" height="40"/><path class="n-slash" d="M8 52 L56 10" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>
+      <div><h3>Ninja dos Bugs</h3><p>Deslize o dedo para cortar os bugs, sem cortar o robô.</p></div>
+    </a>
+    <a class="tool" href="../escola/dupla/index.html">
+      <svg viewBox="0 0 64 64" aria-hidden="true" style="--c: var(--mint)"><g class="g s-hop"><use href="#bot" x="0" y="26" width="34" height="34"/></g><use href="#bot" x="30" y="26" width="34" height="34"/><rect x="30" y="2" width="30" height="20" rx="6" fill="#fff" stroke="#1d2a44" stroke-width="3"/><path d="M38 12 H52 M47 7 L52 12 L47 17" stroke="#1d2a44" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div><h3>Programação em Dupla</h3><p>Um pilota o robô e o outro mostra o caminho.</p></div>
+    </a>
+    <a class="tool" href="../escola/conecta/index.html">
+      <svg viewBox="0 0 64 64" aria-hidden="true" style="--c: var(--orange)"><path d="M12 40 H52" stroke="#1d2a44" stroke-width="6" stroke-linecap="round"/><path class="c-flow" d="M52 40 H12" stroke="#fff" stroke-width="2" stroke-linecap="round"/><use href="#cellphone" x="-2" y="18" width="28" height="40"/><use href="#server" x="18" y="12" width="28" height="48"/><use href="#database" x="40" y="22" width="26" height="34"/></svg>
+      <div><h3>Conecta o Sistema</h3><p>Ligue o celular ao servidor e ao banco de dados.</p></div>
+    </a>
+  </div>
+</section>
+</main>
+</div>
+
+<footer>
+  <a class="back" href="index.html"><svg class="i"><use href="#i-left"/></svg>Voltar para a Oficina de Prompts</a>
+  <p>Curso de Engenharia de Software · UNIPAMPA · Campus Alegrete</p>
+</footer>
+
+<div id="toast" role="status"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="bot" viewBox="0 0 100 100">
+    <line x1="50" y1="8" x2="50" y2="22" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="50" cy="8" r="6" fill="#ff4d4d"/>
+    <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="38" cy="44" r="9" fill="#fff"/><circle cx="62" cy="44" r="9" fill="#fff"/>
+    <circle cx="40" cy="45" r="4" fill="#1d2a44"/><circle cx="64" cy="45" r="4" fill="#1d2a44"/>
+    <path d="M40 60 q10 7 20 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <rect x="30" y="72" width="40" height="20" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+  </symbol>
+  <symbol id="star" viewBox="0 0 100 100">
+    <polygon points="50,6 62,38 96,38 68,58 79,92 50,72 21,92 32,58 4,38 38,38" fill="#ffd84d" stroke="#e0a800" stroke-width="5" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="bug" viewBox="0 0 100 100">
+    <path d="M26 54 10 46M24 67 8 70M29 81 17 93M74 54 90 46M76 67 92 70M71 81 83 93M43 18 35 6M57 18 65 6" stroke="#1d2a44" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <circle cx="35" cy="6" r="5" fill="#ff4d4d" stroke="#1d2a44" stroke-width="3"/><circle cx="65" cy="6" r="5" fill="#ff4d4d" stroke="#1d2a44" stroke-width="3"/>
+    <ellipse cx="50" cy="64" rx="30" ry="29" fill="#ff4d4d" stroke="#1d2a44" stroke-width="5"/>
+    <path d="M50 40V91" stroke="#b52a2a" stroke-width="4"/>
+    <circle cx="38" cy="58" r="6" fill="#b52a2a"/><circle cx="63" cy="56" r="5" fill="#b52a2a"/><circle cx="62" cy="78" r="6" fill="#b52a2a"/><circle cx="38" cy="79" r="4" fill="#b52a2a"/>
+    <circle cx="50" cy="30" r="17" fill="#1d2a44"/>
+    <circle cx="43" cy="29" r="6.5" fill="#fff"/><circle cx="57" cy="29" r="6.5" fill="#fff"/>
+    <circle cx="44" cy="30" r="3" fill="#1d2a44"/><circle cx="58" cy="30" r="3" fill="#1d2a44"/>
+    <path d="M45 39q5 4 10 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="cellphone" viewBox="0 0 100 100">
+    <rect x="26" y="6" width="48" height="88" rx="10" fill="#fff" stroke="#1d2a44" stroke-width="5"/>
+    <rect x="33" y="16" width="34" height="58" rx="4" fill="#8cc4ff"/>
+    <circle cx="57" cy="30" r="7" fill="#ffd84d"/>
+    <path d="M33 74 V58 Q42 46 50 56 Q58 48 67 58 V74 Z" fill="#3cc26b"/>
+    <circle cx="50" cy="84" r="4" fill="#1d2a44"/>
+  </symbol>
+  <symbol id="server" viewBox="0 0 100 100">
+    <rect x="18" y="8" width="64" height="84" rx="10" fill="#ff9a3c" stroke="#1d2a44" stroke-width="5"/>
+    <rect x="28" y="20" width="44" height="15" rx="4" fill="#fff" stroke="#1d2a44" stroke-width="4"/>
+    <rect x="28" y="43" width="44" height="15" rx="4" fill="#fff" stroke="#1d2a44" stroke-width="4"/>
+    <rect x="28" y="66" width="44" height="15" rx="4" fill="#fff" stroke="#1d2a44" stroke-width="4"/>
+    <circle cx="62" cy="27.5" r="4" fill="#3cc26b"/><circle cx="62" cy="50.5" r="4" fill="#3cc26b"/><circle cx="62" cy="73.5" r="4" fill="#3cc26b"/>
+  </symbol>
+  <symbol id="database" viewBox="0 0 100 100">
+    <path d="M20 22 V78 A30 12 0 0 0 80 78 V22" fill="#ffd84d" stroke="#1d2a44" stroke-width="5"/>
+    <path d="M20 41 A30 12 0 0 0 80 41 M20 60 A30 12 0 0 0 80 60" fill="none" stroke="#1d2a44" stroke-width="4"/>
+    <ellipse cx="50" cy="22" rx="30" ry="12" fill="#ffe88a" stroke="#1d2a44" stroke-width="5"/>
+  </symbol>
+  <!-- Small icons for the buttons, drawn with the same thick lines -->
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5 L19.5 12 L7 19.5 Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3 L3 10.5 L10 13.5 L13.5 21 Z M10 13.5 L21 3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><path d="M9 8 H19 A1.5 1.5 0 0 1 20.5 9.5 V19.5 A1.5 1.5 0 0 1 19 21 H9 A1.5 1.5 0 0 1 7.5 19.5 V9.5 A1.5 1.5 0 0 1 9 8 Z M16 8 V4.5 A1.5 1.5 0 0 0 14.5 3 H5 A1.5 1.5 0 0 0 3.5 4.5 V14.5 A1.5 1.5 0 0 0 5 16 H7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 20.5 L5.6 15.8 A8.5 8.5 0 1 1 8.6 18.9 Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 4.5 L7.5 12 L15 19.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.5" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M3.5 21 Q12 11 20.5 21" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
+</svg>
+
+<script>
+// Listing the games of the gallery. The facilitator edits this list by hand: one object per game,
+// in the order they should appear on the page. To add a game, copy the example below into the list,
+// remove the "//" at the start of each line and change the values. Only the share link of the game
+// goes here: never the names or photos of children.
+//
+//   {
+//     titulo: "Caça às frações",                              // the name of the game
+//     turma: "4º ano",                                        // the class, as the teacher wrote it
+//     etapa: "iniciais",                                      // "infantil", "iniciais" or "finais" (used by the filter)
+//     componente: "Matemática",                               // the subject or the BNCC field of experience
+//     autor: "Ana",                                           // optional: the teacher's first name only
+//     escola: "EMEF Exemplo",                                 // optional
+//     descricao: "Toque nas pizzas que mostram a metade.",    // one short line
+//     link: "https://gemini.google.com/share/xxxxxxxxxxxx",   // the public share link from Gemini
+//     cor: "orange",                                          // "blue", "pink", "mint", "orange", "purple" or "yellow"
+//   },
+const GALERIA = [
+]
+
+const COLORS = {
+  blue: ["#4da3ff", "#cfe6ff"], pink: ["#ff5f8f", "#ffd6e3"], mint: ["#4fd6a6", "#c9f5e3"],
+  orange: ["#ff8a3d", "#ffdcc4"], purple: ["#8c73ff", "#e2dbff"], yellow: ["#ffd23f", "#fff1a8"],
+}
+const STAGES = { infantil: "Educação Infantil", iniciais: "Anos iniciais", finais: "Anos finais" }
+const FILTERS = [["todas", "Todas", "var(--yellow)"], ["infantil", "Educação Infantil", "var(--pink)"], ["iniciais", "Anos iniciais", "var(--blue)"], ["finais", "Anos finais", "var(--orange)"]]
+
+// Using the same classes as the prompt builder, so the message already says the stage of the game
+const CLASSES = [
+  ["infantil", "Educação Infantil", ["3 anos", "4 anos", "5 anos"]],
+  ["iniciais", "Anos iniciais", ["1º ano", "2º ano", "3º ano", "4º ano", "5º ano"]],
+  ["finais", "Anos finais", ["6º ano", "7º ano", "8º ano", "9º ano"]],
+]
+const SUBJECTS = ["Língua Portuguesa", "Matemática", "Ciências", "História", "Geografia", "Arte", "Educação Física", "Língua Inglesa", "Vários componentes juntos",
+  "O eu, o outro e o nós", "Corpo, gestos e movimentos", "Traços, sons, cores e formas", "Escuta, fala, pensamento e imaginação", "Espaços, tempos, quantidades, relações e transformações"]
+
+const $ = id => document.getElementById(id)
+const escape = text => String(text ?? "").replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character])
+const icon = name => `<svg class="i"><use href="#i-${name}"/></svg>`
+const paint = color => `--c:${COLORS[color][0]};--light:${COLORS[color][1]}`
+const plain = text => String(text ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
+
+// Drawing a little scene for the subject of each game, so every card has its own picture
+const SCENES = {
+  numeros: `<svg viewBox="0 0 200 120">
+    <g class="g s-hop"><rect x="18" y="40" width="40" height="40" rx="10" fill="#fff" stroke="#2f2a4a" stroke-width="4"/><text x="38" y="70" text-anchor="middle" font-size="28" font-weight="700" fill="#2f2a4a">2</text></g>
+    <text x="72" y="71" text-anchor="middle" font-size="32" font-weight="700" fill="#fff" stroke="#2f2a4a" stroke-width="6" paint-order="stroke">+</text>
+    <g class="g s-hop" style="animation-delay: .2s"><rect x="86" y="40" width="40" height="40" rx="10" fill="#fff" stroke="#2f2a4a" stroke-width="4"/><text x="106" y="70" text-anchor="middle" font-size="28" font-weight="700" fill="#2f2a4a">3</text></g>
+    <text x="140" y="71" text-anchor="middle" font-size="32" font-weight="700" fill="#fff" stroke="#2f2a4a" stroke-width="6" paint-order="stroke">=</text>
+    <g class="g s-pulse"><rect x="154" y="40" width="40" height="40" rx="10" fill="#ffd23f" stroke="#2f2a4a" stroke-width="4" stroke-dasharray="7 5"/><text x="174" y="70" text-anchor="middle" font-size="28" font-weight="700" fill="#2f2a4a">?</text></g></svg>`,
+  letras: `<svg viewBox="0 0 200 120">
+    ${[["A", "#ff5f8f", 30, 0], ["B", "#ffd23f", 80, .2], ["C", "#4da3ff", 130, .4]].map(([letter, color, x, delay]) => `<g class="g s-hop" style="animation-delay: ${delay}s"><rect x="${x}" y="44" width="42" height="42" rx="8" fill="${color}" stroke="#2f2a4a" stroke-width="4"/><text x="${x + 21}" y="76" text-anchor="middle" font-size="30" font-weight="700" fill="#fff" stroke="#2f2a4a" stroke-width="5" paint-order="stroke">${letter}</text></g>`).join("")}
+    <g class="g twinkle"><use href="#star" x="168" y="10" width="24" height="24"/></g></svg>`,
+  ciencias: `<svg viewBox="0 0 200 120">
+    <path d="M92 14 V44 L66 94 Q62 104 72 104 H128 Q138 104 134 94 L108 44 V14 Z" fill="#fff"/>
+    <path d="M75.4 76 H124.6 L134 94 Q138 104 128 104 H72 Q62 104 66 94 Z" fill="#4fd6a6"/>
+    <circle class="g s-bubble" cx="92" cy="86" r="5" fill="#fff" stroke="#2f2a4a" stroke-width="2.5"/>
+    <circle class="g s-bubble" cx="106" cy="92" r="4" fill="#fff" stroke="#2f2a4a" stroke-width="2.5" style="animation-delay: -.8s"/>
+    <circle class="g s-bubble" cx="114" cy="84" r="6" fill="#fff" stroke="#2f2a4a" stroke-width="2.5" style="animation-delay: -1.6s"/>
+    <path d="M92 14 V44 L66 94 Q62 104 72 104 H128 Q138 104 134 94 L108 44 V14" fill="none" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M84 14 H116" stroke="#2f2a4a" stroke-width="5" stroke-linecap="round"/>
+    <g class="g s-wiggle"><path d="M152 70 Q150 44 172 34 Q178 60 152 70 Z M152 70 Q160 54 168 42" fill="#6cc653" stroke="#2f2a4a" stroke-width="3.5" stroke-linejoin="round"/></g></svg>`,
+  historia: `<svg viewBox="0 0 200 120">
+    <g class="g s-flip">
+      <path d="M82 20 H118 Q118 46 104 60 Q118 74 118 100 H82 Q82 74 96 60 Q82 46 82 20 Z" fill="#fff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M88 30 H112 Q110 44 100 54 Q90 44 88 30 Z" fill="#ffd23f"/>
+      <path d="M86 98 Q90 84 100 80 Q110 84 114 98 Z" fill="#ffd23f"/>
+      <rect x="74" y="12" width="52" height="10" rx="4" fill="#ff8a3d" stroke="#2f2a4a" stroke-width="4"/>
+      <rect x="74" y="98" width="52" height="10" rx="4" fill="#ff8a3d" stroke="#2f2a4a" stroke-width="4"/></g>
+    <g class="g twinkle"><use href="#star" x="30" y="70" width="28" height="28"/></g>
+    <g class="g twinkle late"><use href="#star" x="148" y="66" width="24" height="24"/></g></svg>`,
+  geografia: `<svg viewBox="0 0 200 120">
+    <circle cx="96" cy="64" r="42" fill="#4da3ff" stroke="#2f2a4a" stroke-width="4"/>
+    <path d="M66 50 Q74 36 90 40 Q98 50 88 58 Q82 70 70 64 Q60 58 66 50 Z M102 74 Q116 66 128 76 Q128 92 112 98 Q100 92 102 74 Z M100 30 Q112 26 120 36 Q110 42 100 30 Z" fill="#6cc653" stroke="#2f2a4a" stroke-width="3" stroke-linejoin="round"/>
+    <g class="g s-hop"><path d="M138 8 A13 13 0 0 1 151 21 C151 31 138 44 138 44 C138 44 125 31 125 21 A13 13 0 0 1 138 8 Z" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="3.5"/><circle cx="138" cy="21" r="4.5" fill="#fff" stroke="#2f2a4a" stroke-width="2.5"/></g></svg>`,
+  arte: `<svg viewBox="0 0 200 120">
+    <path d="M96 14 C132 14 158 36 158 60 C158 76 144 80 132 76 C122 73 116 80 120 90 C124 100 116 106 102 106 C68 106 42 86 42 60 C42 34 64 14 96 14 Z" fill="#ffe1b0" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/>
+    <circle class="g s-pulse" cx="70" cy="48" r="9" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="3"/>
+    <circle class="g s-pulse" cx="94" cy="32" r="9" fill="#ffd23f" stroke="#2f2a4a" stroke-width="3" style="animation-delay: .3s"/>
+    <circle class="g s-pulse" cx="122" cy="38" r="9" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="3" style="animation-delay: .6s"/>
+    <circle class="g s-pulse" cx="66" cy="76" r="9" fill="#4da3ff" stroke="#2f2a4a" stroke-width="3" style="animation-delay: .9s"/>
+    <g class="g s-wiggle"><rect x="160" y="18" width="10" height="56" rx="4" fill="#8c73ff" stroke="#2f2a4a" stroke-width="3.5" transform="rotate(20 165 46)"/><path d="M152 72 Q150 88 142 94 Q158 94 162 78 Z" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="3.5" stroke-linejoin="round"/></g></svg>`,
+  esporte: `<svg viewBox="0 0 200 120">
+    <path d="M30 108 H170" stroke="#2f2a4a" stroke-width="4" stroke-linecap="round" opacity=".35"/>
+    <ellipse class="g s-shadow" cx="100" cy="106" rx="24" ry="5" fill="#2f2a4a" opacity=".25"/>
+    <g class="s-bounce"><circle cx="100" cy="80" r="22" fill="#fff" stroke="#2f2a4a" stroke-width="4"/><path d="M100 70 L109.5 77 L106 88 L94 88 L90.5 77 Z" fill="#2f2a4a"/><path d="M100 70 V59 M109.5 77 L120 73 M106 88 L112 97 M94 88 L88 97 M90.5 77 L80 73" stroke="#2f2a4a" stroke-width="3"/></g>
+    <g class="g twinkle"><use href="#star" x="30" y="62" width="26" height="26"/></g>
+    <g class="g twinkle late"><use href="#star" x="148" y="26" width="22" height="22"/></g></svg>`,
+  ingles: `<svg viewBox="0 0 200 120">
+    <g class="g s-hop"><path d="M22 20 H96 Q104 20 104 28 V60 Q104 68 96 68 H52 L38 82 V68 H30 Q22 68 22 60 V28 Q22 20 30 20 Z" fill="#fff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><text x="63" y="54" text-anchor="middle" font-size="26" font-weight="700" fill="#2f2a4a">Hi!</text></g>
+    <g class="g s-hop" style="animation-delay: .9s"><path d="M98 50 H170 Q178 50 178 58 V90 Q178 98 170 98 H162 V112 L148 98 H106 Q98 98 98 90 V58 Q98 50 106 50 Z" fill="#ffd23f" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><text x="138" y="84" text-anchor="middle" font-size="26" font-weight="700" fill="#2f2a4a">Olá!</text></g></svg>`,
+  juntos: `<svg viewBox="0 0 200 120">
+    <use href="#bot" x="28" y="44" width="68" height="68"/>
+    <use href="#bot" x="104" y="44" width="68" height="68"/>
+    <g class="g s-pulse"><path d="M100 46 C100 36 86 32 84 42 C82 52 100 60 100 60 C100 60 118 52 116 42 C114 32 100 36 100 46 Z" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="3.5" stroke-linejoin="round"/></g></svg>`,
+  jogo: `<svg viewBox="0 0 200 120">
+    <g class="g s-wiggle" style="animation-duration: 2.2s"><rect x="50" y="38" width="100" height="52" rx="26" fill="#fff" stroke="#2f2a4a" stroke-width="4"/>
+      <path d="M76 52 V76 M64 64 H88" stroke="#2f2a4a" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="122" cy="56" r="6" fill="#ffd23f" stroke="#2f2a4a" stroke-width="3"/><circle cx="134" cy="70" r="6" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="3"/></g>
+    <g class="g twinkle"><use href="#star" x="160" y="10" width="28" height="28"/></g>
+    <g class="g twinkle late"><use href="#star" x="156" y="72" width="26" height="26"/></g></svg>`,
+}
+const SCENE_RULES = [
+  [/matem|quantidade|numero/, "numeros"],
+  [/portugu|escuta|leitura|letra|alfabet/, "letras"],
+  [/ingles|english|espanhol/, "ingles"],
+  [/cienc/, "ciencias"],
+  [/histor/, "historia"],
+  [/geograf/, "geografia"],
+  [/\barte|cores|musica/, "arte"],
+  [/fisica|corpo|movimento/, "esporte"],
+  [/outro/, "juntos"],
+]
+const sceneOf = subject => (SCENE_RULES.find(([rule]) => rule.test(plain(subject))) || [, "jogo"])[1]
+
+// Accepting only web links, so a typo in the list never turns into a broken button
+const safeLink = link => /^https?:\/\/\S+$/i.test(String(link ?? "").trim()) ? String(link).trim() : ""
+
+function gameCard(game) {
+  const n = GALERIA.indexOf(game), link = safeLink(game.link)
+  const color = COLORS[game.cor] ? game.cor : Object.keys(COLORS)[n % 6]
+  const by = [game.autor && `Feito por ${game.autor}`, game.escola].filter(Boolean).join(" · ")
+  const meta = [game.turma, game.componente].filter(Boolean).join(" · ")
+  return `<article class="game" style="${paint(color)};--d:${(n % 3) * .08}s">
+    <div class="stage"><span aria-hidden="true">${SCENES[sceneOf(game.componente)]}</span>${STAGES[game.etapa] ? `<span class="tag">${STAGES[game.etapa]}</span>` : ""}</div>
+    <div class="body">
+      <h3>${escape(game.titulo)}</h3>
+      ${game.descricao ? `<p>${escape(game.descricao)}</p>` : ""}
+      ${meta ? `<p class="meta"><span class="dot"></span>${escape(meta)}</p>` : ""}
+      ${by ? `<p class="by">${icon("person")}${escape(by)}</p>` : ""}
+      <div class="row">${link
+        ? `<a class="btn loud grow" href="${escape(link)}" target="_blank" rel="noopener">${icon("play")}Jogar</a><button class="btn white small" type="button" data-copy="${escape(link)}">${icon("copy")}Copiar link</button>`
+        : `<span class="btn off grow">Link em breve</span>`}</div>
+    </div>
+  </article>`
+}
+
+let filter = "todas"
+
+// Showing the cards of the chosen stage, or the empty frame while nobody has sent a game yet
+function render() {
+  const total = GALERIA.length, shown = GALERIA.filter(game => filter === "todas" || game.etapa === filter)
+  $("empty").hidden = total > 0
+  $("filters").hidden = $("games").hidden = $("note-line").hidden = total === 0
+  $("count").textContent = total === 0 ? "Os jogos que os professores criam no Encontro 3 aparecem aqui." : `${total} ${total === 1 ? "jogo" : "jogos"} até agora. Escolha a etapa:`
+  $("filters").innerHTML = FILTERS.map(([id, label, color]) => {
+    const count = id === "todas" ? total : GALERIA.filter(game => game.etapa === id).length
+    return `<button type="button" data-filter="${id}" aria-pressed="${id === filter}" style="--c: ${color}">${label}<b>${count}</b></button>`
+  }).join("")
+  $("games").innerHTML = shown.length ? shown.map(gameCard).join("") : `<p class="none">Ainda não tem jogos desta etapa. Veja os outros em <b>Todas</b>.</p>`
+}
+
+let toastTimer
+function toast(text) {
+  $("toast").textContent = text
+  $("toast").classList.add("show")
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => $("toast").classList.remove("show"), 1800)
+}
+
+// Copying with the clipboard API, and falling back to a hidden text box when the page was opened from a file
+async function copy(text, done) {
+  try {
+    await navigator.clipboard.writeText(text)
+  } catch {
+    const area = Object.assign(document.createElement("textarea"), { value: text })
+    document.body.append(area)
+    area.select()
+    document.execCommand("copy")
+    area.remove()
+  }
+  toast(done)
+}
+
+$("filters").addEventListener("click", event => {
+  const button = event.target.closest("[data-filter]")
+  if (!button) return
+  filter = button.dataset.filter
+  render()
+})
+$("games").addEventListener("click", event => {
+  const button = event.target.closest("[data-copy]")
+  if (button) copy(button.dataset.copy, "Link copiado!")
+})
+
+// Building the message for the facilitator from the form, the same text for WhatsApp and for copying
+$("f-turma").innerHTML = `<option value="">Escolha</option>` + CLASSES.map(([stage, label, items]) =>
+  `<optgroup label="${label}">${items.map(item => `<option value="${item}" data-stage="${stage}">${item}</option>`).join("")}</optgroup>`).join("")
+$("componentes").innerHTML = SUBJECTS.map(subject => `<option value="${subject}">`).join("")
+
+const REQUIRED = [["f-titulo", "nome do jogo"], ["f-turma", "turma"], ["f-componente", "componente"], ["f-link", "link do jogo"]]
+const value = id => $(id).value.trim()
+
+// Adding the https:// that people often leave out when they copy only the address
+function readLink() {
+  const link = value("f-link")
+  if (!link) return ""
+  return /^https?:\/\//i.test(link) ? link : `https://${link.replace(/^\/+/, "")}`
+}
+
+function buildMessage() {
+  const option = $("f-turma").selectedOptions[0], stage = option?.dataset.stage
+  const turma = value("f-turma") ? `${value("f-turma")} (${STAGES[stage]})` : ""
+  const blank = "[falta preencher]"
+  const fields = [
+    `Nome do jogo: ${value("f-titulo") || blank}`,
+    `Turma: ${turma || blank}`,
+    `Componente: ${value("f-componente") || blank}`,
+    value("f-descricao") && `O que a criança faz: ${value("f-descricao").replace(/\.$/, "")}.`,
+    `Link do jogo: ${readLink() || blank}`,
+    value("f-autor") && `Feito por: ${value("f-autor")}`,
+    value("f-escola") && `Escola: ${value("f-escola")}`,
+  ]
+  return `Olá! Quero colocar o meu jogo na Galeria da Oficina de Prompts.\n\n${fields.filter(Boolean).join("\n")}`
+}
+
+function missingFields() {
+  const missing = REQUIRED.filter(([id]) => !value(id))
+  if (value("f-link") && !/^https?:\/\/[^\s.]+\.\S+$/i.test(readLink())) missing.push(["f-link", "um link que funcione"])
+  return missing
+}
+
+function updateMessage() {
+  const text = buildMessage()
+  $("message").value = text
+  $("send-whatsapp").href = `https://wa.me/?text=${encodeURIComponent(text)}`
+  for (const [id] of REQUIRED) if (value(id)) $(id).classList.remove("missing")
+  $("form-status").hidden = true
+}
+
+// Stopping the send while something is missing, and saying exactly what
+function checkForm() {
+  const missing = missingFields()
+  const status = $("form-status")
+  for (const [id] of REQUIRED) $(id).classList.toggle("missing", missing.some(([other]) => other === id))
+  if (missing.length) {
+    const names = [...new Set(missing.map(([, name]) => name))]
+    status.textContent = `Falta preencher: ${names.length < 2 ? names[0] : `${names.slice(0, -1).join(", ")} e ${names.at(-1)}`}.`
+    status.hidden = false
+    $(missing[0][0]).focus()
+    return false
+  }
+  if (!/gemini\.google\.com|g\.co\/gemini/i.test(readLink())) {
+    status.textContent = "Confira o link: o link de compartilhar do Gemini costuma começar com https://gemini.google.com/share/"
+    status.hidden = false
+  } else {
+    status.hidden = true
+  }
+  return true
+}
+
+$("send-form").addEventListener("input", updateMessage)
+$("send-form").addEventListener("change", updateMessage)
+$("send-form").addEventListener("submit", event => event.preventDefault())
+$("send-whatsapp").addEventListener("click", event => {
+  updateMessage()
+  if (!checkForm()) event.preventDefault()
+})
+$("send-copy").addEventListener("click", () => {
+  updateMessage()
+  if (checkForm()) copy(buildMessage(), "Mensagem copiada! Agora cole na conversa.")
+})
+
+render()
+updateMessage()
+</script>
+</body>
+</html>

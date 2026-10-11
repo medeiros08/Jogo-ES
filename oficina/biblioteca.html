@@ -1,0 +1,962 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Biblioteca de prompts</title>
+<meta name="description" content="Prompts de partida para o Gemini criar atividades, jogos, histórias, planos de aula e avaliações, da Educação Infantil ao 9º ano.">
+<meta name="theme-color" content="#5fbcff">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='20' width='72' height='60' rx='16' fill='%234da3ff' stroke='%231d2a44' stroke-width='6'/><circle cx='36' cy='48' r='9' fill='%23fff'/><circle cx='64' cy='48' r='9' fill='%23fff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky1: #5fbcff; --sky2: #cdeeff; --hill: #8ddf6a; --hill2: #6cc653;
+    --ink: #2f2a4a; --soft: #5d5880; --line: #cfcbe6;
+    --blue: #4da3ff; --pink: #ff5f8f; --mint: #4fd6a6; --orange: #ff8a3d; --purple: #8c73ff; --yellow: #ffd23f;
+    --font: "Fredoka", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+
+    /* One colour per part of the prompt, the same as in the builder */
+    --role: #4da3ff;
+    --task: #4fd6a6;
+    --context: #ffd23f;
+    --format: #ff8a3d;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent }
+  [hidden] { display: none !important }
+  body { margin: 0; min-height: 100vh; background: var(--sky2); color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.45 }
+  a { color: var(--ink); font-weight: 600 }
+  button, input { font-family: var(--font) }
+  :focus-visible { outline: 3px solid var(--ink); outline-offset: 3px }
+  .g { transform-box: fill-box; transform-origin: center }
+
+  /* The scenery behind everything: sky, drifting clouds and two hills */
+  .sky { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 78%) }
+  .cloud { position: absolute; background: #fff; border-radius: 999px; opacity: .92; animation: drift 46s linear infinite }
+  .cloud::before, .cloud::after { content: ""; position: absolute; background: #fff; border-radius: 50% }
+  .cloud::before { width: 55%; height: 160%; left: 15%; bottom: 20% }
+  .cloud::after { width: 40%; height: 130%; right: 12%; bottom: 25% }
+  .c1 { width: 130px; height: 36px; top: 9%; animation-delay: -8s }
+  .c2 { width: 92px; height: 26px; top: 40%; animation-duration: 60s; animation-delay: -30s }
+  .c3 { width: 160px; height: 42px; top: 4%; animation-duration: 75s; animation-delay: -50s; opacity: .7 }
+  @keyframes drift { from { transform: translateX(-30vw) } to { transform: translateX(130vw) } }
+  .hills { position: absolute; left: 0; right: 0; bottom: 0; height: 17vh }
+  .hills::before, .hills::after { content: ""; position: absolute; bottom: -40%; border-radius: 50% }
+  .hills::before { left: -20%; width: 90%; height: 140%; background: var(--hill) }
+  .hills::after { right: -25%; width: 95%; height: 120%; background: var(--hill2) }
+  .page { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: max(18px, env(safe-area-inset-top)) 16px 48px }
+
+  /* Top: back link, title, Bit reading a book and the four colours */
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; margin-bottom: 24px }
+  .back { display: inline-flex; align-items: center; gap: 4px; margin-bottom: 10px; padding: 3px 14px 3px 8px; background: #fff; border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink); font-size: 15px; text-decoration: none }
+  .back svg { width: 18px; height: 18px }
+  h1 { margin: 0; font-size: clamp(40px, 9vw, 64px); font-weight: 700; line-height: 1.02; color: #fff; -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; text-shadow: 0 5px 0 var(--ink) }
+  h1 span { display: inline-block; animation: hop 3.4s ease-in-out infinite }
+  h1 .w1 { color: var(--yellow) } h1 .w2 { animation-delay: .2s } h1 .w3 { color: var(--pink); animation-delay: .4s }
+  @keyframes hop { 0%, 78%, 100% { transform: translateY(0) } 86% { transform: translateY(-9px) rotate(-3deg) } 93% { transform: translateY(0) rotate(1deg) } }
+  header p { margin: 12px 0 14px; font-size: 19px; font-weight: 600 }
+  .bot { width: 110px; flex: none; overflow: visible }
+  .bot-body { animation: bob 2.6s ease-in-out infinite }
+  @keyframes bob { 50% { transform: translateY(-5px) } }
+  .bot-eyes { animation: blink 4.2s infinite }
+  @keyframes blink { 0%, 91%, 97%, 100% { transform: scaleY(1) } 94% { transform: scaleY(.1) } }
+  .parts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none }
+  .parts li, .part b { display: inline-flex; align-items: center; gap: 6px; padding: 2px 12px 2px 3px; background: var(--c); border: 3px solid var(--ink); border-radius: 999px; font-weight: 600 }
+  .parts i, .part b i { display: grid; place-items: center; width: 24px; height: 24px; background: #fff; border: 2px solid var(--ink); border-radius: 50%; font-style: normal; font-weight: 700; font-size: 14px }
+  .role { --c: var(--role) } .task { --c: var(--task) } .context { --c: var(--context) } .format { --c: var(--format) }
+
+  .card { padding: 20px 22px; background: #fff; border: 4px solid var(--ink); border-radius: 26px; box-shadow: 0 7px 0 rgba(47, 42, 74, .25) }
+  .card + .card { margin-top: 22px }
+
+  /* The honest note, the privacy reminder and the way to the builder */
+  .care { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none }
+  .care li { display: flex; align-items: center; gap: 14px; font-weight: 500 }
+  .care b { font-weight: 700 }
+  .badge { display: grid; place-items: center; width: 48px; height: 48px; flex: none; background: var(--c); border: 3px solid var(--ink); border-radius: 50% }
+  .badge svg { width: 26px; height: 26px }
+  mark { padding: 0 3px; background: #e2dbff; color: inherit; border-radius: 6px; box-shadow: inset 0 -2px 0 var(--purple); -webkit-box-decoration-break: clone; box-decoration-break: clone }
+  .own { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 16px 0 0; padding-top: 14px; border-top: 3px dashed var(--line); font-weight: 700; font-size: 19px }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; padding: 6px 20px; background: var(--c); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 5px 0 var(--ink); color: #fff; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; font: 700 19px var(--font); line-height: 1.15; text-align: center; text-decoration: none; cursor: pointer; transition: transform .1s, box-shadow .1s }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--ink) }
+  .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink) }
+  .btn svg { width: 22px; height: 22px; flex: none; overflow: visible }
+  .btn.copy { --c: var(--mint) }
+  .btn.open { --c: var(--blue) }
+  .btn.build { --c: var(--orange) }
+
+  /* Filters: search box, stage chips and kind chips */
+  .filters { margin-top: 22px }
+  .search { position: relative; display: block }
+  .search svg { position: absolute; left: 16px; top: 50%; width: 24px; height: 24px; margin-top: -12px; pointer-events: none }
+  .search input { display: block; width: 100%; padding: 12px 16px 12px 50px; border: 3px solid var(--line); border-radius: 999px; background: #fff; font: 500 18px var(--font); color: var(--ink); -webkit-appearance: none; appearance: none }
+  .search input:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 4px rgba(77, 163, 255, .35) }
+  .filter-title { display: block; margin: 16px 0 8px; font-weight: 700 }
+  .filter-title .swipe { display: none; font-weight: 500; color: var(--soft) }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px }
+  .chip { display: inline-flex; align-items: center; gap: 7px; min-height: 42px; padding: 3px 8px 3px 12px; background: #fff; border: 3px solid var(--line); border-radius: 999px; font: 600 15px var(--font); color: var(--ink); line-height: 1.15; text-align: left; cursor: pointer; transition: transform .2s cubic-bezier(.3, 1.5, .6, 1) }
+  .chip.has-icon { padding-left: 5px }
+  .chip:hover { border-color: var(--ink); transform: translateY(-2px) }
+  .chip[aria-pressed="true"] { background: var(--yellow); border-color: var(--ink); box-shadow: 0 4px 0 var(--ink); transform: translateY(-2px) }
+  .chip[aria-pressed="true"] svg { animation: wiggle .6s ease-in-out }
+  @keyframes wiggle { 25% { transform: rotate(-10deg) scale(1.1) } 75% { transform: rotate(8deg) scale(1.1) } }
+  .chip svg { width: 28px; height: 28px; flex: none; overflow: visible }
+  .chip .dot { width: 18px; height: 18px; flex: none; background: var(--c); border: 2px solid var(--ink); border-radius: 50% }
+  .chip small { display: block; font-weight: 500; font-size: 13px }
+  .chip .n { min-width: 26px; padding: 0 7px; background: var(--sky2); border-radius: 999px; font-size: 14px; text-align: center }
+  .chip[aria-pressed="true"] .n { background: #fff }
+  .chip.zero { opacity: .5 }
+  .status { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 16px; padding-top: 12px; border-top: 3px dashed var(--line) }
+  #count { font-size: 21px; font-weight: 700 }
+  .light-btn { padding: 4px 14px; background: #fff; border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink); font: 600 15px var(--font); color: var(--ink); cursor: pointer }
+  .light-btn:active { transform: translateY(3px); box-shadow: none }
+
+  /* The prompt cards, each kind with its own colour on top */
+  .library { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 26px; margin-top: 26px }
+  .pcard { display: flex; flex-direction: column; min-width: 0; background: #fff; border: 4px solid var(--ink); border-radius: 26px; box-shadow: 0 7px 0 rgba(47, 42, 74, .25); overflow: hidden }
+  .pcard.pop { animation: pop .35s cubic-bezier(.3, 1.5, .6, 1) }
+  @keyframes pop { from { transform: scale(.94); opacity: 0 } }
+  .pcard-head { display: flex; align-items: center; gap: 14px; padding: 16px 18px; background: var(--tint); border-bottom: 4px solid var(--ink) }
+  .kind-icon { display: grid; place-items: center; width: 66px; height: 66px; flex: none; background: #fff; border: 3px solid var(--ink); border-radius: 18px; box-shadow: 0 4px 0 var(--ink); transform: rotate(-4deg) }
+  .kind-icon svg { width: 48px; height: 48px; overflow: visible }
+  .pcard:hover .kind-icon svg { animation: wiggle .6s ease-in-out }
+  .pcard h3 { margin: 0 0 6px; font-size: 22px; font-weight: 700; line-height: 1.15 }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px }
+  .tag { padding: 0 10px; background: var(--c, #fff); border: 2px solid var(--ink); border-radius: 999px; font-size: 14px; font-weight: 600 }
+  .pcard-body { display: flex; flex-direction: column; flex: 1; padding: 14px 18px 18px }
+  .area { margin: 0 0 12px; font-weight: 500; color: var(--soft) }
+  .area b { color: var(--ink); font-weight: 600 }
+  .prompt { flex: 1; font-size: 16px; overflow-wrap: anywhere }
+
+  /* The four coloured parts, drawn exactly like the result of the builder */
+  .part { margin-bottom: 12px; padding: 10px 14px 12px; border: 3px solid var(--c); border-left-width: 10px; border-radius: 14px; background: #fff }
+  .part.role-part { --c: var(--role) } .part.task-part { --c: var(--task) } .part.context-part { --c: var(--context) } .part.format-part { --c: var(--format) } .part.ask-part { --c: var(--purple) }
+  .part b { margin-bottom: 6px; font-size: 15px }
+  .part ul { margin: 4px 0 0; padding-left: 20px }
+  .part p { margin: 0 }
+  .part li.paste { margin-top: 6px; margin-left: -20px; padding: 6px 10px; list-style: none; border: 2px dashed var(--line); border-radius: 10px }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 8px 0 0 }
+  .copied { font-weight: 700; color: #1f8a60 }
+  .tip { display: flex; align-items: flex-start; gap: 8px; margin: 14px 0 0; padding: 8px 12px; background: #fff1a8; border: 3px dashed var(--ink); border-radius: 14px; font-size: 15px; font-weight: 500 }
+  .tip svg { width: 22px; height: 22px; flex: none; margin-top: 1px }
+
+  .empty { margin-top: 26px; padding: 26px 22px; background: rgba(255, 255, 255, .9); border: 4px dashed var(--ink); border-radius: 26px; text-align: center }
+  .empty svg { width: 86px; height: 86px; overflow: visible }
+  .empty h2 { margin: 6px 0 4px; font-size: 26px }
+  .empty p { margin: 0 0 14px; font-weight: 500 }
+
+  .closing { margin-top: 34px; text-align: center }
+  .closing p { margin: 0 0 14px; font-size: 22px; font-weight: 700 }
+  footer { position: relative; z-index: 1; padding: 10px 16px 26px; text-align: center; font-weight: 600 }
+
+  @media (max-width: 480px) {
+    .bot { width: 84px }
+    .card { padding: 18px 16px }
+    /* Turning each row of chips into one row to slide sideways, so the filters stay short on a phone */
+    .chips { flex-wrap: nowrap; margin: 0 -16px; padding: 4px 16px 10px; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain }
+    .chips::-webkit-scrollbar { display: none }
+    .chip { flex: none }
+    .filter-title { margin-bottom: 2px }
+    .filter-title .swipe { display: inline }
+    .pcard-head { padding: 14px; gap: 12px }
+    .pcard-body { padding: 12px 14px 16px }
+    .kind-icon { width: 56px; height: 56px; border-radius: 16px }
+    .kind-icon svg { width: 40px; height: 40px }
+    .pcard h3 { font-size: 20px }
+    .part { padding: 8px 10px 10px; border-left-width: 8px }
+    .btn { font-size: 18px; padding: 6px 16px }
+    .own { font-size: 17px }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important }
+  }
+</style>
+</head>
+<body>
+
+<div class="sky" aria-hidden="true"><div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div><div class="hills"></div></div>
+
+<div class="page">
+<header>
+  <svg class="bot" viewBox="0 0 100 112" aria-hidden="true">
+    <g class="bot-body">
+      <line x1="50" y1="8" x2="50" y2="22" stroke="#1d2a44" stroke-width="4"/>
+      <circle cx="50" cy="8" r="6" fill="#ff4d4d"/>
+      <rect x="18" y="22" width="64" height="48" rx="14" fill="#4da3ff" stroke="#1d2a44" stroke-width="4"/>
+      <g class="g bot-eyes"><circle cx="38" cy="43" r="9" fill="#fff"/><circle cx="62" cy="43" r="9" fill="#fff"/><circle cx="39" cy="47" r="4" fill="#1d2a44"/><circle cx="63" cy="47" r="4" fill="#1d2a44"/></g>
+      <circle cx="27" cy="57" r="4" fill="#ff8fb0"/><circle cx="73" cy="57" r="4" fill="#ff8fb0"/>
+      <path d="M42 59 q8 6 16 0" stroke="#1d2a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <rect x="30" y="70" width="40" height="18" rx="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="4"/>
+      <path d="M50 80 Q38 73 20 76 V102 Q38 99 50 106 Q62 99 80 102 V76 Q62 73 50 80 Z" fill="#fff" stroke="#1d2a44" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M50 80 V106" stroke="#1d2a44" stroke-width="3"/>
+      <path d="M26 85 Q34 83 43 86 M26 93 Q34 91 43 94 M57 86 Q66 83 74 85 M57 94 Q66 91 74 93" stroke="#ff5f8f" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <circle cx="19" cy="90" r="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="3.5"/><circle cx="81" cy="90" r="6" fill="#8cc4ff" stroke="#1d2a44" stroke-width="3.5"/>
+    </g>
+  </svg>
+  <div>
+    <a class="back" href="index.html"><svg viewBox="0 0 24 24"><path d="M15 4.5 L7.5 12 L15 19.5" fill="none" stroke="#2f2a4a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Oficina de Prompts</a>
+    <h1><span class="w1">Biblioteca</span> <span class="w2">de</span> <span class="w3">prompts</span></h1>
+    <p>Pedidos prontos para adaptar à sua turma, todos montados com as quatro partes do método.</p>
+    <ul class="parts"><li class="role"><i>P</i>Papel</li><li class="task"><i>T</i>Tarefa</li><li class="context"><i>C</i>Contexto</li><li class="format"><i>F</i>Formato</li></ul>
+  </div>
+</header>
+
+<section class="card">
+  <ul class="care">
+    <li><span class="badge" style="--c: var(--yellow)"><svg viewBox="0 0 24 24"><path d="M4 20 L5 15.5 L15.5 5 A2.1 2.1 0 0 1 18.5 5 L19 5.5 A2.1 2.1 0 0 1 19 8.5 L8.5 19 Z M13.5 7 L17 10.5" fill="none" stroke="#2f2a4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><b>Prompts de partida:</b> troque o que está entre colchetes, ajuste para a sua turma e sempre revise a resposta do Gemini. As partes para trocar aparecem assim: <mark>[tema]</mark>.</span></li>
+    <li><span class="badge" style="--c: var(--pink)"><svg viewBox="0 0 36 36"><rect x="7" y="16" width="22" height="17" rx="4" fill="#fff" stroke="#2f2a4a" stroke-width="3"/><path d="M11.5 16 V11 A6.5 6.5 0 0 1 24.5 11 V16" fill="none" stroke="#2f2a4a" stroke-width="3"/><circle cx="18" cy="24" r="2.6" fill="#2f2a4a"/></svg></span><span>Nunca escreva o nome ou dados das crianças no Gemini. Fale da turma de um jeito geral.</span></li>
+  </ul>
+  <p class="own">Quer montar o seu?<a class="btn build" href="construtor.html"><svg viewBox="0 0 24 24"><path d="M7 4.5 L19.5 12 L7 19.5 Z" fill="#fff" stroke="#2f2a4a" stroke-width="2.5" stroke-linejoin="round"/></svg>Use o Construtor de prompts</a></p>
+</section>
+
+<section class="card filters" aria-label="Filtros">
+  <label class="search">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="#fff1a8" stroke="#2f2a4a" stroke-width="2.6"/><path d="M15 15 L21 21" stroke="#2f2a4a" stroke-width="3" stroke-linecap="round"/></svg>
+    <input type="search" id="search" placeholder="Buscar: frações, Pampa, folclore..." aria-label="Buscar nos prompts" autocomplete="off">
+  </label>
+  <span class="filter-title" id="stage-title">Turma <small class="swipe">(deslize para o lado)</small></span>
+  <div class="chips" id="stage-chips" role="group" aria-labelledby="stage-title"></div>
+  <span class="filter-title" id="kind-title">O que você quer criar <small class="swipe">(deslize para o lado)</small></span>
+  <div class="chips" id="kind-chips" role="group" aria-labelledby="kind-title"></div>
+  <div class="status">
+    <span id="count" aria-live="polite"></span>
+    <button type="button" class="light-btn" id="clear" hidden>Limpar filtros</button>
+  </div>
+</section>
+
+<div class="library" id="library"></div>
+
+<div class="empty" id="empty" hidden>
+  <svg viewBox="0 0 90 90" aria-hidden="true"><circle cx="38" cy="38" r="26" fill="#fff1a8" stroke="#2f2a4a" stroke-width="5"/><path d="M57 57 L80 80" stroke="#2f2a4a" stroke-width="9" stroke-linecap="round"/><text x="38" y="50" text-anchor="middle" font-family="Fredoka, sans-serif" font-size="34" font-weight="700" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="4" paint-order="stroke">?</text></svg>
+  <h2>Nenhum prompt com esses filtros</h2>
+  <p>Tente outra palavra ou outra turma. Se não achar, monte o seu no <a href="construtor.html">Construtor de prompts</a>.</p>
+  <button type="button" class="light-btn" id="clear-empty">Limpar filtros</button>
+</div>
+
+<div class="closing">
+  <p>Não achou o que precisava?</p>
+  <a class="btn build" href="construtor.html"><svg viewBox="0 0 24 24"><path d="M7 4.5 L19.5 12 L7 19.5 Z" fill="#fff" stroke="#2f2a4a" stroke-width="2.5" stroke-linejoin="round"/></svg>Quer montar o seu? Use o Construtor de prompts</a>
+</div>
+</div>
+
+<footer>Curso de Engenharia de Software · UNIPAMPA · Campus Alegrete</footer>
+
+<script>
+// Listing every prompt of the library. To add one, copy a block and change the texts.
+// stage: "infantil", "iniciais" or "finais". kind: one of the keys of KINDS, further down.
+// The parts the teacher should change go between [colchetes]. "tip" is optional.
+// A format line that starts with "MATERIAL" becomes the space where the teacher pastes the material.
+const PROMPTS = [
+  // Educação Infantil
+  {
+    title: "Animais do Pampa: ligar, contar e pintar",
+    stage: "infantil", kind: "atividade",
+    area: "Espaços, tempos, quantidades, relações e transformações",
+    role: "Você é um(a) professor(a) de Educação Infantil experiente, que conhece a BNCC e sabe criar atividades impressas para crianças pequenas.",
+    task: "Crie uma atividade para imprimir sobre [animais do Pampa: quero-quero, tatu, ema e graxaim].",
+    context: [
+      "A turma é da Educação Infantil, com crianças de [4 anos], e o trabalho é no campo de experiência \"Espaços, tempos, quantidades, relações e transformações\".",
+      "As crianças ainda não leem: use imagens e cores, quase nenhuma palavra, e instruções que o professor possa ler em voz alta.",
+      "As crianças devem aprender: [reconhecer alguns animais do lugar onde vivem e contar quantos há em cada grupo].",
+      "Relacione com a BNCC. Se não tiver certeza do código da habilidade, escreva só a descrição, sem inventar o código.",
+      "Use português do Brasil e exemplos do dia a dia das crianças brasileiras.",
+    ],
+    format: [
+      "Uma folha A4 com título, espaço para o nome e uma instrução curta para o professor ler em voz alta.",
+      "De 3 a 4 exercícios com desenhos e quase sem texto: ligar cada animal à sua sombra, circular o animal que voa, contar e pintar.",
+      "Desenhos de contorno simples e grosso, fáceis de pintar e de imprimir em preto e branco.",
+      "Onde houver desenho, descreva a imagem entre parênteses, para eu buscar ou desenhar.",
+      "No fim, separado, o gabarito e uma dica para o professor.",
+    ],
+  },
+  {
+    title: "Jogo de contar frutas da feira",
+    stage: "infantil", kind: "jogo",
+    area: "Espaços, tempos, quantidades, relações e transformações",
+    role: "Você é um(a) professor(a) de Educação Infantil experiente, que conhece a BNCC e sabe criar jogos educativos digitais para crianças pequenas.",
+    task: "Crie um jogo educativo interativo sobre [contar de 1 a 5 com frutas da feira], para jogar no navegador.",
+    context: [
+      "A turma é da Educação Infantil, com crianças de [5 anos], e o trabalho é no campo de experiência \"Espaços, tempos, quantidades, relações e transformações\".",
+      "As crianças ainda não leem: use imagens, cores e sons, quase nenhuma palavra, e instruções que o professor possa ler em voz alta.",
+      "As crianças devem aprender: [contar objetos de 1 a 5 e ligar a quantidade ao número].",
+      "Vai ser usado [no tablet, com as crianças em duplas].",
+      "Use português do Brasil e exemplos do dia a dia das crianças brasileiras.",
+    ],
+    format: [
+      "Um único arquivo HTML que funcione no navegador do celular e do computador, sem instalar nada.",
+      "Botões grandes e fáceis de tocar, cores alegres e visual de desenho.",
+      "Uma tela inicial com o nome do jogo e instruções bem curtas.",
+      "3 fases, da mais fácil para a mais difícil: [contar até 3, até 4 e até 5].",
+      "Retorno na hora a cada resposta: verde e um som alegre no acerto, vermelho e uma dica no erro.",
+      "No fim, estrelas pelo desempenho e um botão para jogar de novo.",
+      "Instruções faladas em voz alta pela voz do navegador, e nada que dependa de saber ler para jogar.",
+      "Tudo em português do Brasil, sem anúncios, sem links para outros sites e sem pedir dados das crianças.",
+    ],
+  },
+  {
+    title: "A sementinha que queria crescer",
+    stage: "infantil", kind: "historia",
+    area: "Escuta, fala, pensamento e imaginação",
+    role: "Você é um(a) professor(a) de Educação Infantil experiente, que conhece a BNCC e sabe escrever histórias curtas para crianças pequenas ouvirem na roda.",
+    task: "Escreva uma história curta e divertida sobre [uma sementinha de ipê que precisa de água, sol e terra para crescer].",
+    context: [
+      "A turma é da Educação Infantil, com crianças de [4 anos], e o trabalho é no campo de experiência \"Escuta, fala, pensamento e imaginação\".",
+      "As crianças ainda não leem: a história vai ser lida em voz alta pelo professor, com sons e gestos para as crianças imitarem.",
+      "As crianças devem aprender: [perceber que as plantas precisam de água, luz do sol e terra para crescer].",
+      "Use português do Brasil e exemplos do dia a dia das crianças brasileiras.",
+    ],
+    format: [
+      "Um título e de 5 a 7 parágrafos bem curtos, para ler em voz alta em poucos minutos.",
+      "Personagens com nomes brasileiros e um problema que eles resolvem juntos.",
+      "Uma frase divertida que se repete várias vezes, para as crianças falarem junto.",
+      "No fim, 3 perguntas para conversar com a turma e uma sugestão de desenho ou brincadeira.",
+    ],
+    tip: "Depois, peça ao Gemini: \"Transforme a história em um teatrinho para 5 crianças.\"",
+  },
+  {
+    title: "Feirinha de faz de conta: alimentação saudável",
+    stage: "infantil", kind: "plano",
+    area: "Corpo, gestos e movimentos",
+    role: "Você é um(a) professor(a) de Educação Infantil experiente, que conhece a BNCC e sabe criar planos de aula para crianças pequenas.",
+    task: "Crie um plano de aula sobre [alimentação saudável, com uma feirinha de faz de conta].",
+    context: [
+      "A turma é da Educação Infantil, com [20] crianças de [5 anos], e o trabalho é no campo de experiência \"Corpo, gestos e movimentos\".",
+      "As crianças ainda não leem: use imagens, objetos de verdade e conversas, e instruções que o professor possa ler em voz alta.",
+      "As crianças devem aprender: [reconhecer frutas, legumes e verduras e conversar sobre o que faz bem ao corpo].",
+      "O tempo disponível é [40 minutos].",
+      "Materiais que temos: [frutas de plástico, cestas, papel pardo e giz de cera].",
+      "Relacione com a BNCC. Se não tiver certeza do código da habilidade, escreva só a descrição, sem inventar o código.",
+      "Use português do Brasil e exemplos do dia a dia das crianças brasileiras.",
+    ],
+    format: [
+      "Uma tabela com objetivos de aprendizagem da BNCC, materiais e tempo total.",
+      "O passo a passo da aula com o tempo de cada parte: abertura, desenvolvimento e fechamento.",
+      "Como perceber se as crianças aprenderam.",
+      "Uma adaptação para quem tiver dificuldade e um desafio extra para quem terminar antes.",
+    ],
+    tip: "Confira as habilidades da BNCC no documento oficial antes de colocar no seu planejamento.",
+  },
+  {
+    title: "Que som é esse? Quiz de apontar",
+    stage: "infantil", kind: "quiz",
+    area: "Traços, sons, cores e formas",
+    role: "Você é um(a) professor(a) de Educação Infantil experiente, que conhece a BNCC e sabe criar quizzes e brincadeiras de perguntas para crianças pequenas.",
+    task: "Crie um quiz de 8 perguntas sobre [os sons do dia a dia: bichos, chuva, campainha e buzina].",
+    context: [
+      "A turma é da Educação Infantil, com crianças de [3 anos], e o trabalho é no campo de experiência \"Traços, sons, cores e formas\".",
+      "As crianças ainda não leem: o professor faz as perguntas em voz alta e imita ou toca os sons, e as crianças respondem apontando para imagens.",
+      "As crianças devem aprender: [prestar atenção aos sons e reconhecer de onde eles vêm].",
+      "Vai ser usado [na roda, com a turma toda junta].",
+      "Use português do Brasil e exemplos do dia a dia das crianças brasileiras.",
+    ],
+    format: [
+      "8 perguntas para o professor fazer em voz alta, com [3] respostas que as crianças mostram apontando para desenhos.",
+      "Sugira o desenho de cada resposta.",
+      "No fim, a resposta certa de cada pergunta e uma explicação simples.",
+    ],
+    tip: "Depois, peça: \"Transforme esse quiz em um jogo no Canvas, com estrelas no final.\"",
+  },
+  {
+    title: "Adaptar uma atividade para todos participarem",
+    stage: "infantil", kind: "adaptar",
+    area: "Traços, sons, cores e formas",
+    role: "Você é um(a) professor(a) de Educação Infantil experiente, que conhece a BNCC e sabe adaptar materiais para a inclusão de crianças pequenas.",
+    task: "Adapte a atividade que está no fim desta mensagem, sobre [as cores], para que todas as crianças da turma possam participar.",
+    context: [
+      "A turma é da Educação Infantil, com crianças de [4 anos], e o trabalho é no campo de experiência \"[Traços, sons, cores e formas]\".",
+      "As crianças ainda não leem: use imagens, cores e sons, quase nenhuma palavra, e instruções que o professor possa ler em voz alta.",
+      "Na turma há crianças com [autismo (TEA) e deficiência auditiva]: inclua adaptações para elas.",
+      "O que costuma ajudar essas crianças: [rotina previsível, apoio visual passo a passo e pouco barulho].",
+      "Use português do Brasil e exemplos do dia a dia das crianças brasileiras.",
+    ],
+    format: [
+      "Mantenha o conteúdo e os objetivos do material original.",
+      "Use frases curtas, palavras simples e sugira imagens ou ícones de apoio.",
+      "Divida em partes pequenas, com instruções numeradas.",
+      "No fim, liste o que você mudou e por quê.",
+      "MATERIAL ORIGINAL:\n[cole aqui a atividade, sem nomes de crianças]",
+    ],
+    ask: true,
+    tip: "O Gemini vai fazer perguntas antes de começar. Responda falando da turma, sem nomes.",
+  },
+  {
+    title: "Gincana dos bichos do Pampa no pátio",
+    stage: "infantil", kind: "brincadeira",
+    area: "Corpo, gestos e movimentos",
+    role: "Você é um(a) professor(a) de Educação Infantil experiente, que conhece a BNCC e sabe criar brincadeiras de movimento para crianças pequenas.",
+    task: "Crie uma gincana para o pátio sobre [os bichos do Pampa], em que as crianças imitam o jeito de cada bicho se mexer.",
+    context: [
+      "A turma é da Educação Infantil, com [18] crianças de [5 anos], e o trabalho é no campo de experiência \"Corpo, gestos e movimentos\".",
+      "As crianças ainda não leem: todas as instruções são faladas e mostradas pelo professor, com gestos e sons.",
+      "O espaço é [um pátio de cimento com uma parte coberta], e o tempo disponível é [30 minutos].",
+      "Materiais que temos: [cones, bambolês, cordas e giz].",
+      "Ninguém fica de fora: sem eliminação, com equipes que se ajudam e um jeito de participar para quem tem pouca mobilidade.",
+      "Use português do Brasil e exemplos do dia a dia das crianças brasileiras.",
+    ],
+    format: [
+      "O nome da gincana e o objetivo, em uma frase.",
+      "Como organizar o espaço e os materiais, passo a passo.",
+      "As regras em frases curtas, do jeito que o professor vai falar para as crianças.",
+      "3 rodadas, da mais calma para a mais agitada, e um momento final para voltar à calma.",
+      "Cuidados de segurança e uma versão para dia de chuva, dentro da sala.",
+    ],
+    tip: "Leia as regras em voz alta como se fosse explicar para a turma. Se ficou comprido, peça para encurtar.",
+  },
+  {
+    title: "Bilhete sobre o projeto da horta",
+    stage: "infantil", kind: "familias",
+    area: "Espaços, tempos, quantidades, relações e transformações",
+    role: "Você é um(a) professor(a) de Educação Infantil experiente, que escreve para as famílias de um jeito claro, acolhedor e respeitoso.",
+    task: "Escreva um bilhete para as famílias da turma sobre o nosso projeto [Horta da turma].",
+    context: [
+      "A turma é da Educação Infantil, com crianças de [4 e 5 anos].",
+      "As crianças ainda não leem: o bilhete é para os adultos, mas inclua uma frase curta que o adulto possa ler em voz alta para a criança.",
+      "O projeto: [durante 4 semanas, as crianças vão plantar, regar e observar temperos e verduras na horta da escola].",
+      "O pedido às famílias: [mandar uma garrafa PET limpa e, se puderem, sementes ou mudas, até o dia 20 de outubro].",
+      "Deixe claro que mandar materiais é opcional e que nenhuma criança fica de fora do projeto.",
+      "Muitas famílias leem no celular e algumas têm pouca leitura: use frases curtas e palavras do dia a dia.",
+      "Não escreva nomes de crianças nem peça dados pessoais.",
+      "Use português do Brasil.",
+    ],
+    format: [
+      "Um bilhete de até 10 linhas, com saudação, o que é o projeto, o que as crianças vão aprender, o pedido e a data.",
+      "Uma versão ainda mais curta, para mandar por mensagem no celular.",
+      "Tom acolhedor, sem palavras difíceis e sem termos técnicos da educação.",
+    ],
+    tip: "Confira as datas e os pedidos antes de enviar. Quem conhece as famílias da turma é você.",
+  },
+
+  // Ensino Fundamental, anos iniciais
+  {
+    title: "Frações na pizza: metade, terço e quarto",
+    stage: "iniciais", kind: "atividade",
+    area: "Matemática",
+    role: "Você é um(a) professor(a) experiente de Matemática dos anos iniciais do Ensino Fundamental, que conhece a BNCC e sabe criar atividades impressas.",
+    task: "Crie uma atividade para imprimir sobre [frações: metade, terço e quarto].",
+    context: [
+      "A turma é do [4º ano] do Ensino Fundamental, com crianças de [9 e 10 anos], e o componente é Matemática.",
+      "As crianças devem aprender: [reconhecer metades, terços e quartos em situações do dia a dia, como dividir uma pizza ou uma barra de chocolate].",
+      "O tempo disponível é [30 minutos].",
+      "Não temos impressora colorida: tudo precisa funcionar em preto e branco.",
+      "Relacione com a BNCC. Se não tiver certeza do código da habilidade, escreva só a descrição, sem inventar o código.",
+      "Use português do Brasil e exemplos do dia a dia das crianças brasileiras.",
+    ],
+    format: [
+      "Uma folha A4 com título, espaço para o nome e uma instrução curta para a criança.",
+      "De 3 a 5 exercícios variados (ligar, completar, circular, desenhar, marcar X), do mais fácil para o mais difícil.",
+      "Um problema final sobre dividir algo de forma justa entre amigos.",
+      "No fim, separado, o gabarito e uma dica para o professor.",
+    ],
+  },
+  {
+    title: "Jogo do ciclo da água",
+    stage: "iniciais", kind: "jogo",
+    area: "Ciências",
+    role: "Você é um(a) professor(a) experiente de Ciências dos anos iniciais do Ensino Fundamental, que conhece a BNCC e sabe criar jogos educativos digitais.",
+    task: "Crie um jogo educativo interativo sobre [o ciclo da água: evaporação, condensação e chuva], para jogar no navegador.",
+    context: [
+      "A turma é do [5º ano] do Ensino Fundamental, com crianças de [10 e 11 anos], e o componente é Ciências.",
+      "As crianças devem aprender: [colocar em ordem as etapas do ciclo da água e explicar o que acontece em cada uma].",
+      "Vai ser usado [no celular ou tablet de cada criança].",
+      "Use português do Brasil e exemplos do dia a dia das crianças brasileiras.",
+    ],
+    format: [
+      "Um único arquivo HTML que funcione no navegador do celular e do computador, sem instalar nada.",
+      "Botões grandes e fáceis de tocar, cores alegres e visual de desenho.",
+      "Uma tela inicial com o nome do jogo e instruções bem curtas.",
+      "3 fases, da mais fácil para a mais difícil: [dar nome às etapas, colocar as etapas em ordem e explicar situações do dia a dia, como a roupa secando no varal].",
+      "Retorno na hora a cada resposta: verde e um som alegre no acerto, vermelho e uma dica no erro.",
+      "No fim, estrelas pelo desempenho e um botão para jogar de novo.",
+      "Tudo em português do Brasil, sem anúncios, sem links para outros sites e sem pedir dados das crianças.",
+    ],
+  },
+  {
+    title: "O Saci na Semana do Folclore",
+    stage: "iniciais", kind: "historia",
+    area: "Língua Portuguesa",
+    role: "Você é um(a) professor(a) experiente de Língua Portuguesa dos anos iniciais do Ensino Fundamental, que conhece a BNCC e sabe escrever histórias para ler com a turma.",
+    task: "Escreva uma história curta e divertida sobre [o Saci, que aparece na escola durante a Semana do Folclore].",
+    context: [
+      "A turma é do [2º ano] do Ensino Fundamental, com crianças de [7 e 8 anos], e o componente é Língua Portuguesa.",
+      "As crianças estão começando a ler: use palavras simples, frases bem curtas e apoio de imagens.",
+      "As crianças devem aprender: [conhecer personagens do folclore brasileiro e recontar uma história na ordem certa].",
+      "Trate o Saci com carinho, sem fazer piada com o fato de ele ter uma perna só.",
+      "Use português do Brasil e exemplos do dia a dia das crianças brasileiras.",
+    ],
+    format: [
+      "Um título e de 6 a 10 parágrafos curtos, para ler em voz alta em poucos minutos.",
+      "Personagens com nomes brasileiros e um problema que eles resolvem juntos.",
+      "Outros personagens do folclore aparecendo rapidamente: [Curupira, Iara e Boitatá].",
+      "No fim, 3 perguntas para conversar com a turma e uma sugestão de desenho ou brincadeira.",
+    ],
+    tip: "Depois, peça: \"Sugira 4 cenas da história para as crianças desenharem e recontarem em ordem.\"",
+  },
+  {
+    title: "Do caminho de casa ao mapa",
+    stage: "iniciais", kind: "plano",
+    area: "Geografia",
+    role: "Você é um(a) professor(a) experiente de Geografia dos anos iniciais do Ensino Fundamental, que conhece a BNCC e sabe criar planos de aula.",
+    task: "Crie um plano de aula sobre [leitura de mapas: o caminho de casa até a escola].",
+    context: [
+      "A turma é do [3º ano] do Ensino Fundamental, com [25] crianças de [8 e 9 anos], e o componente é Geografia.",
+      "As crianças já leem frases curtas: use linguagem simples e direta.",
+      "As crianças devem aprender: [usar pontos de referência, legenda e as palavras direita, esquerda, frente e atrás para descrever um caminho].",
+      "O tempo disponível é [uma aula de 50 minutos].",
+      "Materiais que temos: [papel pardo, lápis de cor e o pátio da escola].",
+      "Relacione com a BNCC. Se não tiver certeza do código da habilidade, escreva só a descrição, sem inventar o código.",
+      "Use português do Brasil e exemplos do dia a dia das crianças brasileiras.",
+    ],
+    format: [
+      "Uma tabela com objetivos, habilidades da BNCC, materiais e tempo total.",
+      "O passo a passo da aula com o tempo de cada parte: abertura, desenvolvimento e fechamento.",
+      "Como perceber se as crianças aprenderam.",
+      "Uma adaptação para quem tiver dificuldade e um desafio extra para quem terminar antes.",
+    ],
+    tip: "Confira as habilidades da BNCC no documento oficial antes de colocar no seu planejamento.",
+  },
+  {
+    title: "Quiz de leitura: A cigarra e a formiga",
+    stage: "iniciais", kind: "quiz",
+    area: "Língua Portuguesa",
+    role: "Você é um(a) professor(a) experiente de Língua Portuguesa dos anos iniciais do Ensino Fundamental, que conhece a BNCC e sabe criar quizzes e avaliações.",
+    task: "Crie um quiz de 8 perguntas sobre [a fábula \"A cigarra e a formiga\"].",
+    context: [
+      "A turma é do [3º ano] do Ensino Fundamental, com crianças de [8 e 9 anos], e o componente é Língua Portuguesa.",
+      "As crianças já leem frases curtas: use linguagem simples e direta.",
+      "As crianças devem aprender: [entender a história, a ordem dos fatos e a moral da fábula].",
+      "Vai ser usado [em folha impressa, para cada criança responder sozinha].",
+      "Use português do Brasil e exemplos do dia a dia das crianças brasileiras.",
+    ],
+    format: [
+      "Primeiro, a fábula recontada em até 10 linhas, para as crianças lerem antes das perguntas.",
+      "8 perguntas de múltipla escolha, com 3 alternativas cada, da mais fácil para a mais difícil.",
+      "Linguagem simples e alternativas do mesmo tamanho, para a resposta certa não ficar óbvia.",
+      "No fim, o gabarito com uma explicação curta de cada resposta.",
+    ],
+  },
+  {
+    title: "Texto de História mais fácil de ler",
+    stage: "iniciais", kind: "adaptar",
+    area: "História",
+    role: "Você é um(a) professor(a) experiente de História dos anos iniciais do Ensino Fundamental, que conhece a BNCC e sabe adaptar materiais para a inclusão.",
+    task: "Adapte o texto que está no fim desta mensagem, sobre [a história do nosso município].",
+    context: [
+      "A turma é do [4º ano] do Ensino Fundamental, com crianças de [9 e 10 anos], e o componente é História.",
+      "Na turma há crianças com [dificuldade de leitura e TDAH]: inclua adaptações para elas.",
+      "A versão adaptada vai ser usada na mesma aula que o texto original, para ninguém se sentir separado da turma.",
+      "Use português do Brasil e exemplos do dia a dia das crianças brasileiras.",
+    ],
+    format: [
+      "Mantenha o conteúdo e os objetivos do material original.",
+      "Use frases curtas, palavras simples e sugira imagens ou ícones de apoio.",
+      "Divida em partes pequenas, cada uma com um subtítulo e as palavras mais importantes em negrito.",
+      "No fim, 3 perguntas curtas de compreensão e uma lista do que você mudou e por quê.",
+      "MATERIAL ORIGINAL:\n[cole aqui o texto, sem nomes de alunos]",
+    ],
+    tip: "Compare as duas versões antes de imprimir: a adaptada precisa dizer o mesmo que a original.",
+  },
+  {
+    title: "Sílabas com B: formar palavras",
+    stage: "iniciais", kind: "atividade",
+    area: "Língua Portuguesa",
+    role: "Você é um(a) professor(a) alfabetizador(a) experiente dos anos iniciais do Ensino Fundamental, que conhece a BNCC e sabe criar atividades impressas de alfabetização.",
+    task: "Crie uma atividade para imprimir de alfabetização com as sílabas [BA, BE, BI, BO, BU].",
+    context: [
+      "A turma é do [1º ano] do Ensino Fundamental, com crianças de [6 e 7 anos], e o componente é Língua Portuguesa.",
+      "As crianças estão começando a ler: use palavras simples, frases bem curtas e apoio de imagens.",
+      "As crianças devem aprender: [perceber que as palavras são formadas por sílabas e juntar sílabas para formar palavras novas].",
+      "Use [letra bastão, maiúscula], que é a letra que a turma conhece agora.",
+      "Relacione com a BNCC. Se não tiver certeza do código da habilidade, escreva só a descrição, sem inventar o código.",
+      "Use português do Brasil e palavras do dia a dia das crianças brasileiras.",
+    ],
+    format: [
+      "Uma folha A4 com título, espaço para o nome e uma instrução curta, que o professor também lê em voz alta.",
+      "4 exercícios: contar as sílabas batendo palmas, completar a sílaba que falta, ligar a figura à palavra e juntar sílabas para formar uma palavra nova.",
+      "Só palavras que as crianças conhecem, como [BOLA, BOLO, BANANA e BEBÊ].",
+      "Onde houver figura, descreva a imagem entre parênteses, para eu buscar ou desenhar.",
+      "No fim, separado, o gabarito e uma ideia de jogo rápido com as sílabas para fazer na sala.",
+    ],
+    tip: "Leia todas as palavras em voz alta antes de imprimir: elas precisam fazer parte do dia a dia da turma.",
+  },
+  {
+    title: "Revisar uma atividade antes de usar",
+    stage: "iniciais", kind: "revisar",
+    area: "qualquer um (o exemplo é de Ciências)",
+    role: "Você é um(a) revisor(a) cuidadoso(a) de materiais didáticos para os anos iniciais do Ensino Fundamental, que conhece a BNCC e o jeito de falar das crianças dessa idade.",
+    task: "Revise o material que está no fim desta mensagem e aponte os problemas, sem reescrever tudo.",
+    context: [
+      "O material é de [Ciências], para uma turma do [3º ano] do Ensino Fundamental, com crianças de [8 e 9 anos].",
+      "Fui eu que preparei este material [com a ajuda do Gemini] e quero conferir antes de usar com a turma.",
+      "Procure erros de conteúdo, erros de português, palavras difíceis para a idade, instruções que possam confundir e exemplos que não combinam com a realidade das crianças brasileiras.",
+      "Se não tiver certeza de que algo está errado, diga que não tem certeza, em vez de afirmar.",
+      "Use português do Brasil.",
+    ],
+    format: [
+      "Uma tabela com 3 colunas: o trecho, o problema encontrado e uma sugestão de como melhorar.",
+      "Os problemas mais importantes primeiro.",
+      "No fim, um resumo de até 3 linhas: o material está pronto para usar ou ainda precisa de ajustes?",
+      "MATERIAL PARA REVISAR:\n[cole aqui o seu material, sem nomes de alunos]",
+    ],
+    tip: "Quem decide o que mudar é você: o Gemini também pode apontar problemas que não existem.",
+  },
+
+  // Ensino Fundamental, anos finais
+  {
+    title: "Quanta energia gasta a nossa casa?",
+    stage: "finais", kind: "atividade",
+    area: "Ciências",
+    role: "Você é um(a) professor(a) experiente de Ciências dos anos finais do Ensino Fundamental, que conhece a BNCC e sabe criar atividades impressas.",
+    task: "Crie uma atividade para imprimir sobre [o consumo de energia elétrica dos aparelhos de casa].",
+    context: [
+      "A turma é do [8º ano] do Ensino Fundamental, com estudantes de [13 e 14 anos], e o componente é Ciências.",
+      "Os estudantes devem aprender: [calcular o consumo de um aparelho a partir da potência e do tempo de uso, e propor formas de economizar energia].",
+      "O tempo disponível é [uma aula de 50 minutos].",
+      "Relacione com a BNCC. Se não tiver certeza do código da habilidade, escreva só a descrição, sem inventar o código.",
+      "Use português do Brasil e exemplos do dia a dia de estudantes brasileiros, como o chuveiro elétrico e a geladeira.",
+    ],
+    format: [
+      "Uma folha A4 com título, espaço para o nome e uma instrução curta.",
+      "Uma tabela com [5] aparelhos de casa, a potência de cada um e espaço para o tempo de uso e o consumo no mês.",
+      "Valores de potência realistas e arredondados, para as contas ficarem simples.",
+      "De 3 a 5 questões, da mais fácil para a mais difícil, terminando com uma pergunta aberta: o que a sua família pode mudar para gastar menos?",
+      "No fim, separado, o gabarito com as contas feitas e uma dica para o professor.",
+    ],
+  },
+  {
+    title: "Jogo da balança: equações do 1º grau",
+    stage: "finais", kind: "jogo",
+    area: "Matemática",
+    role: "Você é um(a) professor(a) experiente de Matemática dos anos finais do Ensino Fundamental, que conhece a BNCC e sabe criar jogos educativos digitais.",
+    task: "Crie um jogo educativo interativo sobre [equações do 1º grau, usando uma balança em equilíbrio], para jogar no navegador.",
+    context: [
+      "A turma é do [7º ano] do Ensino Fundamental, com estudantes de [12 e 13 anos], e o componente é Matemática.",
+      "Os estudantes devem aprender: [descobrir o valor desconhecido de uma equação simples, mantendo a balança em equilíbrio].",
+      "Vai ser usado [no celular de cada estudante e também no projetor].",
+      "Use português do Brasil e exemplos do dia a dia de estudantes brasileiros.",
+    ],
+    format: [
+      "Um único arquivo HTML que funcione no navegador do celular e do computador, sem instalar nada.",
+      "Botões grandes e fáceis de tocar, cores alegres e um visual que não pareça infantil demais para essa idade.",
+      "Uma tela inicial com o nome do jogo e instruções bem curtas.",
+      "3 fases, da mais fácil para a mais difícil: [x + 3 = 7, depois 2x = 10, depois 2x + 1 = 9].",
+      "Retorno na hora a cada resposta: verde e um som alegre no acerto, vermelho e uma dica no erro.",
+      "No fim, estrelas pelo desempenho e um botão para jogar de novo.",
+      "Tudo em português do Brasil, sem anúncios, sem links para outros sites e sem pedir dados dos estudantes.",
+    ],
+  },
+  {
+    title: "Conto de mistério: quem apagou o quadro?",
+    stage: "finais", kind: "historia",
+    area: "Língua Portuguesa",
+    role: "Você é um(a) professor(a) experiente de Língua Portuguesa dos anos finais do Ensino Fundamental, que conhece a BNCC e sabe escrever contos para ler com a turma.",
+    task: "Escreva um conto de mistério curto sobre [o quadro da sala, que aparece apagado toda manhã].",
+    context: [
+      "A turma é do [6º ano] do Ensino Fundamental, com estudantes de [11 e 12 anos], e o componente é Língua Portuguesa.",
+      "Os estudantes devem aprender: [reconhecer os elementos da narrativa: narrador, personagens, tempo, espaço, conflito e desfecho].",
+      "A história se passa em uma escola pública brasileira e não tem violência nem sustos fortes.",
+      "Use português do Brasil.",
+    ],
+    format: [
+      "Um título e de 8 a 12 parágrafos curtos, para ler em voz alta em cerca de 10 minutos.",
+      "Personagens com nomes brasileiros e pistas espalhadas pelo texto, para a turma tentar resolver o mistério antes do fim.",
+      "A palavra PAUSA marcando o ponto antes do desfecho, para a turma dar palpites.",
+      "No fim, uma tabela com os elementos da narrativa desse conto e 3 perguntas para conversar com a turma.",
+    ],
+  },
+  {
+    title: "Notícia falsa ou verdadeira?",
+    stage: "finais", kind: "plano",
+    area: "Língua Portuguesa",
+    role: "Você é um(a) professor(a) experiente de Língua Portuguesa dos anos finais do Ensino Fundamental, que conhece a BNCC e sabe criar planos de aula.",
+    task: "Crie um plano de aula sobre [como reconhecer notícias falsas na internet].",
+    context: [
+      "A turma é do [9º ano] do Ensino Fundamental, com [30] estudantes de [14 e 15 anos], e o componente é Língua Portuguesa.",
+      "Os estudantes devem aprender: [conferir a fonte, a data e outras notícias sobre o mesmo assunto antes de acreditar ou compartilhar].",
+      "O tempo disponível é [duas aulas de 50 minutos].",
+      "Materiais que temos: [projetor e celulares dos estudantes, em duplas, com a internet da escola].",
+      "Use exemplos de notícias inventados, sem citar pessoas reais nem temas de política partidária.",
+      "Relacione com a BNCC. Se não tiver certeza do código da habilidade, escreva só a descrição, sem inventar o código.",
+      "Use português do Brasil e exemplos do dia a dia de estudantes brasileiros.",
+    ],
+    format: [
+      "Uma tabela com objetivos, habilidades da BNCC, materiais e tempo total.",
+      "O passo a passo de cada aula com o tempo de cada parte: abertura, desenvolvimento e fechamento.",
+      "Como perceber se os estudantes aprenderam.",
+      "Uma adaptação para quem tiver dificuldade e um desafio extra para quem terminar antes.",
+    ],
+    tip: "Confira as habilidades da BNCC no documento oficial antes de colocar no seu planejamento.",
+  },
+  {
+    title: "Quiz do Sistema Solar para revisão",
+    stage: "finais", kind: "quiz",
+    area: "Ciências",
+    role: "Você é um(a) professor(a) experiente de Ciências dos anos finais do Ensino Fundamental, que conhece a BNCC e sabe criar quizzes e avaliações.",
+    task: "Crie um quiz de [10] perguntas sobre [o Sistema Solar: o Sol, os planetas e seus movimentos].",
+    context: [
+      "A turma é do [9º ano] do Ensino Fundamental, com estudantes de [14 e 15 anos], e o componente é Ciências.",
+      "Os estudantes devem aprender: [diferenciar planetas rochosos e gasosos, e explicar o que causa o dia, a noite e o ano].",
+      "Vai ser usado [no Google Formulários, como revisão antes da prova].",
+      "Evite números que mudam com novas descobertas, como a quantidade de luas de cada planeta.",
+      "Use português do Brasil.",
+    ],
+    format: [
+      "[10] perguntas de múltipla escolha, com 4 alternativas cada (a, b, c, d), da mais fácil para a mais difícil.",
+      "Alternativas do mesmo tamanho, para a resposta certa não ficar óbvia.",
+      "Cada pergunta em um bloco separado, fácil de copiar para o Google Formulários.",
+      "No fim, o gabarito com uma explicação curta de cada resposta, para mostrar aos estudantes depois.",
+    ],
+    tip: "Confira cada resposta do gabarito antes de aplicar: dados de astronomia são fáceis de errar.",
+  },
+  {
+    title: "Prova adaptada para baixa visão",
+    stage: "finais", kind: "adaptar",
+    area: "Geografia",
+    role: "Você é um(a) professor(a) experiente de Geografia dos anos finais do Ensino Fundamental, que conhece a BNCC e sabe adaptar materiais para a inclusão.",
+    task: "Adapte a prova que está no fim desta mensagem, sobre [relevo e rios do Brasil].",
+    context: [
+      "A turma é do [7º ano] do Ensino Fundamental, com estudantes de [12 e 13 anos], e o componente é Geografia.",
+      "Na turma há estudantes com [baixa visão]: inclua adaptações para eles, pensando em prova ampliada e em leitor de tela.",
+      "Mapas e imagens precisam virar descrições em texto ou perguntas que não dependam de enxergar a imagem.",
+      "Use português do Brasil.",
+    ],
+    format: [
+      "Mantenha o conteúdo e os objetivos da prova original.",
+      "Frases curtas, uma pergunta por vez e alternativas em lista, fáceis de ouvir no leitor de tela.",
+      "Para cada mapa ou imagem, uma descrição clara em texto.",
+      "Uma sugestão de tamanho de letra e de espaçamento para a versão ampliada.",
+      "No fim, liste o que você mudou e por quê.",
+      "MATERIAL ORIGINAL:\n[cole aqui a prova, sem nomes de estudantes]",
+    ],
+    tip: "Antes de colar a prova, apague nomes e qualquer dado dos estudantes.",
+  },
+  {
+    title: "Sequência didática de 3 aulas: o bioma Pampa",
+    stage: "finais", kind: "plano",
+    area: "Ciências",
+    role: "Você é um(a) professor(a) experiente de Ciências dos anos finais do Ensino Fundamental, que conhece a BNCC e sabe planejar sequências didáticas.",
+    task: "Crie uma sequência didática de 3 aulas sobre [o bioma Pampa: plantas, animais e ameaças].",
+    context: [
+      "A turma é do [7º ano] do Ensino Fundamental, com estudantes de [12 e 13 anos], e o componente é Ciências.",
+      "Os estudantes devem aprender: [descrever o Pampa, comparar com outro bioma brasileiro e propor uma ação para cuidar do lugar onde vivem].",
+      "Cada aula tem [50 minutos], e a escola fica [no interior do Rio Grande do Sul, perto do campo].",
+      "Relacione com a BNCC. Se não tiver certeza do código da habilidade, escreva só a descrição, sem inventar o código.",
+      "Use português do Brasil e exemplos do dia a dia de estudantes brasileiros.",
+    ],
+    format: [
+      "Uma visão geral: o objetivo de cada aula e como as 3 aulas se ligam.",
+      "Para cada aula: abertura, desenvolvimento e fechamento, com o tempo de cada parte e os materiais.",
+      "Na 3ª aula, um produto final da turma, como [um cartaz ou um vídeo curto de 1 minuto].",
+      "Como avaliar ao longo das 3 aulas e uma adaptação para quem tiver dificuldade.",
+    ],
+    ask: true,
+    tip: "O Gemini vai fazer perguntas antes de começar: responda e só depois receba a sequência.",
+  },
+  {
+    title: "Rubrica para avaliar maquetes em grupo",
+    stage: "finais", kind: "quiz",
+    area: "Geografia",
+    role: "Você é um(a) professor(a) experiente de Geografia dos anos finais do Ensino Fundamental, que conhece a BNCC e sabe criar instrumentos de avaliação claros e justos.",
+    task: "Crie uma rubrica de avaliação para [uma maquete em grupo sobre as formas de relevo].",
+    context: [
+      "A turma é do [6º ano] do Ensino Fundamental, com estudantes de [11 e 12 anos], e o componente é Geografia.",
+      "Os grupos têm [4] estudantes e apresentam a maquete em [5 minutos].",
+      "Quero avaliar: [o conteúdo correto, a explicação oral, o capricho na maquete e a participação de todos no grupo].",
+      "Valorize o que foi aprendido, não o dinheiro gasto com materiais.",
+      "Use português do Brasil.",
+    ],
+    format: [
+      "Uma tabela com os critérios nas linhas e 4 níveis nas colunas: [Ainda não, Em parte, Bem e Muito bem].",
+      "Em cada célula, uma frase curta, sobre algo que dá para observar, que o estudante entenda.",
+      "A mesma rubrica em forma de lista, para os grupos se autoavaliarem antes de apresentar.",
+      "Uma sugestão de como transformar os níveis em nota de [0 a 10].",
+    ],
+    tip: "Mostre a rubrica para a turma antes do trabalho: assim todos sabem o que vai ser avaliado.",
+  },
+]
+
+// Describing the three stages: the name on the tags, the ages and the colour
+const STAGES = {
+  infantil: { label: "Educação Infantil", ages: "3 a 5 anos", color: "#ff5f8f", light: "#ffd6e3", area: "Campo de experiência" },
+  iniciais: { label: "Anos iniciais", ages: "1º ao 5º ano", color: "#4fd6a6", light: "#c9f5e3", area: "Componente" },
+  finais: { label: "Anos finais", ages: "6º ao 9º ano", color: "#8c73ff", light: "#e2dbff", area: "Componente" },
+}
+
+// Naming each kind of material, with the colour on top of its cards
+const KINDS = {
+  atividade: { label: "Atividade para imprimir", tint: "#fff1a8" },
+  jogo: { label: "Jogo interativo (Canvas)", tint: "#e2dbff" },
+  historia: { label: "História", tint: "#ffd6e3" },
+  plano: { label: "Plano de aula", tint: "#cfe6ff" },
+  quiz: { label: "Quiz ou avaliação", tint: "#ffdcc4" },
+  adaptar: { label: "Adaptar um material", tint: "#c9f5e3" },
+  brincadeira: { label: "Brincadeira no pátio", tint: "#dcf5c8" },
+  revisar: { label: "Revisar um material", tint: "#d4f1ff" },
+  familias: { label: "Bilhete para as famílias", tint: "#ffe3c9" },
+}
+
+// The pictures of each kind of material, the same drawings as in the builder plus three new ones
+const KIND_ICONS = {
+  atividade: '<rect x="8" y="6" width="38" height="52" rx="5" fill="#fff" stroke="#2f2a4a" stroke-width="4"/><path d="M16 19 H38 M16 28 H38 M16 37 H30" stroke="#8cc4ff" stroke-width="4" stroke-linecap="round"/><g transform="rotate(32 48 36)"><rect x="43" y="14" width="11" height="34" rx="2" fill="#ffd23f" stroke="#2f2a4a" stroke-width="3"/><path d="M43 48 L48.5 59 L54 48 Z" fill="#ffe1b0" stroke="#2f2a4a" stroke-width="3" stroke-linejoin="round"/><rect x="43" y="9" width="11" height="7" rx="2" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="3"/></g>',
+  jogo: '<rect x="4" y="18" width="56" height="30" rx="15" fill="#8c73ff" stroke="#2f2a4a" stroke-width="4"/><path d="M18 26 V40 M11 33 H25" stroke="#fff" stroke-width="5" stroke-linecap="round"/><circle cx="42" cy="28" r="4.5" fill="#ffd23f" stroke="#2f2a4a" stroke-width="2.5"/><circle cx="50" cy="37" r="4.5" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="2.5"/>',
+  historia: '<path d="M32 16 Q20 8 6 12 V52 Q20 48 32 56 Q44 48 58 52 V12 Q44 8 32 16 Z" fill="#fff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><path d="M32 16 V56" stroke="#2f2a4a" stroke-width="3"/><path d="M12 24 Q19 22 26 25 M12 33 Q19 31 26 34 M38 25 Q45 22 52 24 M38 34 Q45 31 52 33" stroke="#ff5f8f" stroke-width="3" fill="none" stroke-linecap="round"/>',
+  plano: '<rect x="12" y="10" width="40" height="50" rx="5" fill="#fff" stroke="#2f2a4a" stroke-width="4"/><rect x="22" y="4" width="20" height="11" rx="3" fill="#ffd23f" stroke="#2f2a4a" stroke-width="3"/><path d="M19 27 l4 4 l7 -8 M19 43 l4 4 l7 -8" stroke="#4fd6a6" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M35 28 H45 M35 44 H45" stroke="#8cc4ff" stroke-width="4" stroke-linecap="round"/>',
+  quiz: '<path d="M6 10 H58 V42 H30 L17 55 V42 H6 Z" fill="#ff8a3d" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><text x="32" y="36" text-anchor="middle" font-size="28" font-weight="700" fill="#fff" stroke="#2f2a4a" stroke-width="5" paint-order="stroke">?</text>',
+  adaptar: '<path d="M8 20 H24 A7 7 0 1 1 38 20 H54 V34 A7 7 0 1 0 54 48 V58 H8 V46 A7 7 0 1 0 8 32 Z" fill="#4fd6a6" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/>',
+  brincadeira: '<path d="M34 58 H62" stroke="#2f2a4a" stroke-width="4" stroke-linecap="round"/><path d="M38 57 L48 14 L58 57 Z" fill="#ff8a3d" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><path d="M43 39 H53" stroke="#fff" stroke-width="5"/><circle cx="20" cy="42" r="14" fill="#4da3ff" stroke="#2f2a4a" stroke-width="4"/><path d="M9 38 Q20 46 31 38 M17 29 Q24 42 18 55" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>',
+  revisar: '<rect x="6" y="6" width="36" height="48" rx="5" fill="#fff" stroke="#2f2a4a" stroke-width="4"/><path d="M13 18 H35 M13 27 H28 M13 36 H22" stroke="#8cc4ff" stroke-width="4" stroke-linecap="round"/><path d="M48 48 L58 58" stroke="#2f2a4a" stroke-width="7" stroke-linecap="round"/><circle cx="40" cy="40" r="12" fill="#fff1a8" stroke="#2f2a4a" stroke-width="4"/><path d="M33 41 q3.5 -4 7 0 t7 0" stroke="#ff5f8f" stroke-width="3" fill="none" stroke-linecap="round"/>',
+  familias: '<rect x="5" y="14" width="54" height="38" rx="5" fill="#fff" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><path d="M7 17 L32 36 L57 17" fill="none" stroke="#2f2a4a" stroke-width="4" stroke-linejoin="round"/><path transform="translate(39 33) scale(.75)" d="M12 21 C12 21 3 14.5 3 8.5 A4.5 4.5 0 0 1 12 6.5 A4.5 4.5 0 0 1 21 8.5 C21 14.5 12 21 12 21 Z" fill="#ff5f8f" stroke="#2f2a4a" stroke-width="3.5" stroke-linejoin="round"/>',
+}
+
+// Giving every card a tip when its prompt has none of its own
+const TIPS = {
+  jogo: "No Gemini, ative o Canvas no menu de ferramentas antes de enviar: o jogo aparece pronto para testar ao lado da conversa.",
+  other: "Revise a resposta antes de usar com a turma: o Gemini pode errar fatos ou usar palavras difíceis para a idade.",
+}
+
+const ASK = "Antes de criar, me faça até 3 perguntas para entender melhor o que eu preciso. Só comece depois das minhas respostas."
+const GEMINI = "https://gemini.google.com/app"
+
+const $ = id => document.getElementById(id)
+const escape = text => text.replace(/[&<>"]/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[character])
+const fold = text => text.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
+const iconOf = kind => `<svg viewBox="0 0 64 64" aria-hidden="true">${KIND_ICONS[kind]}</svg>`
+const filters = { stage: "", kind: "", words: [] }
+
+// Writing the prompt as plain text with labelled parts, the same format the builder copies
+function toText(prompt) {
+  return [
+    `Papel: ${prompt.role}`,
+    `Tarefa: ${prompt.task}`,
+    `Contexto:\n${prompt.context.map(line => `- ${line}`).join("\n")}`,
+    `Formato:\n${prompt.format.map(line => line.startsWith("MATERIAL") ? `\n${line}` : `- ${line}`).join("\n")}`,
+    prompt.ask && ASK,
+  ].filter(Boolean).join("\n\n")
+}
+
+// Marking the parts between brackets, so the teacher sees at once what to change
+const marked = text => escape(text).replace(/\[[^\]]*\]/g, part => `<mark>${part}</mark>`).replace(/\n/g, "<br>")
+const list = lines => `<ul>${lines.map(line => `<li${line.startsWith("MATERIAL") ? ' class="paste"' : ""}>${marked(line)}</li>`).join("")}</ul>`
+
+// Drawing one card: the coloured top, the four parts like the builder, the buttons and the tip
+function cardHTML(prompt, index) {
+  const stage = STAGES[prompt.stage], kind = KINDS[prompt.kind]
+  return `
+  <article class="pcard" style="--tint: ${kind.tint}">
+    <div class="pcard-head">
+      <span class="kind-icon">${iconOf(prompt.kind)}</span>
+      <div>
+        <h3>${escape(prompt.title)}</h3>
+        <div class="tags"><span class="tag" style="--c: ${stage.light}">${stage.label}</span><span class="tag">${kind.label}</span></div>
+      </div>
+    </div>
+    <div class="pcard-body">
+      <p class="area"><b>${stage.area}:</b> ${escape(prompt.area)}</p>
+      <div class="prompt">
+        <div class="part role-part"><b class="role"><i>P</i>Papel</b><p>${marked(prompt.role)}</p></div>
+        <div class="part task-part"><b class="task"><i>T</i>Tarefa</b><p>${marked(prompt.task)}</p></div>
+        <div class="part context-part"><b class="context"><i>C</i>Contexto</b>${list(prompt.context)}</div>
+        <div class="part format-part"><b class="format"><i>F</i>Formato</b>${list(prompt.format)}</div>
+        ${prompt.ask ? `<div class="part ask-part"><b style="--c: #e2dbff"><i>?</i>Antes de começar</b><p>${ASK}</p></div>` : ""}
+      </div>
+      <div class="actions">
+        <button class="btn copy" type="button" data-copy="${index}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8 H19 A1.5 1.5 0 0 1 20.5 9.5 V19.5 A1.5 1.5 0 0 1 19 21 H9 A1.5 1.5 0 0 1 7.5 19.5 V9.5 A1.5 1.5 0 0 1 9 8 Z M16 8 V4.5 A1.5 1.5 0 0 0 14.5 3 H5 A1.5 1.5 0 0 0 3.5 4.5 V14.5 A1.5 1.5 0 0 0 5 16 H7.5" fill="#fff" stroke="#2f2a4a" stroke-width="2.4" stroke-linejoin="round"/></svg>Copiar prompt</button>
+        <a class="btn open" href="${GEMINI}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 C12.8 8.5 15.5 11.2 22 12 C15.5 12.8 12.8 15.5 12 22 C11.2 15.5 8.5 12.8 2 12 C8.5 11.2 11.2 8.5 12 2 Z" fill="#fff" stroke="#2f2a4a" stroke-width="2.2" stroke-linejoin="round"/></svg>Abrir o Gemini</a>
+        <span class="copied" role="status"></span>
+      </div>
+      <p class="tip"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 A6.5 6.5 0 0 0 8.2 14.3 V17 H15.8 V14.3 A6.5 6.5 0 0 0 12 2.5 Z" fill="#ffd23f" stroke="#2f2a4a" stroke-width="2" stroke-linejoin="round"/><path d="M9.5 20.5 H14.5" stroke="#2f2a4a" stroke-width="2.2" stroke-linecap="round"/></svg><span><b>Dica:</b> ${escape(prompt.tip || TIPS[prompt.kind] || TIPS.other)}</span></p>
+    </div>
+  </article>`
+}
+
+// Building the chips: all the stages and all the kinds, each with a little count
+function chipHTML(filter, value, content, extraClass = "") {
+  return `<button type="button" class="chip ${extraClass}" data-filter="${filter}" data-value="${value}" aria-pressed="${value === ""}">${content}<span class="n"></span></button>`
+}
+$("stage-chips").innerHTML = chipHTML("stage", "", "Todas as turmas") + Object.entries(STAGES).map(([id, stage]) =>
+  chipHTML("stage", id, `<span class="dot" style="--c: ${stage.color}"></span><span>${stage.label}<small>${stage.ages}</small></span>`)).join("")
+$("kind-chips").innerHTML = chipHTML("kind", "", "Todos os tipos") + Object.entries(KINDS).map(([id, kind]) =>
+  chipHTML("kind", id, `${iconOf(id)}<span>${kind.label}</span>`, "has-icon")).join("")
+
+$("library").innerHTML = PROMPTS.map(cardHTML).join("")
+const cards = [...document.querySelectorAll(".pcard")]
+const chips = [...document.querySelectorAll(".chip")]
+
+// Searching in everything a teacher could type: title, stage, kind, area and the prompt itself
+const haystacks = PROMPTS.map(prompt => fold([prompt.title, STAGES[prompt.stage].label, STAGES[prompt.stage].ages, KINDS[prompt.kind].label, prompt.area, toText(prompt)].join(" ")))
+
+const matches = (index, ignore) => {
+  const prompt = PROMPTS[index]
+  return (ignore === "stage" || !filters.stage || prompt.stage === filters.stage)
+    && (ignore === "kind" || !filters.kind || prompt.kind === filters.kind)
+    && filters.words.every(word => haystacks[index].includes(word))
+}
+
+// Filtering the cards, updating the counts and showing the empty message when nothing is left
+function applyFilters(animate = true) {
+  let shown = 0
+  cards.forEach((card, index) => {
+    const visible = matches(index)
+    card.hidden = !visible
+    if (!visible) return
+    shown++
+    if (animate) { card.classList.remove("pop"); void card.offsetWidth; card.classList.add("pop") }
+  })
+  chips.forEach(chip => {
+    const { filter, value } = chip.dataset
+    const total = PROMPTS.filter((prompt, index) => matches(index, filter) && (!value || prompt[filter] === value)).length
+    chip.querySelector(".n").textContent = total
+    chip.classList.toggle("zero", total === 0)
+    chip.setAttribute("aria-pressed", String(filters[filter] === value))
+  })
+  $("count").textContent = `${shown} ${shown === 1 ? "prompt" : "prompts"}`
+  $("empty").hidden = shown > 0
+  $("clear").hidden = !filters.stage && !filters.kind && !filters.words.length
+}
+
+function clearFilters() {
+  Object.assign(filters, { stage: "", kind: "", words: [] })
+  $("search").value = ""
+  applyFilters()
+}
+
+// Copying with the clipboard API, and falling back to a hidden text box when the page was opened from a file
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text)
+  } catch {
+    const box = document.createElement("textarea")
+    box.value = text
+    document.body.append(box)
+    box.select()
+    document.execCommand("copy")
+    box.remove()
+  }
+}
+
+document.querySelectorAll(".chips").forEach(group => group.addEventListener("click", event => {
+  const chip = event.target.closest(".chip")
+  if (!chip) return
+  const { filter, value } = chip.dataset
+  filters[filter] = filters[filter] === value ? "" : value
+  applyFilters()
+}))
+$("search").addEventListener("input", () => {
+  filters.words = fold($("search").value).split(/\s+/).filter(Boolean)
+  applyFilters()
+})
+$("clear").addEventListener("click", clearFilters)
+$("clear-empty").addEventListener("click", clearFilters)
+$("library").addEventListener("click", async event => {
+  const button = event.target.closest("[data-copy]")
+  if (!button) return
+  await copyText(toText(PROMPTS[Number(button.dataset.copy)]))
+  const status = button.parentElement.querySelector(".copied")
+  status.textContent = "Copiado! Agora cole no Gemini."
+  clearTimeout(status.timer)
+  status.timer = setTimeout(() => { status.textContent = "" }, 4000)
+})
+applyFilters(false)
+</script>
+</body>
+</html>

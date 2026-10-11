@@ -34,7 +34,20 @@
 ## Oficina de Prompts para professores
 
 - **[Oficina de Prompts](https://medeiros08.github.io/Jogo-ES/oficina/)**: a formação em quatro encontros.
+- **[Jogo do Prompt](https://medeiros08.github.io/Jogo-ES/jogo-do-prompt/)**: monte o pedido com as quatro peças e veja o que o Gemini faria.
 - **[Construtor de prompts](https://medeiros08.github.io/Jogo-ES/prompt/)**: monte um pedido pronto para colar no Gemini.
+- **[Biblioteca de prompts](https://medeiros08.github.io/Jogo-ES/biblioteca/)**: prompts de partida por etapa e tipo de material.
+- **[Gems prontos](https://medeiros08.github.io/Jogo-ES/gems/)**: seis assistentes com instruções para copiar.
+- **[Guia do professor](https://medeiros08.github.io/Jogo-ES/guia/)**: o método, exemplos, BNCC, inclusão, privacidade e o checklist, em PDF.
+- **[Galeria de jogos](https://medeiros08.github.io/Jogo-ES/galeria/)**: os jogos que os professores criam na oficina.
+
+### Para quem dá a oficina
+
+- **[Roteiro do formador](https://medeiros08.github.io/Jogo-ES/formador/)**: os quatro encontros passo a passo, em PDF.
+- **[Slides dos encontros](https://medeiros08.github.io/Jogo-ES/encontros/)**: um para cada encontro, para o projetor.
+- **[Caderno do participante](https://medeiros08.github.io/Jogo-ES/caderno/)**: cinco folhas de prática, em PDF.
+- **[Avaliação do encontro](https://medeiros08.github.io/Jogo-ES/avaliacao/)**: folha anônima, em PDF, ou perguntas para o Google Forms.
+- **[Certificado da oficina](https://medeiros08.github.io/Jogo-ES/certificado-oficina/)**: escreva os nomes dos professores e imprima.
 
 Todos esses links são curtos e podem ser ditados ou escritos no quadro, por exemplo **medeiros08.github.io/Jogo-ES/ninja**.
 
